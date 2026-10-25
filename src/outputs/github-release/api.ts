@@ -18,6 +18,7 @@
  */
 
 import type { Octokit } from "@octokit/rest";
+import { parseSemver } from "../../core/util/semver";
 
 /**
  * GitHub Release object from the API
@@ -169,15 +170,6 @@ export async function createRelease(
 }
 
 /**
- * A SemVer version at the end of a tag, after an optional prefix such as
- * `v`, `release-` or `devtools-v`.
- *
- * @see https://semver.org/#spec-item-9
- */
-const SEMVER_TAG =
-  /^(?:.*?[-_/@])?v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?$/;
-
-/**
  * Determine if a tag names a SemVer pre-release: a version with a
  * pre-release component after a hyphen, such as `v1.2.0-rc.1`. Text before
  * the version does not count, so `devtools-v1.2.0` is not a pre-release.
@@ -186,8 +178,7 @@ const SEMVER_TAG =
  * @returns True if the tag's version has a pre-release component
  */
 export function isSemverPrerelease(tag: string): boolean {
-  const match = SEMVER_TAG.exec(tag.trim());
-  return Boolean(match?.[4]);
+  return (parseSemver(tag)?.prerelease.length ?? 0) > 0;
 }
 
 /**
