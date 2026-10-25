@@ -1,0 +1,2930 @@
+{
+  "sourceCommit": "7d1d56f8",
+  "vitest": "4.0.18",
+  "files": {
+    "packages/shared/src/prompts/index.test.ts": "test/carried/prompt/prompts.test.ts",
+    "packages/shared/src/llm/index.test.ts": "test/carried/llm/call.test.ts",
+    "packages/shared/src/utils/enhanced-classification.test.ts": "test/carried/classify/rules.test.ts",
+    "packages/shared/src/utils/classification-patterns.test.ts": "test/carried/classify/patterns.test.ts",
+    "packages/shared/src/utils/__tests__/llm-sanitize.test.ts": "test/carried/sanitize/llm.test.ts",
+    "packages/shared/src/utils/github.test.ts": "test/carried/classify/linked-issues.test.ts",
+    "packages/shared/src/utils/index.test.ts": "test/carried/sanitize/redact.test.ts",
+    "packages/shared/src/utils/retry.test.ts": "test/carried/util/retry.test.ts",
+    "packages/shared/src/github-releases.test.ts": "test/carried/outputs/github-release-api.test.ts",
+    "apps/app/src/lib/persona-utils.test.ts": "test/carried/prompt/tone.test.ts",
+    "apps/app/src/lib/publishers/changelog.test.ts": "test/carried/outputs/changelog.test.ts",
+    "apps/app/src/lib/publishers/__tests__/sanitize.test.ts": "test/carried/sanitize/publish.test.ts"
+  },
+  "tests": [
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "Prompt Constants > should have valid prompt version",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "Prompt Constants > should have non-empty system prompt",
+      "status": "edit",
+      "reason": "Re-asserted: the system prompt no longer names ReleaseRay (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "Prompt Constants > should have anti-hallucination rules in system prompt",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "Prompt Constants > should have normalizer prompt",
+      "status": "retire",
+      "reason": "Tests a normalizer or classifier prompt that is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "Prompt Constants > should have classifier prompt",
+      "status": "retire",
+      "reason": "Tests a normalizer or classifier prompt that is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "Generation Thresholds > should have reasonable minimum PR threshold",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "Generation Thresholds > should have warn threshold higher than minimum",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "Generation Thresholds > should have reasonable content length thresholds",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Valid Cases > should validate input with sufficient PRs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Valid Cases > should validate input with sufficient commits",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Valid Cases > should calculate correct content length",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Valid Cases > should handle PRs with null body",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Invalid Cases > should reject when no PRs or commits",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Invalid Cases > should reject when insufficient PRs and commits",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Invalid Cases > should reject when content length too short",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Warning Cases > should warn when PR count is low but valid",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Warning Cases > should warn when content volume is low but valid",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Warning Cases > should have no warning for good data",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Edge Cases > should handle PRs with very long bodies",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Edge Cases > should handle mix of PRs and commits",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Edge Cases > should handle empty commit messages",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Edge Cases > should handle undefined vs null body",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/prompts/index.test.ts",
+      "fullName": "validateGenerationInput > Edge Cases > should handle special characters in content",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMWithSchema > should call provider with correct parameters",
+      "status": "edit",
+      "reason": "Passes the provider explicitly instead of a mocked resolveProvider (issue 6)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMWithSchema > should use default maxTokens when not specified",
+      "status": "edit",
+      "reason": "Passes the provider explicitly instead of a mocked resolveProvider (issue 6)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMWithSchema > should return validated output",
+      "status": "edit",
+      "reason": "Passes the provider explicitly instead of a mocked resolveProvider (issue 6)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMWithSchema > should return metrics with cost when returnMetrics is true",
+      "status": "edit",
+      "reason": "Passes the provider explicitly instead of a mocked resolveProvider (issue 6)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMWithSchema > should throw error when provider returns no content",
+      "status": "edit",
+      "reason": "Passes the provider explicitly instead of a mocked resolveProvider (issue 6)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMWithSchema > should throw error on API failures",
+      "status": "edit",
+      "reason": "Passes the provider explicitly instead of a mocked resolveProvider (issue 6)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMWithSchema > should throw error when response doesn't match schema",
+      "status": "edit",
+      "reason": "Passes the provider explicitly instead of a mocked resolveProvider (issue 6)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMWithSchema > should throw error when response is invalid JSON",
+      "status": "edit",
+      "reason": "Passes the provider explicitly instead of a mocked resolveProvider (issue 6)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMWithSchema > should handle complex nested schemas",
+      "status": "edit",
+      "reason": "Passes the provider explicitly instead of a mocked resolveProvider (issue 6)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "calculateCost > should calculate OpenAI gpt-5-mini cost correctly",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "calculateCost > should calculate Bedrock Claude 4.5 Haiku cost correctly (inference profile ID)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "calculateCost > should calculate Bedrock Claude 4.5 Sonnet cost correctly (inference profile ID)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "calculateCost > should return zero cost for unknown models",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "calculateCost > should handle zero tokens",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "calculateCost > should have pricing data for all documented models",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "parseWithSchema > should parse valid JSON with schema",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "parseWithSchema > should throw error for invalid JSON",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "parseWithSchema > should throw error when JSON doesn't match schema",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "parseWithSchema > should throw error for wrong types",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "parseWithSchema > should handle empty objects when schema allows",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "parseWithSchema > should handle arrays",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "parseWithSchema > should validate nested structures",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "parseWithSchema > should throw error for invalid email in nested structure",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreaming > should stream text chunks from provider",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreaming > should call onChunk callback for each chunk",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreaming > should call onStart callback",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreaming > should call onComplete with full text",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreaming > should pass maxTokens to provider",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreaming > should handle abort signal",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreaming > should call onError on failure",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreamingToString > should return complete text from stream",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreamingToString > should work with empty stream",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreamingToString > should pass options to streaming function",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/llm/index.test.ts",
+      "fullName": "callLLMStreamingToString > should handle errors",
+      "status": "retire",
+      "reason": "Streaming functions are not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges > should classify feature PRs correctly",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges > should classify bug fixes correctly",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges > should prioritize breaking changes",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges > should prioritize security issues",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges > should classify performance improvements",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges > should include confidence scores",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges > should include classification signals",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges > should handle PRs with no labels",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges > should truncate long titles and descriptions",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedFallbackClassification > should classify PRs without LLM calls",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedFallbackClassification > should handle breaking changes in fallback mode",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedFallbackClassification > should detect security issues in fallback mode",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedFallbackClassification > should default to Improvements for unclassifiable PRs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedFallbackClassification > should include medium confidence for fallback classifications",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges with comments > should detect security issues from PR comments",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges with comments > should detect breaking changes from PR comments",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges with comments > should detect performance improvements from comments",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges with comments > should detect deprecation mentions from comments",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges with comments > should work with PRs without comments",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges with comments > should work with PRs with undefined comments",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges with comments > should analyze issue comments for linked issues",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges with comments > should extract key points from review comments",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
+      "fullName": "enhancedClassifyChanges with comments > should handle multiple comment types",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > Pattern Constants > should have breaking patterns defined",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > Pattern Constants > should have security patterns defined",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > Pattern Constants > should have deprecation patterns defined",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > Pattern Constants > should have performance patterns defined",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > Pattern Constants > should have bug fix patterns defined",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > Pattern Constants > should have feature patterns defined",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > Pattern Constants > should have enhancement patterns defined",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > Pattern Constants > should have documentation patterns defined",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > Pattern Constants > should have internal patterns defined",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Breaking Changes > should detect conventional commit breaking change",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Breaking Changes > should detect BREAKING CHANGE in body",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Breaking Changes > should detect [breaking] tag",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Breaking Changes > should detect migration required",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Breaking Changes > should detect removed API",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Security > should detect CVE identifiers",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Security > should detect security fix keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Security > should detect XSS vulnerability",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Security > should detect SQL injection",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Deprecations > should detect deprecated keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Deprecations > should detect will be removed",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Deprecations > should detect please use instead pattern",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Performance > should detect performance improvement",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Performance > should detect faster keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Performance > should detect percentage faster",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Performance > should detect X times faster",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Performance > should detect cache keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Bug Fixes > should detect fix: conventional commit",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Bug Fixes > should detect fixes bug keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Bug Fixes > should detect closes #123",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Bug Fixes > should detect bugfix keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Features > should detect feat: conventional commit",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Features > should detect add new feature",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Features > should detect implement keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Enhancements > should detect enhanced keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Enhancements > should detect improved keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Enhancements > should detect updated keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Documentation > should detect docs: conventional commit",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Documentation > should detect documentation keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Documentation > should detect README keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Internal > should detect refactor: conventional commit",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Internal > should detect chore: conventional commit",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Internal > should detect test keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Multiple Categories > should detect multiple categories in single text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Edge Cases > should return empty array for non-matching text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Edge Cases > should return empty array for empty string",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > detectPatterns > Edge Cases > should handle very long text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should parse feat: commit",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should parse fix: commit",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should parse commit with scope",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should parse breaking commit with !",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should parse breaking commit with scope and !",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should map perf to Performance category",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should map docs to Docs category",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should map refactor to Internal category",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should map test to Internal category",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should map chore to Internal category",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Valid Commits > should map unknown type to Improvements",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Invalid Commits > should return null for non-conventional message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Invalid Commits > should return null for empty string",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parseConventionalCommit > Invalid Commits > should return null for message without colon",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > analyzeCommits > should analyze single conventional commit",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > analyzeCommits > should detect breaking commit",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > analyzeCommits > should analyze multiple commits",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > analyzeCommits > should handle mixed conventional and non-conventional",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > analyzeCommits > should calculate confidence based on conventional ratio",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > analyzeCommits > should detect patterns in non-conventional commits",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > analyzeCommits > should handle empty commits array",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parsePRStructure > should parse markdown sections",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parsePRStructure > should parse checklist items",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parsePRStructure > should detect breaking change checkbox",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parsePRStructure > should detect migration checkbox",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parsePRStructure > should detect test section",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parsePRStructure > should detect migration section",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parsePRStructure > should detect breaking changes section",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > parsePRStructure > should handle empty body",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > extractStructureSignals > should return high confidence for breaking checkbox",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > extractStructureSignals > should return high confidence for breaking section",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > extractStructureSignals > should return confidence for migration section",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > extractStructureSignals > should return default confidence for structure without breaking signals",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/classification-patterns.test.ts",
+      "fullName": "Classification Patterns > extractStructureSignals > should prefer breaking checkbox over other signals",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > code block removal > should remove code blocks",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > code block removal > should remove multiple code blocks",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > inline code with secrets > should redact inline code with 'key' keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > inline code with secrets > should redact inline code with 'token' keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > inline code with secrets > should redact inline code with 'secret' keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > inline code with secrets > should redact inline code with 'password' keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > inline code with secrets > should preserve safe inline code",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > URLs with tokens in query params > should redact URLs with token param",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > URLs with tokens in query params > should redact URLs with key param",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > URLs with tokens in query params > should redact URLs with api_key param",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > URLs with tokens in query params > should preserve safe URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > secret pattern redaction > should redact generic API keys",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > secret pattern redaction > should redact Bearer tokens",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > secret pattern redaction > should redact AWS access keys",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > secret pattern redaction > should redact GitHub tokens (ghp_)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > secret pattern redaction > should redact GitHub tokens (gho_)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > secret pattern redaction > should redact OpenAI API keys",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > secret pattern redaction > should redact Slack tokens",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > secret pattern redaction > should redact Stripe API keys",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > secret pattern redaction > should redact JWT tokens",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > edge cases > should handle null input",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > edge cases > should handle undefined input",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > edge cases > should handle empty string",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > edge cases > should preserve safe text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > edge cases > should preserve issue/PR references",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > real-world PR body scenarios > should sanitize a PR body with secrets in code block",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > real-world PR body scenarios > should handle PR body with inline secrets",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > real-world PR body scenarios > should preserve technical details while removing secrets",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForLLM > combined patterns > should handle multiple secret types in same text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > credential removal > should remove API keys with equals sign",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > credential removal > should remove tokens with colon",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > credential removal > should remove AWS access keys",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > credential removal > should remove GitHub tokens",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > credential removal > should remove OpenAI API keys",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > credential removal > should remove Stripe keys",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > credential removal > should remove Slack tokens",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > credential removal > should remove JWT tokens",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > edge cases > should handle null input",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > edge cases > should handle undefined input",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeForStorage > edge cases > should preserve safe text",
+      "status": "retire",
+      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > @mention anonymization > should anonymize @mentions",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > @mention anonymization > should anonymize multiple @mentions",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > @mention anonymization > should preserve bot mentions",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > @mention anonymization > should preserve bot mentions with different names",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > email redaction > should redact email addresses",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > email redaction > should redact multiple email addresses",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > internal URL filtering > should filter localhost URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > internal URL filtering > should filter 127.0.0.1 URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > internal URL filtering > should filter 192.168.x.x URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > internal URL filtering > should filter 10.x.x.x URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > internal URL filtering > should preserve public URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > file path removal > should remove file paths",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > file path removal > should preserve short paths",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > truncation > should truncate long comments",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > truncation > should not truncate short comments",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > truncation > should respect custom max length",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > edge cases > should handle null input",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > edge cases > should handle undefined input",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > edge cases > should trim whitespace",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommentForLLM > real-world comment scenarios > should sanitize a review comment",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommitForLLM > git metadata removal > should remove Co-authored-by lines",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommitForLLM > git metadata removal > should remove Signed-off-by lines",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommitForLLM > git metadata removal > should remove Reviewed-by lines",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommitForLLM > git metadata removal > should remove Acked-by lines",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommitForLLM > git metadata removal > should remove Cc lines",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommitForLLM > combined scenarios > should handle a full commit message with multiple metadata",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommitForLLM > edge cases > should handle null input",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommitForLLM > edge cases > should handle undefined input",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommitForLLM > edge cases > should handle simple commit messages",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
+      "fullName": "sanitizeCommitForLLM > edge cases > should collapse multiple newlines from removed lines",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Closing Keywords > should extract issues with \"fixes\" keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Closing Keywords > should extract issues with \"fixed\" keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Closing Keywords > should extract issues with \"closes\" keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Closing Keywords > should extract issues with \"closed\" keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Closing Keywords > should extract issues with \"close\" keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Closing Keywords > should extract issues with \"resolves\" keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Closing Keywords > should extract issues with \"resolved\" keyword",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Closing Keywords > should be case insensitive",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Bare Issue References > should extract bare issue reference at start",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Bare Issue References > should extract bare issue reference after space",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Bare Issue References > should extract multiple bare references",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Multiple Issues > should extract multiple issues from complex text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Multiple Issues > should deduplicate issue numbers",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Multiple Issues > should sort issues numerically",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Edge Cases > should return empty array for empty string",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Edge Cases > should return empty array for null-like values",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Edge Cases > should return empty array for undefined",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Edge Cases > should not extract issue from URL path",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Edge Cases > should handle text without any issue references",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Edge Cases > should handle very large issue numbers",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > extractLinkedIssues > Edge Cases > should handle issue in markdown link",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > BREAKING CHANGE Pattern > should detect \"BREAKING CHANGE\" in text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > BREAKING CHANGE Pattern > should detect \"Breaking Change\" case insensitive",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > BREAKING CHANGE Pattern > should detect \"breaking change\" lowercase",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > [breaking] Pattern > should detect \"[breaking]\" tag",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > [breaking] Pattern > should detect \"[BREAKING]\" uppercase",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > breaking: Pattern > should detect \"breaking:\" prefix",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > breaking: Pattern > should detect \"BREAKING:\" uppercase",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > Conventional Commits ! Pattern > should detect \"feat!:\" pattern",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > Conventional Commits ! Pattern > should detect \"fix!:\" pattern",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > Conventional Commits ! Pattern > should detect \"chore!:\" pattern",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > Conventional Commits ! Pattern > should detect ! with space before colon",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > Non-Breaking Changes > should return false for normal commit message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > Non-Breaking Changes > should return false for empty string",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > Non-Breaking Changes > should return false for null-like values",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasBreakingChange > Non-Breaking Changes > should return false for \"break\" without \"ing\"",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > DEPRECATION Pattern > should detect \"DEPRECATED\" in text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > DEPRECATION Pattern > should detect \"DEPRECATION\" in text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > DEPRECATION Pattern > should be case insensitive",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > [deprecated] Pattern > should detect \"[deprecated]\" tag",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > [deprecated] Pattern > should detect \"[DEPRECATED]\" uppercase",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > deprecate: and deprecating: Patterns > should detect \"deprecate:\" prefix",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > deprecate: and deprecating: Patterns > should detect \"deprecating:\" prefix",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > Non-Deprecation Text > should return false for normal commit message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > Non-Deprecation Text > should return false for empty string",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > Non-Deprecation Text > should return false for null-like values",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > hasDeprecation > Non-Deprecation Text > should return false for \"deprec\" without full word",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Simple Type Messages > should parse feat: message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Simple Type Messages > should parse fix: message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Simple Type Messages > should parse chore: message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Simple Type Messages > should parse docs: message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Simple Type Messages > should parse test: message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Simple Type Messages > should parse refactor: message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Simple Type Messages > should parse perf: message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Type with Scope > should parse type(scope): message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Type with Scope > should parse scope with dashes",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Type with Scope > should parse scope with underscores",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Breaking Changes (! notation) > should detect breaking change with !",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Breaking Changes (! notation) > should detect breaking change with scope and !",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Breaking Changes (! notation) > should handle ! with complex scope",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Non-Conventional Messages > should return original message as subject when not conventional",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Non-Conventional Messages > should handle message with colon but no type",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Non-Conventional Messages > should handle empty message",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Edge Cases > should handle message with special characters in subject",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Edge Cases > should handle message with emoji in subject",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Edge Cases > should handle message with unicode",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/github.test.ts",
+      "fullName": "GitHub Utilities > parseConventionalCommit > Edge Cases > should handle very long scope",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > verifyGitHubSignature > should verify valid signature",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > verifyGitHubSignature > should reject invalid signature",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > verifyGitHubSignature > should reject signature without sha256 prefix",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > verifyGitHubSignature > should reject empty signature",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > verifyGitHubSignature > should handle wrong secret",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > verifyGitHubSignature > should handle malformed signature hex",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > generateIdempotencyKey > should generate consistent key for same inputs",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > generateIdempotencyKey > should generate different keys for different inputs",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > generateIdempotencyKey > should handle single input",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > generateIdempotencyKey > should handle multiple inputs",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > generateIdempotencyKey > should be order-sensitive",
+      "status": "retire",
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactInternalLinks > should preserve GitHub URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactInternalLinks > should preserve GitLab URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactInternalLinks > should redact internal URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactInternalLinks > should allow custom domains",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactInternalLinks > should redact multiple URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactInternalLinks > should handle invalid URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactInternalLinks > should handle URLs in markdown",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactFilePaths > should redact Unix paths",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactFilePaths > should redact relative paths",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactFilePaths > should redact nested paths",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactFilePaths > should preserve non-path text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactSensitiveInfo > should redact both URLs and paths by default",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactSensitiveInfo > should preserve allowed domains",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactSensitiveInfo > should skip path redaction when disabled",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactSensitiveInfo > should use custom allowed domains",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/index.test.ts",
+      "fullName": "Shared Utilities > redactSensitiveInfo > should handle complex text",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryWithBackoff > should return result on first success",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryWithBackoff > should retry on retryable error",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryWithBackoff > should not retry on non-retryable error",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryWithBackoff > should throw after max attempts",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryWithBackoff > should call onRetry callback",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryWithBackoff > should use custom retryable errors",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryWithBackoff > should handle non-Error exceptions",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryWithBackoff > should retry on 429 rate limit",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryWithBackoff > should retry on 503 service unavailable",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryPrismaOperation > should retry on Prisma connection timeout",
+      "status": "retire",
+      "reason": "retryPrismaOperation is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryPrismaOperation > should retry on P1001 database unreachable",
+      "status": "retire",
+      "reason": "retryPrismaOperation is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryPrismaOperation > should not retry on validation error",
+      "status": "retire",
+      "reason": "retryPrismaOperation is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryLLMCall > should use higher max attempts for LLM calls",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryLLMCall > should retry on timeout errors",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/utils/retry.test.ts",
+      "fullName": "Retry Utilities > retryLLMCall > should retry on socket hang up",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getPreviousTag > should return previous tag for first release in array",
+      "status": "retire",
+      "reason": "getPreviousTag is replaced by the ancestry-gated range resolver (PD-5)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getPreviousTag > should return previous tag for middle release",
+      "status": "retire",
+      "reason": "getPreviousTag is replaced by the ancestry-gated range resolver (PD-5)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getPreviousTag > should return null for last release (oldest)",
+      "status": "retire",
+      "reason": "getPreviousTag is replaced by the ancestry-gated range resolver (PD-5)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getPreviousTag > should return null for out of bounds index",
+      "status": "retire",
+      "reason": "getPreviousTag is replaced by the ancestry-gated range resolver (PD-5)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getPreviousTag > should return null for empty array",
+      "status": "retire",
+      "reason": "getPreviousTag is replaced by the ancestry-gated range resolver (PD-5)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getPreviousTag > should return null for single release array",
+      "status": "retire",
+      "reason": "getPreviousTag is replaced by the ancestry-gated range resolver (PD-5)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getPreviousTag > should handle array with two releases",
+      "status": "retire",
+      "reason": "getPreviousTag is replaced by the ancestry-gated range resolver (PD-5)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Alpha Releases > should detect alpha in tag",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Alpha Releases > should detect alpha.1 format",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Alpha Releases > should detect ALPHA uppercase",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Beta Releases > should detect beta in tag",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Beta Releases > should detect beta.2 format",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Beta Releases > should detect BETA uppercase",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Release Candidate (RC) > should detect rc in tag",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Release Candidate (RC) > should detect rc.1 format",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Release Candidate (RC) > should detect RC uppercase",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Dev Releases > should detect dev in tag",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Dev Releases > should detect dev.123 format",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Preview Releases > should detect preview in tag",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Preview Releases > should detect preview.1 format",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Canary Releases > should detect canary in tag",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Canary Releases > should detect canary.abc123 format",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Next Releases > should detect next in tag",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Next Releases > should detect next.1 format",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Stable Releases > should return false for stable semver tag",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Stable Releases > should return false for stable tag without v prefix",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Stable Releases > should return false for patch version",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Stable Releases > should return false for tag with release suffix",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Stable Releases > should return false for tag with stable suffix",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Edge Cases > should handle empty string",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Edge Cases > should handle just version number",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Edge Cases > should detect pre-release indicator anywhere in tag",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > isPreReleaseTag > Edge Cases > should handle mixed case",
+      "status": "edit",
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > generateCompareUrl > should generate correct compare URL",
+      "status": "edit",
+      "reason": "Passes a server URL argument (issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > generateCompareUrl > should handle tags without v prefix",
+      "status": "edit",
+      "reason": "Passes a server URL argument (issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > generateCompareUrl > should handle organization with hyphens",
+      "status": "edit",
+      "reason": "Passes a server URL argument (issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > generateCompareUrl > should handle pre-release tags",
+      "status": "edit",
+      "reason": "Passes a server URL argument (issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > generateCompareUrl > should handle commit SHA as tag",
+      "status": "edit",
+      "reason": "Passes a server URL argument (issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > generateCompareUrl > should handle branch name as reference",
+      "status": "edit",
+      "reason": "Passes a server URL argument (issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > generateCompareUrl > should handle special characters in org/repo names",
+      "status": "edit",
+      "reason": "Passes a server URL argument (issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > generateCompareUrl > should generate URL for consecutive patch versions",
+      "status": "edit",
+      "reason": "Passes a server URL argument (issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > generateCompareUrl > should generate URL for major version jump",
+      "status": "edit",
+      "reason": "Passes a server URL argument (issue 7)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > fetchAllReleases > should fetch all releases",
+      "status": "retire",
+      "reason": "fetchAllReleases is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > fetchAllReleases > should filter out drafts by default",
+      "status": "retire",
+      "reason": "fetchAllReleases is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > fetchAllReleases > should include drafts when requested",
+      "status": "retire",
+      "reason": "fetchAllReleases is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > fetchAllReleases > should respect maxReleases limit",
+      "status": "retire",
+      "reason": "fetchAllReleases is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getReleaseById > should return release by ID",
+      "status": "retire",
+      "reason": "getReleaseById is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getReleaseById > should return null for 404",
+      "status": "retire",
+      "reason": "getReleaseById is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getReleaseById > should throw other errors",
+      "status": "retire",
+      "reason": "getReleaseById is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getReleaseByTag > should return release by tag",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getReleaseByTag > should return null for 404",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > getReleaseByTag > should throw other errors",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > releaseExistsForTag > should return true if release exists",
+      "status": "retire",
+      "reason": "releaseExistsForTag is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "packages/shared/src/github-releases.test.ts",
+      "fullName": "GitHub Releases Helpers > releaseExistsForTag > should return false if release does not exist",
+      "status": "retire",
+      "reason": "releaseExistsForTag is not lifted (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Basic Output Structure > should return a string with tone characteristics",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Basic Output Structure > should include all four dimensions",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Basic Output Structure > should include the slider values in output",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Formality Level > should use casual language for low formality (0-24)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Formality Level > should use conversational language for moderate-low formality (25-49)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Formality Level > should use professional but approachable for mid formality (50-74)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Formality Level > should use formal professional language for high formality (75-100)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Formality Level > should handle edge case of 0",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Formality Level > should handle edge case of 100",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Formality Level > should handle boundary at 25",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Formality Level > should handle boundary at 50",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Formality Level > should handle boundary at 75",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Technical Depth > should use plain language for low technical depth (0-24)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Technical Depth > should minimize jargon for moderate-low technical depth (25-49)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Technical Depth > should balance technical and plain for mid technical depth (50-74)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Technical Depth > should use full technical details for high technical depth (75-100)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Enthusiasm Level > should use matter-of-fact language for low enthusiasm (0-24)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Enthusiasm Level > should use neutral language for moderate-low enthusiasm (25-49)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Enthusiasm Level > should use positive but balanced for mid enthusiasm (50-74)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Enthusiasm Level > should use enthusiastic language for high enthusiasm (75-100)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Detail Level > should use brief descriptions for low detail (0-24)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Detail Level > should use concise descriptions for moderate-low detail (25-49)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Detail Level > should use moderate detail for mid detail level (50-74)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Detail Level > should use comprehensive detail for high detail level (75-100)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Persona Presets > should generate appropriate instructions for Engineer persona (high tech, formal)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Persona Presets > should generate appropriate instructions for Customer persona (low tech, enthusiastic)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Persona Presets > should generate appropriate instructions for Internal persona (balanced)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Persona Presets > should generate appropriate instructions for Executive Summary persona",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Edge Cases > should handle all zeros",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Edge Cases > should handle all 100s",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Edge Cases > should handle mixed extreme values",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Edge Cases > should produce consistent output for same inputs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
+      "fullName": "Persona Utilities > generatePersonaInstructions > Edge Cases > should produce different output for different inputs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "formatAsChangelog > should format entry with version, date, and content",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "formatAsChangelog > should include compare URL when provided",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "formatAsChangelog > should handle Unreleased version",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "parseChangelog > should parse simple changelog with one entry",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "parseChangelog > should parse multiple entries maintaining order",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "parseChangelog > should handle Unreleased section at top",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "parseChangelog > should extract compare URLs from footer",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "parseChangelog > should handle empty changelog",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "parseChangelog > should preserve header content",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Basic prepending behavior > should prepend new entry to empty changelog (newest first)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Basic prepending behavior > should prepend new entry at the TOP (newest first) - CRITICAL TEST",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Basic prepending behavior > should maintain reverse chronological order with multiple entries",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Idempotency (duplicate prevention) > should skip duplicate entry (idempotent behavior)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Idempotency (duplicate prevention) > should allow same version with different date (edge case)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Header and footer preservation > should preserve header at the top",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Header and footer preservation > should preserve compare URLs/footer",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Edge cases > should handle Unreleased section - KNOWN ISSUE",
+      "status": "edit",
+      "reason": "Re-asserted: a new entry lands below [Unreleased] (§7.3, issue 8)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Edge cases > should handle pre-release versions",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Edge cases > should handle multiple releases same day (maintains version order)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "prependToChangelog > Edge cases > should handle empty content sections",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "createDefaultChangelog > should create changelog with proper header",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "createDefaultChangelog > should include the first entry",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "createDefaultChangelog > should handle Unreleased as first entry",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "Industry standard compliance - Keep a Changelog > should follow 'newest first' standard (integration test)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "Industry standard compliance - Keep a Changelog > should match Keep a Changelog example structure",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Direct commit (unprotected branch) > should commit directly to unprotected branch",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Direct commit (unprotected branch) > should update existing CHANGELOG.md",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Direct commit (unprotected branch) > should use custom commit message when provided",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Direct commit (unprotected branch) > should include compare URL in changelog entry",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Pull Request (protected branch) > should create PR for protected branch",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Pull Request (protected branch) > should return existing PR if one already exists",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Error handling > should return error when content is empty",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Error handling > should handle API errors gracefully",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Error handling > should handle commit failure",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Error handling > should handle PR creation permission error",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Edge cases > should use 'Unreleased' as version when not provided",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
+      "fullName": "publishToChangelog > Edge cases > should generate fallback URL when html_url not returned",
+      "status": "retire",
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > internal URL redaction > should redact internal Slack URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > internal URL redaction > should redact internal Jira URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > internal URL redaction > should redact internal Linear URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > internal URL redaction > should preserve GitHub URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > internal URL redaction > should preserve GitLab URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > internal URL redaction > should allow custom allowed domains",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > file path redaction > should redact absolute file paths",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > file path redaction > should redact relative file paths",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > file path redaction > should not redact when redactPaths is false",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > API key and secret redaction > should redact generic API keys",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > API key and secret redaction > should redact Bearer tokens",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > API key and secret redaction > should redact AWS access keys",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > API key and secret redaction > should redact GitHub tokens",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > API key and secret redaction > should redact OpenAI API keys",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > API key and secret redaction > should redact Stripe API keys",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > API key and secret redaction > should redact Slack tokens",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > API key and secret redaction > should not redact when redactApiKeys is false",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > combined scenarios > should handle text with multiple redaction types",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > combined scenarios > should preserve PR references and issue numbers",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > combined scenarios > should handle empty strings",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > combined scenarios > should handle text with no sensitive data",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
+      "fullName": "sanitizeForPublishing > real-world release notes > should sanitize a typical engineer release note",
+      "status": "carry",
+      "reason": ""
+    }
+  ]
+}

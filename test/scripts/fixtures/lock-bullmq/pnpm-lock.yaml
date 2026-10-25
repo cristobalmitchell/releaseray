@@ -1,0 +1,20 @@
+lockfileVersion: '9.0'
+
+importers:
+
+  .:
+    dependencies:
+      bullmq:
+        specifier: 5.1.9
+        version: 5.1.9
+      zod:
+        specifier: 3.25.76
+        version: 3.25.76
+
+packages:
+
+  bullmq@5.1.9:
+    resolution: {integrity: sha512-AAAA}
+
+  zod@3.25.76:
+    resolution: {integrity: sha512-BBBB}
