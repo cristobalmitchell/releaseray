@@ -1,0 +1,46 @@
+name: Bug report
+description: Something went wrong in a workflow run
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Remove secrets and anything private before pasting. Never paste an API key or token.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "The `uses:` reference from your workflow, for example `cristobalmitchell/releaseray@<sha> # v1.2.0`."
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "Job summary of a `mode: doctor` run"
+      description: "Run the Action with `mode: doctor` on the same repository and paste its job summary."
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: validate-config
+    attributes:
+      label: "Output of a `mode: validate-config` run"
+      description: Paste it if the problem may be in `.releaseray/config.yml`.
+      render: text
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow file
+      description: The workflow that runs the Action, with secrets removed.
+      render: yaml
+  - type: textarea
+    id: config
+    attributes:
+      label: .releaseray/config.yml
+      render: yaml
