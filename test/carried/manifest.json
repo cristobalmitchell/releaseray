@@ -26,7 +26,7 @@
       "sourceFile": "packages/shared/src/prompts/index.test.ts",
       "fullName": "Prompt Constants > should have non-empty system prompt",
       "status": "edit",
-      "reason": "Re-asserted: the system prompt no longer names ReleaseRay (§6.2)"
+      "reason": "Re-asserted: the system prompt no longer names ReleaseRay (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/prompts/index.test.ts",
@@ -38,13 +38,13 @@
       "sourceFile": "packages/shared/src/prompts/index.test.ts",
       "fullName": "Prompt Constants > should have normalizer prompt",
       "status": "retire",
-      "reason": "Tests a normalizer or classifier prompt that is not lifted (§6.2)"
+      "reason": "Tests a normalizer or classifier prompt that is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/prompts/index.test.ts",
       "fullName": "Prompt Constants > should have classifier prompt",
       "status": "retire",
-      "reason": "Tests a normalizer or classifier prompt that is not lifted (§6.2)"
+      "reason": "Tests a normalizer or classifier prompt that is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/prompts/index.test.ts",
@@ -296,67 +296,67 @@
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreaming > should stream text chunks from provider",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreaming > should call onChunk callback for each chunk",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreaming > should call onStart callback",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreaming > should call onComplete with full text",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreaming > should pass maxTokens to provider",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreaming > should handle abort signal",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreaming > should call onError on failure",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreamingToString > should return complete text from stream",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreamingToString > should work with empty stream",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreamingToString > should pass options to streaming function",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/llm/index.test.ts",
       "fullName": "callLLMStreamingToString > should handle errors",
       "status": "retire",
-      "reason": "Streaming functions are not lifted (§6.2)"
+      "reason": "Streaming functions are not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/enhanced-classification.test.ts",
@@ -1154,67 +1154,67 @@
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > credential removal > should remove API keys with equals sign",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > credential removal > should remove tokens with colon",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > credential removal > should remove AWS access keys",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > credential removal > should remove GitHub tokens",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > credential removal > should remove OpenAI API keys",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > credential removal > should remove Stripe keys",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > credential removal > should remove Slack tokens",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > credential removal > should remove JWT tokens",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > edge cases > should handle null input",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > edge cases > should handle undefined input",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
       "fullName": "sanitizeForStorage > edge cases > should preserve safe text",
       "status": "retire",
-      "reason": "sanitizeForStorage has no production caller and is not lifted (§6.2)"
+      "reason": "sanitizeForStorage has no production caller and is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/__tests__/llm-sanitize.test.ts",
@@ -1802,67 +1802,67 @@
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > verifyGitHubSignature > should verify valid signature",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > verifyGitHubSignature > should reject invalid signature",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > verifyGitHubSignature > should reject signature without sha256 prefix",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > verifyGitHubSignature > should reject empty signature",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > verifyGitHubSignature > should handle wrong secret",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > verifyGitHubSignature > should handle malformed signature hex",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > generateIdempotencyKey > should generate consistent key for same inputs",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > generateIdempotencyKey > should generate different keys for different inputs",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > generateIdempotencyKey > should handle single input",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > generateIdempotencyKey > should handle multiple inputs",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
       "fullName": "Shared Utilities > generateIdempotencyKey > should be order-sensitive",
       "status": "retire",
-      "reason": "Tests crypto helpers from ./crypto, which is not lifted (§6.2)"
+      "reason": "Tests crypto helpers from ./crypto, which is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/index.test.ts",
@@ -2018,19 +2018,19 @@
       "sourceFile": "packages/shared/src/utils/retry.test.ts",
       "fullName": "Retry Utilities > retryPrismaOperation > should retry on Prisma connection timeout",
       "status": "retire",
-      "reason": "retryPrismaOperation is not lifted (§6.2)"
+      "reason": "retryPrismaOperation is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/retry.test.ts",
       "fullName": "Retry Utilities > retryPrismaOperation > should retry on P1001 database unreachable",
       "status": "retire",
-      "reason": "retryPrismaOperation is not lifted (§6.2)"
+      "reason": "retryPrismaOperation is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/retry.test.ts",
       "fullName": "Retry Utilities > retryPrismaOperation > should not retry on validation error",
       "status": "retire",
-      "reason": "retryPrismaOperation is not lifted (§6.2)"
+      "reason": "retryPrismaOperation is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/utils/retry.test.ts",
@@ -2096,157 +2096,183 @@
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Alpha Releases > should detect alpha in tag",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Alpha Releases > should detect alpha in tag"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Alpha Releases > should detect alpha.1 format",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Alpha Releases > should detect alpha.1 format"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Alpha Releases > should detect ALPHA uppercase",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Alpha Releases > should detect ALPHA uppercase"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Beta Releases > should detect beta in tag",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Beta Releases > should detect beta in tag"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Beta Releases > should detect beta.2 format",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Beta Releases > should detect beta.2 format"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Beta Releases > should detect BETA uppercase",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Beta Releases > should detect BETA uppercase"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Release Candidate (RC) > should detect rc in tag",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Release Candidate (RC) > should detect rc in tag"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Release Candidate (RC) > should detect rc.1 format",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Release Candidate (RC) > should detect rc.1 format"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Release Candidate (RC) > should detect RC uppercase",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Release Candidate (RC) > should detect RC uppercase"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Dev Releases > should detect dev in tag",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Dev Releases > should detect dev in tag"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Dev Releases > should detect dev.123 format",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Dev Releases > should detect dev.123 format"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Preview Releases > should detect preview in tag",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Preview Releases > should detect preview in tag"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Preview Releases > should detect preview.1 format",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Preview Releases > should detect preview.1 format"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Canary Releases > should detect canary in tag",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Canary Releases > should detect canary in tag"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Canary Releases > should detect canary.abc123 format",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Canary Releases > should detect canary.abc123 format"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Next Releases > should detect next in tag",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Next Releases > should detect next in tag"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Next Releases > should detect next.1 format",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Next Releases > should detect next.1 format"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Stable Releases > should return false for stable semver tag",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Stable Releases > should return false for stable semver tag"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Stable Releases > should return false for stable tag without v prefix",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Stable Releases > should return false for stable tag without v prefix"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Stable Releases > should return false for patch version",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Stable Releases > should return false for patch version"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Stable Releases > should return false for tag with release suffix",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Stable Releases > should return true for any pre-release identifier, such as -release"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Stable Releases > should return false for tag with stable suffix",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Stable Releases > should return true for any pre-release identifier, such as -stable"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Edge Cases > should handle empty string",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Edge Cases > should handle empty string"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Edge Cases > should handle just version number",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Edge Cases > should handle just version number"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Edge Cases > should detect pre-release indicator anywhere in tag",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Edge Cases > should not detect a pre-release word outside the version"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > isPreReleaseTag > Edge Cases > should handle mixed case",
       "status": "edit",
-      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)"
+      "reason": "Re-asserted against SemVer pre-release syntax (PD-10, issue 7)",
+      "targetName": "GitHub Releases Helpers > isSemverPrerelease > Edge Cases > should handle mixed case"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
@@ -2306,43 +2332,43 @@
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > fetchAllReleases > should fetch all releases",
       "status": "retire",
-      "reason": "fetchAllReleases is not lifted (§6.2)"
+      "reason": "fetchAllReleases is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > fetchAllReleases > should filter out drafts by default",
       "status": "retire",
-      "reason": "fetchAllReleases is not lifted (§6.2)"
+      "reason": "fetchAllReleases is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > fetchAllReleases > should include drafts when requested",
       "status": "retire",
-      "reason": "fetchAllReleases is not lifted (§6.2)"
+      "reason": "fetchAllReleases is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > fetchAllReleases > should respect maxReleases limit",
       "status": "retire",
-      "reason": "fetchAllReleases is not lifted (§6.2)"
+      "reason": "fetchAllReleases is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > getReleaseById > should return release by ID",
       "status": "retire",
-      "reason": "getReleaseById is not lifted (§6.2)"
+      "reason": "getReleaseById is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > getReleaseById > should return null for 404",
       "status": "retire",
-      "reason": "getReleaseById is not lifted (§6.2)"
+      "reason": "getReleaseById is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > getReleaseById > should throw other errors",
       "status": "retire",
-      "reason": "getReleaseById is not lifted (§6.2)"
+      "reason": "getReleaseById is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
@@ -2366,13 +2392,13 @@
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > releaseExistsForTag > should return true if release exists",
       "status": "retire",
-      "reason": "releaseExistsForTag is not lifted (§6.2)"
+      "reason": "releaseExistsForTag is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "packages/shared/src/github-releases.test.ts",
       "fullName": "GitHub Releases Helpers > releaseExistsForTag > should return false if release does not exist",
       "status": "retire",
-      "reason": "releaseExistsForTag is not lifted (§6.2)"
+      "reason": "releaseExistsForTag is not lifted (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/persona-utils.test.ts",
@@ -2672,7 +2698,7 @@
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "prependToChangelog > Edge cases > should handle Unreleased section - KNOWN ISSUE",
       "status": "edit",
-      "reason": "Re-asserted: a new entry lands below [Unreleased] (§7.3, issue 8)"
+      "reason": "Re-asserted: a new entry lands below [Unreleased] (\u00a77.3, issue 8)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
@@ -2726,73 +2752,73 @@
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Direct commit (unprotected branch) > should commit directly to unprotected branch",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Direct commit (unprotected branch) > should update existing CHANGELOG.md",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Direct commit (unprotected branch) > should use custom commit message when provided",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Direct commit (unprotected branch) > should include compare URL in changelog entry",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Pull Request (protected branch) > should create PR for protected branch",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Pull Request (protected branch) > should return existing PR if one already exists",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Error handling > should return error when content is empty",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Error handling > should handle API errors gracefully",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Error handling > should handle commit failure",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Error handling > should handle PR creation permission error",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Edge cases > should use 'Unreleased' as version when not provided",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "publishToChangelog > Edge cases > should generate fallback URL when html_url not returned",
       "status": "retire",
-      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (§6.2)"
+      "reason": "publishToChangelog is not lifted; the push loop replaces it in Phase 3 (\u00a76.2)"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
