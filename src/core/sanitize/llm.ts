@@ -24,6 +24,30 @@ const HIDDEN_CHARACTERS =
 const INPUT_DELIMITER = /<\s*\/?\s*untrusted_input_json\s*>/gi;
 
 /**
+ * Shapes of credentials: keyword assignments, bearer tokens, and AWS, GitHub,
+ * OpenAI, Slack, Stripe and JWT tokens. Global, for use with `replace`.
+ */
+export const SECRET_PATTERNS: readonly RegExp[] = [
+  // Generic API keys and secrets (long alphanumeric strings with common keywords)
+  /(?:api[_-]?key|apikey|secret|password|token|auth)[=:]["']?[\w-]{16,}["']?/gi,
+  // Bearer tokens
+  /Bearer\s+[\w-_.]+/gi,
+  // AWS access keys
+  /AKIA[0-9A-Z]{16}/g,
+  // GitHub tokens (classic and fine-grained)
+  /gh[pousr]_[A-Za-z0-9_]{36,}/g,
+  /github_pat_[A-Za-z0-9_]{22,}/g,
+  // OpenAI API keys
+  /sk-[A-Za-z0-9]{32,}/g,
+  // Slack tokens
+  /xox[baprs]-[\w-]+/g,
+  // Stripe API keys
+  /[rs]k_(?:live|test)_[A-Za-z0-9]{24,}/g,
+  // Generic JWT tokens (3 base64 segments separated by dots)
+  /eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,
+];
+
+/**
  * Removes text a reader cannot see: HTML comments, zero-width characters and
  * bidirectional controls. Also neutralizes the prompt's input delimiter.
  *
@@ -71,27 +95,8 @@ export function sanitizeForLLM(text: string | null | undefined): string {
   );
 
   // Remove common secret patterns
-  const secretPatterns = [
-    // Generic API keys and secrets (long alphanumeric strings with common keywords)
-    /(?:api[_-]?key|apikey|secret|password|token|auth)[=:]["']?[\w-]{16,}["']?/gi,
-    // Bearer tokens
-    /Bearer\s+[\w-_.]+/gi,
-    // AWS access keys
-    /AKIA[0-9A-Z]{16}/g,
-    // GitHub tokens (classic and fine-grained)
-    /gh[pousr]_[A-Za-z0-9_]{36,}/g,
-    /github_pat_[A-Za-z0-9_]{22,}/g,
-    // OpenAI API keys
-    /sk-[A-Za-z0-9]{32,}/g,
-    // Slack tokens
-    /xox[baprs]-[\w-]+/g,
-    // Stripe API keys
-    /[rs]k_(?:live|test)_[A-Za-z0-9]{24,}/g,
-    // Generic JWT tokens (3 base64 segments separated by dots)
-    /eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,
-  ];
 
-  for (const pattern of secretPatterns) {
+  for (const pattern of SECRET_PATTERNS) {
     sanitized = sanitized.replace(pattern, "[REDACTED]");
   }
 
