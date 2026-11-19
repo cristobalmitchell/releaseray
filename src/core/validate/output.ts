@@ -164,7 +164,10 @@ export function stripIdentifiers(text: string): string {
 
 /** Whether the persona shows PR and issue numbers. */
 function showsIdentifiers(persona: ResolvedPersona): boolean {
-  return persona.settings.include_pr_numbers !== false;
+  if (persona.settings.include_pr_numbers === false) return false;
+  // The built-in customer persona lists "PR/issue numbers" under exclude.
+  const exclude = persona.settings.exclude;
+  return !(Array.isArray(exclude) && exclude.some((e) => /PR\/issue numbers/i.test(String(e))));
 }
 
 /**
