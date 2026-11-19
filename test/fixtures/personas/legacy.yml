@@ -1,0 +1,31 @@
+# ReleaseRay Persona Configuration
+# This file defines how release notes are generated for different audiences
+# Place this file at .releaseray/personas.yml in your repository
+
+personas:
+  - name: "Engineer"
+    slug: "engineer"
+    description: "Technical details, breaking changes, and code examples for developers"
+    tone: "Technical and precise"
+    audienceLevel: "Advanced"
+    includeCodeExamples: true
+    includeMigrationGuides: true
+    includeBreakingChanges: true
+
+  - name: "Internal/CSM"
+    slug: "internal"
+    description: "Customer-facing impacts, support guidance, and talking points for CSMs"
+    tone: "Professional and supportive"
+    audienceLevel: "Intermediate"
+    includeCodeExamples: false
+    includeMigrationGuides: true
+    includeBreakingChanges: true
+
+  - name: "Customer"
+    slug: "customer"
+    description: "User-friendly language highlighting benefits and new features"
+    tone: "Friendly and accessible"
+    audienceLevel: "Beginner"
+    includeCodeExamples: false
+    includeMigrationGuides: false
+    includeBreakingChanges: false
