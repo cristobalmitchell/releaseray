@@ -1,0 +1,16 @@
+{
+  "_source": "Shape of the Converse response in the Amazon Bedrock API reference (https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html); text replaced with a ReleaseRay draft wrapped in a code fence, as Claude models sometimes return.",
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "```json\n{\"highlights\":[],\"sections\":[{\"title\":\"Bug Fixes\",\"items\":[{\"title\":\"Fixed login\",\"ref\":\"#7\"}]}]}\n```"
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": { "inputTokens": 980, "outputTokens": 52, "totalTokens": 1032 },
+  "metrics": { "latencyMs": 812 }
+}

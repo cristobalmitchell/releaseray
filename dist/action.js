@@ -52749,7 +52749,12 @@ __export(openai_exports, {
 });
 function createOpenAIProvider(options) {
   const { model } = options;
-  const openai = new OpenAI({ apiKey: options.apiKey, baseURL: options.baseUrl });
+  const openai = new OpenAI({
+    apiKey: options.apiKey,
+    baseURL: options.baseUrl,
+    maxRetries: 0,
+    ...options.fetch ? { fetch: options.fetch } : {}
+  });
   return {
     async generateStructured(systemPrompt, userPrompt, maxTokens) {
       const response = await openai.chat.completions.create({
