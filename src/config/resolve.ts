@@ -116,9 +116,10 @@ function resolvePersona(
     },
     ...(instructions !== undefined ? { instructions } : {}),
     sectionCategories: sectionCategoriesFor(configured?.sections ?? sectionConfig, categoryIds),
-    ...(configured?.excludeCategories
-      ? { excludeCategories: [...configured.excludeCategories] }
-      : {}),
+    // The built-in customer persona never shows internal changes.
+    excludeCategories: [
+      ...(configured?.excludeCategories ?? (baseId === "customer" ? ["internal"] : [])),
+    ],
   };
 }
 
