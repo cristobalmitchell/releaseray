@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/cristobalmitchell/releaseray/v1/schema/releaseray.schema.json
+# A complete example. Every key is optional except version; see docs/configuration.md.
+version: 1
+
+range:
+  tagPattern: "v*"
+  includePrereleases: false
+
+classification:
+  categories:
+    - id: infrastructure
+      title: Infrastructure
+      labels: ["area: infra", "/^terraform/"]
+      conventionalTypes: [build, ci]
+      internal: true
+  exclude:
+    labels: [skip-release-notes, dependencies]
+    authors: ["renovate[bot]"]
+    titlePatterns:
+      - "^chore\\(release\\):"
+      - "/^promote .* to (staging|production)/i"
+
+enrichment:
+  linkedIssues: true
+  comments: false
+  maxBodyChars: 4000
+
+personas:
+  - slug: engineer # built-in, trimmed and extended
+    sections:
+      - { id: breaking-changes, name: "Breaking Changes", categories: [breaking] }
+      - { id: features, name: "Features", categories: [features, improvements] }
+      - { id: fixes, name: "Fixes", categories: [fixes, performance] }
+      - { id: infrastructure, name: "Infrastructure", categories: [infrastructure] }
+  - slug: customer # built-in, retuned
+    tone: { formality: 30, technicalDepth: 10, enthusiasm: 60, detail: 40 }
+    include: { identifiers: false, contributors: false, upgradeInstructions: false }
+  - slug: sales # custom; inherits internal visibility
+    extends: internal
+    name: Sales enablement
+    instructions: |
+      Lead with the customer problem each change solves. One sentence per item.
+
+outputs:
+  summary: { personas: all } # internal personas are still withheld on public repositories
+  githubRelease: { persona: engineer, mode: section, onHumanEdit: skip }
+  changelog: { enabled: true, persona: engineer, push: true }
+
+llm:
+  provider: openai
+  model: gpt-5-mini
+
+github:
+  onBudgetExceeded: fail
+
+sanitize:
+  allowedDomains: [github.com, docs.example.com]

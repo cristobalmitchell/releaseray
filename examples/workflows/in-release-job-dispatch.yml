@@ -1,0 +1,32 @@
+# Flow 2b, dispatch variant: release jobs that run on workflow_run cannot run
+# ReleaseRay directly (workflow_run is refused), so they dispatch Flow 1
+# (release-notes.yml). Dispatches always start a run, even from GITHUB_TOKEN.
+name: Release
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  release:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # your release tool
+      actions: write # dispatch release-notes.yml
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      # Replace with your release tool; expose the new tag as steps.tagger.outputs.tag.
+      - id: tagger
+        run: echo "tag=" >> "$GITHUB_OUTPUT"
+      - if: steps.tagger.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tagger.outputs.tag }} # through the environment, never inline
+        run: gh workflow run release-notes.yml -f to="$TAG" -f publish=true

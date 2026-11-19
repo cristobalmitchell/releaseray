@@ -1,0 +1,54 @@
+# Recipe: deliver the CHANGELOG entry as a pull request instead of a push, for
+# branches that require reviews or signed commits.
+#
+# Needs outputs.changelog.enabled: true with push: false, and the repository
+# setting "Allow GitHub Actions to create and approve pull requests" (off by
+# default). Pull request checks for a PR opened with GITHUB_TOKEN wait for
+# approval before they run.
+name: Release notes (CHANGELOG pull request)
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+concurrency:
+  group: releaseray-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  notes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # release block and the CHANGELOG branch
+      pull-requests: write # open the pull request
+      issues: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+      - id: notes
+        uses: cristobalmitchell/releaseray@v1 # pin to the full commit SHA of the release you use
+        with:
+          to: ${{ github.event.release.tag_name }}
+          push: "false" # the step below delivers the edit
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - if: steps.notes.outputs.changelog-changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KEY: ${{ steps.notes.outputs.key }}
+        run: |
+          branch="releaseray/$KEY"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add CHANGELOG.md
+          git commit -m "docs(changelog): $KEY"
+          gh auth setup-git
+          git push --force-with-lease origin "$branch"
+          gh pr create --head "$branch" --title "docs(changelog): $KEY" \
+            --body "Release notes for $KEY, written by ReleaseRay."

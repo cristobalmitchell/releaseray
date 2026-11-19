@@ -1,0 +1,61 @@
+# Diagnostics and migration on demand. These modes make no LLM call and no
+# GitHub write, so the job has read permissions and no LLM key.
+name: ReleaseRay tools
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Mode to run
+        type: choice
+        options:
+          - preview
+          - doctor
+          - validate-config
+          - migrate-personas
+        default: preview
+      to:
+        description: "Tag (blank: HEAD for preview)"
+        type: string
+        required: false
+      preview_prompts:
+        description: "preview: also write each persona's exact prompts"
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: releaseray-tools-${{ inputs.mode }}
+  cancel-in-progress: false
+
+jobs:
+  read-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: tools
+        uses: cristobalmitchell/releaseray@v1 # pin to the full commit SHA of the release you use
+        with:
+          mode: ${{ inputs.mode }}
+          to: ${{ inputs.to || 'HEAD' }}
+          preview-prompts: ${{ inputs.preview_prompts }}
+          config: ${{ inputs.mode == 'migrate-personas' && '.releaseray/config.migrated.yml' || '.releaseray/config.yml' }}
+      # migrate-personas writes the converted config to the runner's workspace;
+      # upload it to copy into your repository.
+      - if: inputs.mode == 'migrate-personas' || inputs.preview_prompts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: releaseray-tools-output
+          path: |
+            .releaseray/config.migrated.yml
+            .releaseray/notes/
+          if-no-files-found: ignore
+          retention-days: 7
