@@ -156,7 +156,7 @@ export async function callLLMWithSchema<T>(
       } catch (error) {
         if (error instanceof Error) {
           logger.error("LLM call failed", { error: error.message });
-          throw new Error(`LLM processing failed: ${error.message}`);
+          throw new Error(`LLM processing failed: ${error.message}`, { cause: error });
         }
         throw error;
       }
@@ -184,7 +184,7 @@ export function parseWithSchema<T>(jsonString: string, schema: ZodSchema<T>): T 
     return schema.parse(parsed);
   } catch (error) {
     if (error instanceof Error) {
-      throw new Error(`Schema validation failed: ${error.message}`);
+      throw new Error(`Schema validation failed: ${error.message}`, { cause: error });
     }
     throw error;
   }
