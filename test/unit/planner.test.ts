@@ -44,7 +44,10 @@ const request = { key: KEY, persona: "engineer", gen: GEN, force: false };
 const changed = { ...request, gen: "aaaaaaaaaaaaaaaa" };
 
 describe("digests", () => {
-  const source = (): InputSnapshotSource => ({
+  type Mutable = Omit<InputSnapshotSource, "pulls"> & {
+    pulls: Array<InputSnapshotSource["pulls"][number]>;
+  };
+  const source = (): Mutable => ({
     range: { from: "v1.3.0", to: KEY, commits: [{ sha: "a1" }, { sha: "b2" }] },
     pulls: [
       {
@@ -64,12 +67,10 @@ describe("digests", () => {
   it("ignores a new comment when comments are off, and changes when a body is edited", () => {
     const base = inputDigest(source());
     const withComment = source();
-    withComment.pulls[0].comments.push({
-      author: "lead",
-      body: "Nice",
-      association: "MEMBER",
-      kind: "comment",
-    });
+    withComment.pulls[0] = {
+      ...withComment.pulls[0],
+      comments: [{ author: "lead", body: "Nice", association: "MEMBER", kind: "comment" }],
+    };
     expect(inputDigest(withComment)).toBe(base);
 
     const edited = source();
@@ -98,12 +99,10 @@ describe("digests", () => {
       ...on,
       pulls: on.pulls.map((p) => ({ ...p, comments: [] as typeof p.comments })),
     };
-    withComment.pulls[0].comments.push({
-      author: "lead",
-      body: "Nice",
-      association: "MEMBER",
-      kind: "comment",
-    });
+    withComment.pulls[0] = {
+      ...withComment.pulls[0],
+      comments: [{ author: "lead", body: "Nice", association: "MEMBER", kind: "comment" }],
+    };
     expect(inputDigest(withComment)).not.toBe(inputDigest(on));
   });
 
