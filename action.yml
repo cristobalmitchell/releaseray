@@ -1,0 +1,96 @@
+name: ReleaseRay
+description: Persona-specific release notes from merged pull requests, using your own LLM key
+author: Cristobal Mitchell
+branding:
+  icon: file-text
+  color: orange
+inputs:
+  mode:
+    description: "generate | publish | preview | doctor | validate-config | migrate-personas"
+    default: generate
+  github-token:
+    description: GITHUB_TOKEN, a fine-grained PAT, or a token from a GitHub App you registered
+    default: ${{ github.token }}
+  config:
+    description: Path to the config file
+    default: .releaseray/config.yml
+  to:
+    description: "End tag, or HEAD for a preview (blank: the event's tag)"
+    default: ""
+  from:
+    description: "Start tag (blank: highest-SemVer ancestor tag matching range.tagPattern)"
+    default: ""
+  since:
+    description: "Date window start, ISO 8601"
+    default: ""
+  until:
+    description: "Date window end, ISO 8601 (blank: HEAD)"
+    default: ""
+  key:
+    description: "Release key; required for date windows"
+    default: ""
+  personas:
+    description: "Comma-separated persona slugs (blank: all enabled)"
+    default: ""
+  publish:
+    description: "Write GitHub targets (blank: true on release and tag-push events, false otherwise)"
+    default: ""
+  create-release:
+    description: Create the release when none exists for the tag
+    default: "false"
+  push:
+    description: "Push the CHANGELOG edit (blank: outputs.changelog.push)"
+    default: ""
+  notes-dir:
+    description: "For mode: publish, the directory holding notes.json"
+    default: ""
+  expected-digest:
+    description: "For mode: publish, refuse a notes.json with a different digest"
+    default: ""
+  allow-non-ancestor:
+    description: Allow an explicit from/to pair that is not ancestor-linked
+    default: "false"
+  force:
+    description: Regenerate even when stored generation digests match
+    default: "false"
+  allow-sparse:
+    description: Generate even when the input is below the sufficiency thresholds
+    default: "false"
+  preview-prompts:
+    description: "For mode: preview, also fetch PR and issue content and write each persona's exact prompts; never calls the LLM"
+    default: "false"
+  all-tags:
+    description: "For mode: adopt or sync-changelog (v1.1), act on every tag matching range.tagPattern"
+    default: "false"
+  personas-file:
+    description: "For mode: migrate-personas, the hosted persona YAML to convert"
+    default: .releaseray/personas.yml
+  notify:
+    description: "primary-changed | always (blank: config; v1.1)"
+    default: ""
+outputs:
+  key:
+    description: Release key
+  from:
+    description: Resolved start ref
+  to:
+    description: Resolved end ref
+  notes-dir:
+    description: Directory with persona files and notes.json
+  notes-digest:
+    description: sha256 of notes.json
+  release-url:
+    description: URL of the GitHub Release found or written
+  release-changed:
+    description: "true when the release block was created or updated"
+  changelog-changed:
+    description: "true when a CHANGELOG entry was written"
+  github-requests:
+    description: REST requests counted against the primary limit
+  llm-calls:
+    description: LLM calls made
+  llm-cost-usd:
+    description: "Estimated LLM cost, or n/a when pricing is unknown"
+runs:
+  using: node24
+  main: dist/action.js
