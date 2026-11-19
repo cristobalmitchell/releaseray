@@ -15,6 +15,13 @@ export default tseslint.config(
     },
   },
   {
+    // Carried tests stay as they were at 7d1d56f8 (CONVERSION-PLAN §6.5).
+    files: ["test/carried/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
+  {
     files: ["test/**/*.ts", "**/*.test.ts"],
     rules: {
       // Carried tests use partial mocks of third-party clients.
