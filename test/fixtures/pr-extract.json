@@ -1,0 +1,780 @@
+{
+  "sourceCommit": "7d1d56f8",
+  "source": "apps/app/src/app/api/ranges/route.ts:47-96",
+  "cases": [
+    {
+      "range": "v0.0.0..v0.1.0",
+      "subjects": [],
+      "expected": {
+        "prNumbers": [],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v0.1.0..v0.2.0",
+      "subjects": [
+        "feat: complete admin panel Phase 3 - billing, jobs, and AccountException system",
+        "feat: implement admin panel Phase 2 - user and org management",
+        "docs: add Phase 1 completion summary for admin panel",
+        "feat: implement admin panel Phase 1 - foundation and dashboard",
+        "docs: final status report - all TODOs complete",
+        "docs: complete React Email migration and shared design system documentation",
+        "docs: comprehensive codebase audit and improvement plan",
+        "feat: complete changelog email system with unsubscribe and blog posts",
+        "docs: add custom personas status and examples document",
+        "docs: add custom personas specification with industry examples",
+        "docs: add comprehensive README, contributing guide, and documentation sync rules"
+      ],
+      "expected": {
+        "prNumbers": [],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v0.2.0..v0.3.0",
+      "subjects": [
+        "feat(infrastructure): implement local Redis setup for development",
+        "feat(infrastructure): implement BullMQ connection sharing and Fly.io migration plan",
+        "docs: v0.2.0 milestone final completion - all issues resolved 🎉",
+        "docs: v0.2.0 fully complete - 11/11 issues resolved 🎉",
+        "fix: remove orgId from integrations page API calls",
+        "docs: add comprehensive drainDelay fix documentation",
+        "fix: add drainDelay to reduce worker polling from 5 seconds to 5 minutes",
+        "docs: v0.2.0 milestone complete - all 9 issues closed 🎉",
+        "docs: add comprehensive scalability and Redis optimization analysis",
+        "perf: add environment-based worker scaling and Redis optimizations",
+        "perf: reduce BullMQ Redis polling to save requests",
+        "fix: correct upgradeInstructions format in prompt template",
+        "fix: use proper buildDraftGeneratorPrompt for LLM calls",
+        "fix: include org relation in release range query for commit fallback",
+        "feat: add commit-based fallback for draft generation",
+        "fix: improve PR number extraction and client component params handling",
+        "feat: add delete button to release range detail page",
+        "feat: add DELETE endpoint for release ranges",
+        "fix: resolve Next.js 15 breaking changes and add PR sync for draft generation",
+        "fix: use Prisma singleton and add GitHub App authentication",
+        "fix: use GitHub App installation token in changelog publisher (#21)",
+        "chore: add ReleaseRay personas configuration for dogfooding",
+        "docs: comprehensive audit of v0.2.0 milestone issues",
+        "docs: update tracking for Issue #6 completion and duplicate closures",
+        "fix: replace orgId TODOs with session authentication (#6)",
+        "docs: mark Issue #5 (Repo Selector) as complete",
+        "docs: mark Issue #2 (Webhook PR Ingestion) as complete",
+        "docs: add issue tracking and document Issue #1 resolution",
+        "Merge feat/nextjs-15-migration into main",
+        "feat: complete Next.js 15 migration and GitHub workflow setup",
+        "chore(deps): update dependencies and fix breaking changes",
+        "feat: upgrade to Next.js 15 and React 19",
+        "docs: add Next.js 15 migration documentation and guides",
+        "fix: resolve auth flow and schema mismatches",
+        "fix: resolve Next.js routing conflict by moving generate endpoint",
+        "fix: resolve test failures and OpenAI mock issues",
+        "feat: migrate from @supabase/auth-helpers-nextjs to @supabase/ssr",
+        "feat: add Slack notifications (Day 13-14) - Week 2 COMPLETE",
+        "feat: implement draft editing interface (Day 11-12)",
+        "feat: add publishing UI with channel selection (Day 10)",
+        "feat: implement CHANGELOG.md publisher (Day 8-9)",
+        "chore: install shadcn/ui components",
+        "docs: add Week 1 completion summary",
+        "feat: replace all mock data with real database queries (Day 6)",
+        "feat: wire up draft generation UI (Day 4-5)",
+        "docs: add Week 1 progress report (Days 1-3 complete)",
+        "feat: add release range creation UI and API (Day 3)",
+        "feat: add webhook ingestion test scripts",
+        "feat: complete webhook ingestion implementation",
+        "fix: add state field to PR and Issue ingest processor",
+        "feat: complete database setup and create MVP implementation plan",
+        "fix: convert GitHub IDs to strings for Prisma",
+        "fix: use octokit.request() instead of .rest.apps for installation API",
+        "docs: add auto-setup flow implementation summary",
+        "feat: implement auto-setup flow, remove redundant onboarding",
+        "fix: allow onboarding page without authentication",
+        "fix: remove broken supabase client init from onboarding page",
+        "fix: GitHub App authentication and port conflicts",
+        "fix: correct app port to 3001 and handle GitHub installation_id parameter",
+        "docs: clarify optional services in SETUP_GUIDE and reference STRIPE_SETUP_GUIDE",
+        "docs: enhance SETUP_GUIDE with comprehensive GitHub App and Upstash instructions",
+        "refactor: migrate database from Neon to Supabase",
+        "docs: add comprehensive .env.example template aligned with setup guide",
+        "docs: add comprehensive Stripe setup guide and update .gitignore",
+        "docs: update README project status to accurately reflect completed work",
+        "docs: add comprehensive setup guide with all secrets and deployment instructions",
+        "fix: add explicit type annotations to resolve TypeScript errors",
+        "docs: enhance documentation sync rule to cover Prisma schema",
+        "docs: comprehensively document Prisma schema with sections and JSDoc comments"
+      ],
+      "expected": {
+        "prNumbers": [6, 21],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v0.3.0..v0.4.0",
+      "subjects": [
+        "feat: implement complete branch strategy with CI/CD automation (#35)",
+        "docs: add Phase 2 completion summary and next steps",
+        "docs: add Phase 2 progress tracking",
+        "chore: add Phase 2 branch protection setup files",
+        "feat: complete TypeScript error remediation - ZERO ERRORS! 🎉",
+        "fix(api): remove non-existent fields (isActive, billingSource, settings)",
+        "fix(api): add type safety for repo fullName split",
+        "fix(api): resolve high priority errors - missing includes and field removals",
+        "docs: TypeScript error resolution session complete",
+        "fix(api): fix billing webhooks, slack publish, and marketplace setup",
+        "docs: comprehensive final TypeScript error resolution report",
+        "fix(api): comment out non-existent status fields",
+        "docs: add final 77 errors status report",
+        "fix(api): fix remaining plan/planTier/billingTier field mismatches",
+        "fix(billing): fix stripeCustomerId lookups in webhook handlers",
+        "fix(consent): add missing logger import",
+        "fix: repair corrupted logger syntax in marketplace webhooks",
+        "fix(api): batch fix Analytics fields, BillingAccount, and missing models",
+        "docs: add final TypeScript error resolution status",
+        "fix: repair syntax errors from sed replacements",
+        "fix(marketplace): batch fix github-marketplace webhook errors",
+        "docs: add TypeScript error resolution progress report",
+        "fix(nextjs15): await cookies() for Next.js 15 compatibility (Phase 3)",
+        "fix(schema): fix field renames and type mismatches (Phase 2 partial)",
+        "feat(schema): add 4 missing Prisma models (Phase 1)",
+        "docs: comprehensive analysis of Redis migration and TypeScript errors",
+        "fix(workers): resolve all TypeScript errors (14 fixed)",
+        "fix(workers): resolve logger import and repo field name",
+        "fix(types): resolve all 25 TypeScript errors in shared package",
+        "fix(build): resolve eslint config and add null checks",
+        "chore: merge redis migration feature to develop",
+        "docs: add comprehensive Redis migration documentation"
+      ],
+      "expected": {
+        "prNumbers": [35],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v0.5.0..v1.0.0",
+      "subjects": [
+        "chore: release v1.0.0 to production (#151)",
+        "chore: release v1.0.0 to production (#141)",
+        "chore: release v1.0.0 to production (#132)",
+        "chore: release v0.3.1 to production (#111)",
+        "chore: release v0.2.1 to production (#103)",
+        "fix: configure semantic-release to only create tags (not GitHub Releases) (#98) (#100)",
+        "fix: merge minimal semantic-release config from develop",
+        "fix: remove release-notes-generator plugin to avoid commit date parsing errors (#95)",
+        "chore: release v0.2.0 to production (#94)",
+        "fix: simplify semantic-release config to avoid branch protection conflicts (#92)",
+        "chore: release v0.2.0 to production (#91)",
+        "fix(ci): remove pnpm version from release workflow (#89)",
+        "docs(ci): document critical workflow_run behavior (#86) (#87) (#88)",
+        "docs(ci): document critical workflow_run behavior (#86)",
+        "feat(pricing): add comprehensive pricing strategy analysis (#84)",
+        "fix(ci): remove intermediate branches from auto-promotion workflows (#79)",
+        "fix(ci): update semantic-release dependencies to v24 (#74) (#75)",
+        "docs: update placeholder GitHub URLs to actual repository (#69) (#70)",
+        "chore: sync develop with production (main) after v0.3.0 release (#68)",
+        "fix(app): use lazy initialization for Supabase client to avoid build errors (#62)",
+        "fix(build): force dynamic rendering and fail fast on missing Supabase credentials (#61)",
+        "fix(build): resolve Vercel deployment issues (#54)",
+        "docs: update .env.example and archive Redis decision docs (#36) (#52)",
+        "docs: update all Fly.io Redis references to Upstash (#51)",
+        "docs: Add secrets verification and troubleshooting documentation (#33) (#50)",
+        "docs: update Codecov badge URL to correct repository (#49)",
+        "docs: add GitHub Actions secrets configuration documentation (#32) (#48)",
+        "feat: Add Vercel marketing site setup documentation (#31) (#46)",
+        "feat: Add Vercel app setup documentation and public download templates (#30) (#45)",
+        "chore: standardize issue templates to YAML forms (#42) (#43)",
+        "feat(ci): automated branch promotions and security hardening (#40)",
+        "docs: update branch strategy status - Phase 2 complete (#38)",
+        "docs(audit): comprehensive documentation cleanup (#36) (#37)",
+        "feat: implement complete branch strategy with CI/CD automation (#35)",
+        "docs: add Phase 2 completion summary and next steps",
+        "docs: add Phase 2 progress tracking",
+        "chore: add Phase 2 branch protection setup files",
+        "feat: complete TypeScript error remediation - ZERO ERRORS! 🎉",
+        "fix(api): remove non-existent fields (isActive, billingSource, settings)",
+        "fix(api): add type safety for repo fullName split",
+        "fix(api): resolve high priority errors - missing includes and field removals",
+        "docs: TypeScript error resolution session complete",
+        "fix(api): fix billing webhooks, slack publish, and marketplace setup",
+        "docs: comprehensive final TypeScript error resolution report",
+        "fix(api): comment out non-existent status fields",
+        "docs: add final 77 errors status report",
+        "fix(api): fix remaining plan/planTier/billingTier field mismatches",
+        "fix(billing): fix stripeCustomerId lookups in webhook handlers",
+        "fix(consent): add missing logger import",
+        "fix: repair corrupted logger syntax in marketplace webhooks",
+        "fix(api): batch fix Analytics fields, BillingAccount, and missing models",
+        "docs: add final TypeScript error resolution status",
+        "fix: repair syntax errors from sed replacements",
+        "fix(marketplace): batch fix github-marketplace webhook errors",
+        "docs: add TypeScript error resolution progress report",
+        "fix(nextjs15): await cookies() for Next.js 15 compatibility (Phase 3)",
+        "fix(schema): fix field renames and type mismatches (Phase 2 partial)",
+        "feat(schema): add 4 missing Prisma models (Phase 1)",
+        "docs: comprehensive analysis of Redis migration and TypeScript errors",
+        "fix(workers): resolve all TypeScript errors (14 fixed)",
+        "fix(workers): resolve logger import and repo field name",
+        "fix(types): resolve all 25 TypeScript errors in shared package",
+        "fix(build): resolve eslint config and add null checks",
+        "chore: merge redis migration feature to develop",
+        "docs: add comprehensive Redis migration documentation",
+        "feat(infrastructure): implement local Redis setup for development",
+        "feat(infrastructure): implement BullMQ connection sharing and Fly.io migration plan",
+        "docs: v0.2.0 milestone final completion - all issues resolved 🎉",
+        "docs: v0.2.0 fully complete - 11/11 issues resolved 🎉",
+        "fix: remove orgId from integrations page API calls",
+        "docs: add comprehensive drainDelay fix documentation",
+        "fix: add drainDelay to reduce worker polling from 5 seconds to 5 minutes",
+        "docs: v0.2.0 milestone complete - all 9 issues closed 🎉",
+        "docs: add comprehensive scalability and Redis optimization analysis",
+        "perf: add environment-based worker scaling and Redis optimizations",
+        "perf: reduce BullMQ Redis polling to save requests",
+        "fix: correct upgradeInstructions format in prompt template",
+        "fix: use proper buildDraftGeneratorPrompt for LLM calls",
+        "fix: include org relation in release range query for commit fallback",
+        "feat: add commit-based fallback for draft generation",
+        "fix: improve PR number extraction and client component params handling",
+        "feat: add delete button to release range detail page",
+        "feat: add DELETE endpoint for release ranges",
+        "fix: resolve Next.js 15 breaking changes and add PR sync for draft generation",
+        "fix: use Prisma singleton and add GitHub App authentication",
+        "fix: use GitHub App installation token in changelog publisher (#21)",
+        "chore: add ReleaseRay personas configuration for dogfooding",
+        "docs: comprehensive audit of v0.2.0 milestone issues",
+        "docs: update tracking for Issue #6 completion and duplicate closures",
+        "fix: replace orgId TODOs with session authentication (#6)",
+        "docs: mark Issue #5 (Repo Selector) as complete",
+        "docs: mark Issue #2 (Webhook PR Ingestion) as complete",
+        "docs: add issue tracking and document Issue #1 resolution",
+        "Merge feat/nextjs-15-migration into main"
+      ],
+      "expected": {
+        "prNumbers": [
+          6, 21, 30, 31, 32, 33, 35, 36, 37, 38, 40, 42, 43, 45, 46, 48, 49, 50, 51, 52, 54, 61, 62,
+          68, 69, 70, 74, 75, 79, 84, 86, 87, 88, 89, 92, 95, 98, 100
+        ],
+        "promotionPRNumbers": [91, 94, 103, 111, 132, 141, 151]
+      }
+    },
+    {
+      "range": "v1.0.0..v1.1.0",
+      "subjects": [
+        "Merge pull request #196 from cristobalmitchell/staging",
+        "Merge pull request #195 from cristobalmitchell/develop",
+        "docs(rules): add comprehensive breaking change criteria to versioning rules (#194)",
+        "Merge pull request #192 from cristobalmitchell/develop",
+        "fix(ci): ensure semantic-release creates annotated tags and reads correct version (#191)",
+        "Merge pull request #188 from cristobalmitchell/develop",
+        "chore: promote develop to staging (2025-11-19) (#150) (#189)",
+        "fix(editor): implement markdown toolbar formatting (#152) (#187)",
+        "fix(docs): update downloads page with all 8 files (#34) (#186)",
+        "fix(ci): Branch promotion commits prevent semantic-release from creating tags (#184)",
+        "fix(ci): restore semantic-release plugins for proper tag creation (#181) (#182)",
+        "chore: promote develop to staging (2025-11-19) (#150)",
+        "feat(ci): add automated branch divergence detection (#145) (#146)",
+        "chore: backport v1.0.0 release from staging",
+        "chore: backport v1.0.0 release from main",
+        "Merge branch 'staging' of https://github.com/cristobalmitchell/releaseray into staging",
+        "Merge branch 'main' into staging",
+        "chore: promote develop to staging (2025-11-17) (#135)",
+        "Merge branch 'staging' into develop",
+        "chore: release v1.0.0 to production (#132) (#139)",
+        "chore: add branch divergence prevention tools and documentation (#140)",
+        "chore: sync staging with main (backport v1.0.0 release)",
+        "chore: update .gitignore to exclude TypeScript build info files (#138)",
+        "feat(analytics): Email Analytics Dashboard (#129) (#137)",
+        "test(publishers): Integration Tests for Slack, Teams, Intercom, and Email (#136)",
+        "feat(auth): centralize GitHub App installation token helper (#128) (#134)",
+        "Merge branch 'main' into staging",
+        "chore: promote develop to staging (2025-11-17) (#131)",
+        "chore: promote develop to staging (2025-11-11) (#114)",
+        "Merge branch 'staging' into develop",
+        "feat: Repository-scoped email subscribers with custom branding (#121) (#127)",
+        "feat(publishing): Add multi-persona prompts, email integration, and publisher fixes (#124)",
+        "feat(publishing): implement PR-based changelog publishing (#118) (#120)",
+        "feat(drafts): add version history and revision tracking (#56) (#119)",
+        "feat(drafts): add Markdown editor with live preview (#55) (#117)",
+        "docs(changelog): verify and document Keep a Changelog prepending behavior (#110) (#115)",
+        "fix(llm): update to GPT-5 and fix draft state management (#112) (#113)",
+        "chore: promote develop to staging (2025-11-11) (#109)",
+        "feat(settings): implement settings page with core tabs (Integrations & Billing) (#108)",
+        "Merge branch 'main' into staging",
+        "fix: exec plugin should only push tag, not create it (#101) (#102)",
+        "fix: exec plugin should only push tag, not create it (#101)",
+        "fix: configure semantic-release to only create tags (not GitHub Releases) (#98)"
+      ],
+      "expected": {
+        "prNumbers": [
+          34, 55, 56, 98, 101, 102, 108, 110, 112, 113, 115, 117, 118, 119, 120, 121, 124, 127, 128,
+          129, 132, 134, 136, 137, 138, 140, 145, 146, 152, 181, 182, 184, 186, 187, 188, 191, 192,
+          194, 195, 196
+        ],
+        "promotionPRNumbers": [109, 114, 131, 135, 139, 150, 189]
+      }
+    },
+    {
+      "range": "v1.1.0..v1.2.0",
+      "subjects": [
+        "Merge pull request #209 from cristobalmitchell/staging",
+        "Merge pull request #208 from cristobalmitchell/develop",
+        "fix(ci): improve auto-promote workflows PR formatting and update logic (#205) (#207)",
+        "Merge pull request #204 from cristobalmitchell/develop",
+        "feat(analytics): Complete PostHog Analytics Integration (Phases 1-8) (#47) (#202)",
+        "feat(ci): automate milestone closure on release publish (#53) (#201)",
+        "feat(billing): revise pricing strategy with affordable tiers and free trial (#77) (#200)",
+        "feat: settings page core tabs implementation (#104) (#199)",
+        "chore: complete codecov integration and fix test failures (#116) (#197)"
+      ],
+      "expected": {
+        "prNumbers": [47, 53, 77, 104, 116, 197, 199, 200, 201, 202, 204, 205, 208, 209],
+        "promotionPRNumbers": [207]
+      }
+    },
+    {
+      "range": "v1.2.0..v1.3.0",
+      "subjects": [
+        "Merge pull request #218 from cristobalmitchell/staging",
+        "Merge pull request #217 from cristobalmitchell/develop",
+        "fix(ci): resolve YAML syntax errors in promotion workflows (#216)",
+        "fix(ui): ensure proper theme switching across all pages (#164) (#215)",
+        "feat(site): add animated logo wall with company logos (#162) (#214)",
+        "feat: simplify pricing tiers and implement comprehensive feature restrictions (#167) (#213)",
+        "feat(design): redesign hero with animated gradient background + unified app styling (#163) (#212)",
+        "feat(design): Brand colors and logo system (#161 #168) (#211)",
+        "feat(design): implement purple/blue brand color palette globally (#161) (#210)"
+      ],
+      "expected": {
+        "prNumbers": [161, 162, 163, 164, 167, 168, 210, 211, 212, 213, 214, 215, 216, 217, 218],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v1.3.0..v1.4.0",
+      "subjects": [
+        "Merge pull request #229 from releaseray/staging",
+        "Merge pull request #237 from releaseray/develop",
+        "feat(webhooks): handle GitHub repository transfer events (#226) (#236)",
+        "chore(scripts): clean up and organize scripts folder (#44) (#235)",
+        "feat(ui): create progress ring and bar components (#175) (#234)",
+        "feat(ui): implement comprehensive tooltip system and fix publish modal issues (#174) (#233)",
+        "feat(ui): implement consistent hover effects and skeleton loaders (#173) (#232)",
+        "feat(dashboard): add confetti animations and improve UX (#172) (#231)",
+        "perf(ci): optimize build times with caching and parallelization (#230)",
+        "Merge pull request #228 from cristobalmitchell/develop",
+        "fix(ci): resolve Codecov path mismatch and template literal syntax error (#227)",
+        "feat(changelog): improve hosted changelog formatting and UX (#224) (#225)",
+        "feat(ui): add skeleton loaders, fix hallucinated release notes, and improve publishing (#171) (#223)",
+        "feat(app): add illustrated empty states with animations and CTAs (#170) (#221)",
+        "feat(dashboard): enhance stat cards with animations and sparklines (#169) (#220)",
+        "feat(app): interactive onboarding tour + workflow optimizations (#178) (#219)"
+      ],
+      "expected": {
+        "prNumbers": [
+          44, 169, 170, 171, 172, 173, 174, 175, 178, 219, 220, 221, 223, 224, 225, 226, 227, 228,
+          229, 230, 231, 232, 233, 234, 235, 236, 237
+        ],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v1.4.0..v1.5.0",
+      "subjects": [
+        "Merge pull request #251 from releaseray/staging",
+        "Merge pull request #250 from releaseray/develop",
+        "feat(admin): implement admin dashboard improvements (#240-245) (#249)",
+        "feat(admin): add per-customer cost attribution dashboard (#239) (#248)",
+        "fix(ci): base64 encode commit log to prevent JavaScript syntax errors (#247)",
+        "feat(admin): add infrastructure cost tracking dashboard (#238) (#246)"
+      ],
+      "expected": {
+        "prNumbers": [238, 239, 246, 247, 248, 249, 250, 251],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v1.5.0..v1.5.1",
+      "subjects": [
+        "Merge pull request #258 from releaseray/staging",
+        "Merge pull request #257 from releaseray/develop",
+        "fix(ci): restrict PR creation to push events only (#256)",
+        "fix(ci): remove ALL template literals from promotion workflows (#255)",
+        "fix(ci): correct Codecov repository slug and simplify configuration (#254)",
+        "fix(ci): resolve template literal syntax errors in promotion workflows (#253)",
+        "fix(production): resolve PostHog GZIP and OAuth authentication errors (#252)"
+      ],
+      "expected": {
+        "prNumbers": [252, 253, 254, 255, 256, 257, 258],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v1.5.1..v1.5.2",
+      "subjects": [
+        "Merge pull request #263 from releaseray/staging",
+        "Merge pull request #262 from releaseray/develop",
+        "fix(ci): correct event condition for production promotion PR creation (#261)",
+        "Merge pull request #260 from releaseray/develop",
+        "fix(ci): resolve Codecov upload and Fly.io deploy issues (#259)"
+      ],
+      "expected": {
+        "prNumbers": [259, 260, 261, 262, 263],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v1.5.2..v1.5.3",
+      "subjects": [
+        "Merge pull request #267 from releaseray/staging",
+        "Merge pull request #266 from releaseray/develop",
+        "fix(db): check repo by githubRepoId only to avoid unique constraint errors (#265)",
+        "fix(ci): correct Codecov flag paths to point to source files (#264)"
+      ],
+      "expected": {
+        "prNumbers": [264, 265, 266, 267],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v3.0.0..v3.0.1",
+      "subjects": [
+        "Merge pull request #327 from releaseray/staging",
+        "Merge pull request #326 from releaseray/develop",
+        "chore(ci): add missing env vars to turbo.json build task",
+        "fix(ci): remove direct push to protected staging branch"
+      ],
+      "expected": {
+        "prNumbers": [326, 327],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v3.0.1..v3.0.2",
+      "subjects": [
+        "Merge pull request #330 from releaseray/staging",
+        "Merge pull request #329 from releaseray/develop",
+        "fix(ci): fix YAML syntax error in validate-breaking-changes workflow"
+      ],
+      "expected": {
+        "prNumbers": [329, 330],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v3.0.2..v3.1.0",
+      "subjects": [
+        "Merge pull request #341 from releaseray/staging",
+        "Merge pull request #340 from releaseray/develop",
+        "Merge pull request #339 from releaseray/fix/339-remove-commit-creation-from-production-workflow",
+        "fix(ci): remove commit creation from production promotion workflow",
+        "Merge pull request #337 from releaseray/develop",
+        "feat(prompts): improve draft generation quality and fix auth issues (#338)",
+        "fix(ci): remove protected branch push from auto-promote workflow (#331)",
+        "fix: use prisma db push in clone script to handle schema drift (#336)",
+        "fix(site): update sign-in button URLs to use production domain (#335) (#335)",
+        "Merge pull request #334 from releaseray/develop",
+        "feat(site): add support and help center page (#332)"
+      ],
+      "expected": {
+        "prNumbers": [332, 334, 335, 336, 337, 338, 339, 340, 341],
+        "promotionPRNumbers": [331]
+      }
+    },
+    {
+      "range": "v3.1.0..v3.1.1",
+      "subjects": [
+        "Merge pull request #344 from releaseray/staging",
+        "Merge pull request #343 from releaseray/develop",
+        "fix(api): add missing orgId and publication fields to ranges API response (#342)"
+      ],
+      "expected": {
+        "prNumbers": [342, 343, 344],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v3.1.1..v3.1.2",
+      "subjects": [
+        "Merge pull request #350 from releaseray/staging",
+        "Merge pull request #349 from releaseray/develop",
+        "fix: releases.md UI, PostHog analytics, and email webhook secret (#346)"
+      ],
+      "expected": {
+        "prNumbers": [346, 349, 350],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v3.1.2..v3.2.0",
+      "subjects": [
+        "Merge pull request #353 from releaseray/staging",
+        "Merge pull request #356 from releaseray/develop",
+        "feat(billing): implement 14-day free trial system with hard limits (#354) (#354)",
+        "Merge pull request #352 from releaseray/develop",
+        "fix(webhooks): correctly extract tags from Resend webhook payload (#351)"
+      ],
+      "expected": {
+        "prNumbers": [351, 352, 353, 354, 356],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v3.2.0..v3.3.0",
+      "subjects": [
+        "Merge pull request #359 from releaseray/staging",
+        "Merge pull request #358 from releaseray/develop",
+        "feat(analytics): ROI reporting, billing improvements, and email publishing fixes (#355) (#357)"
+      ],
+      "expected": {
+        "prNumbers": [355, 357, 358, 359],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v3.3.0..v3.4.0",
+      "subjects": [
+        "Merge pull request #371 from releaseray/staging",
+        "Merge pull request #375 from releaseray/develop",
+        "fix(publish): improve releases.md persona display and route naming (#374)",
+        "fix(publish): resolve re-publishing errors and releases_md 404 (#362) (#372)",
+        "Merge pull request #369 from releaseray/develop",
+        "feat(enrichment): add PR/issue comments and commit data for enhanced release notes (#370)",
+        "feat(drafts): background draft generation, migration workflow, and dev fixes (#361)"
+      ],
+      "expected": {
+        "prNumbers": [361, 362, 369, 370, 371, 372, 374, 375],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v3.4.0..v3.5.0",
+      "subjects": [
+        "Merge pull request #378 from releaseray/staging",
+        "Merge pull request #377 from releaseray/develop",
+        "feat(privacy): reduce data retention to 30 days with privacy-first approach (#376)"
+      ],
+      "expected": {
+        "prNumbers": [376, 377, 378],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v3.5.0..v3.6.0",
+      "subjects": ["feat(privacy): add 'Purge My Data' admin action for orgs (#388) (#408)"],
+      "expected": {
+        "prNumbers": [388, 408],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v3.6.0..v4.0.0",
+      "subjects": [
+        "Merge pull request #414 from releaseray/staging",
+        "Merge pull request #425 from releaseray/develop",
+        "chore: backport PR #408 purge data feature from main to develop (#424)",
+        "Merge pull request #395 from releaseray/develop",
+        "feat(privacy): add data transparency API endpoint for orgs (#387) (#407)",
+        "feat(security): enhance audit logging for SOC 2 compliance (#385) (#406)",
+        "feat(llm): BYOK AWS Bedrock — per-org LLM configuration (#386) (#405)",
+        "feat(security): add AES-256-GCM field-level encryption for sensitive fields (#384) (#404)",
+        "feat(llm): add AWS Bedrock as platform-level LLM provider (#383) (#403)",
+        "feat(ranges): add date-based release range support (#398) (#402)",
+        "fix(workers): add missing BullMQ stall/lock settings to team-sync worker (#400) (#401)",
+        "feat(llm): implement provider-agnostic LLM abstraction layer (#382) (#399)",
+        "fix(auth): resolve org installation slug mismatch for GitHub organizations (#396) (#397)",
+        "feat(privacy)!: implement fully ephemeral data processing (#379) (#393)"
+      ],
+      "expected": {
+        "prNumbers": [
+          379, 382, 383, 384, 385, 386, 387, 393, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404,
+          405, 406, 407, 414, 424, 425
+        ],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v4.0.0..v4.1.0",
+      "subjects": [
+        "Merge pull request #439 from releaseray/staging",
+        "chore: sync staging with main to resolve branch divergence (#440)",
+        "Merge pull request #431 from releaseray/develop",
+        "fix(llm,billing): resolve OpenAI fallback model and exception trial indicators (#436, #437) (#438)",
+        "fix(ui): add mobile scroll support to all modals and dialogs (#434)",
+        "chore(ci): set dependabot target-branch to develop (#431) (#433)",
+        "chore(deps): bump @types/node from 20.19.24 to 20.19.33 (#422)",
+        "chore(ci): bump pnpm/action-setup from 4.0.0 to 4.2.0 (#410)",
+        "chore(ci): bump actions/cache from 4.2.1 to 5.0.3 (#412)",
+        "chore(ci): bump actions/stale from 9 to 10 (#411)",
+        "chore(ci): bump actions/labeler from 5.0.0 to 6.0.1 (#409)",
+        "feat(privacy): update consent form for ephemeral processing and multi-provider support (#426) (#427)",
+        "feat(settings): fix LLM provider display and add AI configuration UI (#427) (#430)"
+      ],
+      "expected": {
+        "prNumbers": [409, 410, 411, 412, 422, 426, 427, 430, 431, 433, 434, 438, 439, 440],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v4.1.0..v4.2.0",
+      "subjects": [
+        "Merge pull request #460 from releaseray/staging",
+        "Merge pull request #469 from releaseray/develop",
+        "feat(site): update marketing site with v3.4.0-v4.1.0 features and security overhaul (#467) (#468)",
+        "feat(ranges): add PR-based release range selection (#464) (#466)",
+        "Merge pull request #463 from releaseray/develop",
+        "fix(db): use dynamic require for fs/path to fix Edge Runtime build (#461) (#462)",
+        "Merge pull request #447 from releaseray/develop",
+        "chore(security): schedule annual penetration testing engagement (#452) (#459)",
+        "feat(security): automate encryption key rotation via CI/CD pipeline (#454) (#457)",
+        "docs(security): formalize endpoint security and device management policy (#455) (#458)",
+        "feat(security): upgrade database SSL to verify-full with CA cert validation (#453) (#456)",
+        "feat(enterprise): automated security questionnaire responses (#392) (#451)",
+        "feat(security): comprehensive audit trail UI with export (#390) (#449)",
+        "feat(security): SOC 2 Type II compliance gap closure (#389) (#448)",
+        "chore: sync develop with staging to backport dependabot bumps (#445)"
+      ],
+      "expected": {
+        "prNumbers": [
+          389, 390, 392, 445, 447, 448, 449, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461,
+          462, 463, 464, 466, 467, 468, 469
+        ],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v4.2.0..v4.2.1",
+      "subjects": [
+        "Merge pull request #475 from releaseray/staging",
+        "Merge pull request #474 from releaseray/develop",
+        "fix(security): address findings from security code review (#472) (#473)"
+      ],
+      "expected": {
+        "prNumbers": [472, 473, 474, 475],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v4.2.1..v4.2.2",
+      "subjects": [
+        "Merge pull request #481 from releaseray/staging",
+        "Merge pull request #480 from releaseray/develop",
+        "fix(drafts): refactor individual draft generation to synchronous (#478) (#479)"
+      ],
+      "expected": {
+        "prNumbers": [478, 479, 480, 481],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v4.2.2..v4.3.0",
+      "subjects": [
+        "feat(site): SEO blog posts, theme-aware screenshots, prompt fixes, docs polish (#486)"
+      ],
+      "expected": {
+        "prNumbers": [486],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v4.3.0..v4.4.0",
+      "subjects": [
+        "Merge pull request #487 from releaseray/staging",
+        "Merge pull request #494 from releaseray/develop",
+        "fix(ci): exclude sync/back-merge commits from breaking change detection (#493)",
+        "Merge pull request #492 from releaseray/develop",
+        "chore: sync develop with main (#491)",
+        "chore: resolve PR 487 conflicts (merge main into staging) (#490)",
+        "Merge pull request #489 from releaseray/develop",
+        "docs: backport documentation accuracy fixes from main to develop (#488)",
+        "Merge pull request #484 from releaseray/develop",
+        "feat(site): refresh all 4 blog posts (Section 2) (#485)",
+        "feat(site): SEO foundation, blog infrastructure upgrade, OG images, RSS feed (#482) (#483)"
+      ],
+      "expected": {
+        "prNumbers": [482, 483, 484, 485, 487, 488, 489, 490, 491, 492, 493, 494],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v4.4.0..v4.5.0",
+      "subjects": [
+        "Merge pull request #500 from releaseray/staging",
+        "Merge pull request #503 from releaseray/develop",
+        "feat(personas): add persona-specific section defaults and drag-and-drop reordering (#501) (#502)",
+        "Merge pull request #499 from releaseray/develop",
+        "feat(personas): add custom section structure for release drafts (#496) (#498)",
+        "docs: add blog post on release notes templates (#495) (#497)"
+      ],
+      "expected": {
+        "prNumbers": [495, 496, 497, 498, 499, 500, 501, 502, 503],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v4.5.0..v4.6.0",
+      "subjects": [
+        "Merge pull request #514 from releaseray/staging",
+        "Merge pull request #506 from releaseray/develop",
+        "feat(site): add blog post on automating changelogs with GitHub Actions (#512) (#513)",
+        "fix(ci): replace dynamic secrets access in deploy-migrations workflow (#510) (#511)",
+        "docs: update README, cursor rules, and docs for v4.1.0–v4.5.0 changes (#505) (#505)"
+      ],
+      "expected": {
+        "prNumbers": [505, 506, 510, 511, 512, 513, 514],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v4.6.0..v4.6.1",
+      "subjects": [
+        "Merge pull request #550 from releaseray/staging",
+        "Merge pull request #549 from releaseray/develop",
+        "fix(blog): skip headings inside code blocks when splitting content and building TOC (#548)",
+        "Merge pull request #547 from releaseray/staging",
+        "Merge pull request #541 from releaseray/develop",
+        "content(blog): add ReleaseRay vs LaunchNotes comparison post (#542)",
+        "chore: add Claude Code configuration with rules, skills, agents, and hooks (#540)",
+        "Merge pull request #539 from releaseray/staging",
+        "Merge pull request #536 from releaseray/develop",
+        "chore(ci): bump codecov/codecov-action from 5.5.2 to 6.0.0 (#532)",
+        "chore(ci): bump actions/cache from 5.0.3 to 5.0.4 (#531)",
+        "Merge pull request #534 from releaseray/staging",
+        "Merge pull request #533 from releaseray/develop",
+        "chore(deps): batch update dependencies for security and stability (#530)",
+        "Merge pull request #524 from releaseray/develop",
+        "chore(deps): bump react-markdown from 9.1.0 to 10.1.0 (#423)",
+        "chore(ci): bump actions/checkout from 4 to 6 (#413)",
+        "chore(ci): bump actions/github-script from 7 to 8 (#476)",
+        "chore(ci): bump codecov/codecov-action from 4.5.0 to 5.5.2 (#477)",
+        "chore(ci): bump actions/setup-node from 4.0.2 to 6.3.0 (#507)",
+        "chore(ci): bump pnpm/action-setup from 4.2.0 to 4.4.0 (#509)",
+        "Merge pull request #523 from releaseray/staging",
+        "Merge pull request #522 from releaseray/develop",
+        "fix(site,app): marketing site fixes, admin mobile sidebar, broken links (#521)",
+        "Merge pull request #520 from releaseray/staging",
+        "Merge pull request #519 from releaseray/develop",
+        "docs(blog): add \"10 Best Release Notes Tools\" pillar comparison post (#518)",
+        "Merge pull request #517 from releaseray/staging",
+        "Merge pull request #516 from releaseray/develop",
+        "docs(blog): add monorepo release notes blog post (#515)"
+      ],
+      "expected": {
+        "prNumbers": [
+          413, 423, 476, 477, 507, 509, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 530, 531,
+          532, 533, 534, 536, 539, 540, 541, 542, 547, 548, 549, 550
+        ],
+        "promotionPRNumbers": []
+      }
+    },
+    {
+      "range": "v4.6.1..v4.7.0",
+      "subjects": [
+        "Merge pull request #562 from releaseray/staging",
+        "Merge pull request #559 from releaseray/develop",
+        "feat(site): interactive demo and install-first GTM on /demo (#557) (#558)"
+      ],
+      "expected": {
+        "prNumbers": [557, 558, 559, 562],
+        "promotionPRNumbers": []
+      }
+    }
+  ]
+}
