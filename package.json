@@ -23,9 +23,9 @@
     "check:carried": "tsx scripts/check-carried.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "3.987.0",
+    "@aws-sdk/client-bedrock-runtime": "3.1169.0",
     "@octokit/rest": "20.1.2",
-    "openai": "4.104.0",
+    "openai": "7.57.0",
     "zod": "3.25.76"
   },
   "devDependencies": {
