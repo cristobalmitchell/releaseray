@@ -72,6 +72,7 @@ describe("createProvider", () => {
     expect(openAICalls.ctor.at(-1)).toEqual({
       apiKey: "test-key",
       baseURL: "http://localhost:8080/v1",
+      maxRetries: 0,
     });
     expect(openAICalls.create.at(-1)).toMatchObject({
       model: DEFAULT_OPENAI_MODEL,
