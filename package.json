@@ -20,12 +20,15 @@
     "format:check": "prettier --check .",
     "check:deps": "tsx scripts/check-deps.ts",
     "check:boundary": "tsx scripts/check-boundary.ts",
-    "check:carried": "tsx scripts/check-carried.ts"
+    "check:carried": "tsx scripts/check-carried.ts",
+    "schema": "tsx scripts/generate-schema.ts",
+    "check:schema": "tsx scripts/generate-schema.ts --check"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "3.1169.0",
     "@octokit/rest": "22.0.1",
     "openai": "7.57.0",
+    "yaml": "2.9.1",
     "zod": "4.6.6"
   },
   "devDependencies": {
