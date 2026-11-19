@@ -2698,7 +2698,8 @@
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
       "fullName": "prependToChangelog > Edge cases > should handle Unreleased section - KNOWN ISSUE",
       "status": "edit",
-      "reason": "Re-asserted: a new entry lands below [Unreleased] (\u00a77.3, issue 8)"
+      "reason": "Re-asserted: a new entry lands below [Unreleased] (\u00a77.3, issue 8)",
+      "targetName": "prependToChangelog > Edge cases > should keep the Unreleased section first"
     },
     {
       "sourceFile": "apps/app/src/lib/publishers/changelog.test.ts",
