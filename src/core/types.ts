@@ -161,4 +161,8 @@ export interface ResolvedPersona {
   sections?: PersonaSectionDefaults;
   /** Extra instructions from the user's configuration. */
   instructions?: string;
+  /** Category ids each section collects, by section id. */
+  sectionCategories?: Record<string, string[]>;
+  /** Category ids this persona never shows. */
+  excludeCategories?: string[];
 }
