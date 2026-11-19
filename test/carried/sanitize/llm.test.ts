@@ -135,7 +135,7 @@ const password = "admin123";
       expect(output).not.toContain("AKIAIOSFODNN7EXAMPLE");
     });
 
-    it(`should redact GitHub tokens (${GHP})`, () => {
+    it("should redact GitHub tokens (ghp_)", () => {
       const input = `GITHUB_TOKEN=${GHP}1234567890abcdefghijklmnopqrstuvwxyz`;
       const output = sanitizeForLLM(input);
       expect(output).toContain("[REDACTED]");
