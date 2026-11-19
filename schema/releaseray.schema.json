@@ -6,11 +6,13 @@
   "type": "object",
   "properties": {
     "$schema": {
-      "type": "string"
+      "type": "string",
+      "description": "Editor hint; ignored by the Action."
     },
     "version": {
       "type": "number",
-      "const": 1
+      "const": 1,
+      "description": "Always 1."
     },
     "range": {
       "default": {},
@@ -19,25 +21,30 @@
         "tagPattern": {
           "default": "v*",
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "Glob over tag names that count as releases, as `git tag --list` reads it."
         },
         "includePrereleases": {
           "default": false,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Let a prerelease tag be the previous tag of a release."
         },
         "allowNonAncestor": {
           "default": false,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Allow an explicit `from` that is not an ancestor of `to`. The `allow-non-ancestor` input sets it for one run."
         },
         "fallbackToCommits": {
           "default": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Write notes from commit messages when no commit names a pull request."
         },
         "maxPullRequests": {
           "default": 250,
           "type": "integer",
           "minimum": 1,
-          "maximum": 5000
+          "maximum": 5000,
+          "description": "Stop before any REST call when a range names more pull requests than this; set `from` or narrow the window."
         }
       },
       "additionalProperties": false
@@ -55,45 +62,53 @@
             "properties": {
               "id": {
                 "type": "string",
-                "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+                "description": "Slug. A built-in id (breaking, security, features, improvements, fixes, performance, deprecations, docs, internal) changes that category."
               },
               "title": {
                 "type": "string",
                 "minLength": 1,
-                "maxLength": 100
+                "maxLength": 100,
+                "description": "Name the classifier and the model see. Default: the built-in title, or the id in words."
               },
               "labels": {
                 "type": "array",
                 "items": {
                   "type": "string",
                   "minLength": 1
-                }
+                },
+                "description": "Pull request labels that put a change here: exact names (any case) or `/regex/flags`."
               },
               "conventionalTypes": {
                 "type": "array",
                 "items": {
                   "type": "string",
                   "minLength": 1
-                }
+                },
+                "description": "Conventional-commit types that map here, such as feat, fix or ci."
               },
               "internal": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Hide this category from personas that exclude internal changes."
               }
             },
             "required": [
               "id"
             ],
             "additionalProperties": false
-          }
+          },
+          "description": "Categories to add, or built-in categories to change, by id."
         },
         "conventionalCommits": {
           "default": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Read conventional-commit prefixes in titles and commits."
         },
         "fallbackCategory": {
           "default": "improvements",
           "type": "string",
-          "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+          "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+          "description": "Category for changes with no other signal; unknown model sections merge into its section."
         },
         "exclude": {
           "default": {},
@@ -107,7 +122,8 @@
               "items": {
                 "type": "string",
                 "minLength": 1
-              }
+              },
+              "description": "Pull requests with any of these labels are left out (exact names or `/regex/`)."
             },
             "authors": {
               "default": [],
@@ -115,7 +131,8 @@
               "items": {
                 "type": "string",
                 "minLength": 1
-              }
+              },
+              "description": "Pull requests by these logins are left out, such as `renovate[bot]`."
             },
             "titlePatterns": {
               "default": [],
@@ -123,7 +140,8 @@
               "items": {
                 "type": "string",
                 "minLength": 1
-              }
+              },
+              "description": "Regular expressions (`source` or `/source/flags`) matched against commit subjects and pull request titles; matches are left out."
             }
           },
           "additionalProperties": false
@@ -137,21 +155,25 @@
       "properties": {
         "bodies": {
           "default": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Send pull request and issue bodies to the model."
         },
         "linkedIssues": {
           "default": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Fetch issues that pull request bodies link to (one request each)."
         },
         "maxLinkedIssues": {
           "default": 100,
           "type": "integer",
           "minimum": 0,
-          "maximum": 500
+          "maximum": 500,
+          "description": "Most linked issues fetched per release."
         },
         "comments": {
           "default": false,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Fetch comments and reviews (two requests per pull request, one per issue). Off by default: it costs requests and widens prompt-injection exposure."
         },
         "commentAuthorAssociations": {
           "default": [
@@ -167,13 +189,15 @@
               "MEMBER",
               "COLLABORATOR"
             ]
-          }
+          },
+          "description": "Keep only comments from these author associations."
         },
         "maxBodyChars": {
           "default": 4000,
           "type": "integer",
           "minimum": 0,
-          "maximum": 20000
+          "maximum": 20000,
+          "description": "Characters of each body sent to the model."
         }
       },
       "additionalProperties": false
@@ -186,7 +210,8 @@
         "properties": {
           "slug": {
             "type": "string",
-            "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+            "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+            "description": "Lowercase id. engineer, internal and customer change a built-in; anything else adds a persona."
           },
           "extends": {
             "type": "string",
@@ -194,27 +219,32 @@
               "engineer",
               "internal",
               "customer"
-            ]
+            ],
+            "description": "Start a new persona from a built-in's rules and sections."
           },
           "name": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 60
+            "maxLength": 60,
+            "description": "Display name in the summary."
           },
           "description": {
             "type": "string",
-            "maxLength": 500
+            "maxLength": 500,
+            "description": "Who this persona is for; sent to the model."
           },
           "enabled": {
             "default": true,
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Set false to stop generating this persona."
           },
           "visibility": {
             "type": "string",
             "enum": [
               "public",
               "internal"
-            ]
+            ],
+            "description": "internal personas are withheld from public outputs and from public repositories' summaries. Default: internal for `internal` and personas extending it."
           },
           "tone": {
             "type": "object",
@@ -222,54 +252,66 @@
               "formality": {
                 "type": "integer",
                 "minimum": 0,
-                "maximum": 100
+                "maximum": 100,
+                "description": "0 casual to 100 formal. Default 50; 0 is kept."
               },
               "technicalDepth": {
                 "type": "integer",
                 "minimum": 0,
-                "maximum": 100
+                "maximum": 100,
+                "description": "0 plain language to 100 technical. Default 50."
               },
               "enthusiasm": {
                 "type": "integer",
                 "minimum": 0,
-                "maximum": 100
+                "maximum": 100,
+                "description": "0 neutral to 100 enthusiastic. Default 30."
               },
               "detail": {
                 "type": "integer",
                 "minimum": 0,
-                "maximum": 100
+                "maximum": 100,
+                "description": "0 brief to 100 comprehensive. Default 50."
               }
             },
             "additionalProperties": false
           },
           "instructions": {
             "type": "string",
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "Extra instructions for the model, up to 2,000 characters."
           },
           "instructionsFile": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "Like `instructions`, from a file under `.releaseray/`."
           },
           "include": {
             "type": "object",
             "properties": {
               "identifiers": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Show pull request and issue numbers and commit SHAs."
               },
               "breakingChanges": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Ask for breaking changes."
               },
               "migrationGuides": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Ask for migration guides."
               },
               "highlights": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Render the Highlights section."
               },
               "upgradeInstructions": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Render upgrade instructions."
               },
               "contributors": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Render the contributors line (from pull request authors)."
               }
             },
             "additionalProperties": false
@@ -282,16 +324,19 @@
               "properties": {
                 "id": {
                   "type": "string",
-                  "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                  "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+                  "description": "Slug. A standard section id (breaking-changes, features, bug-fixes, …) keeps its category mapping."
                 },
                 "name": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 100
+                  "maxLength": 100,
+                  "description": "Heading in the notes."
                 },
                 "description": {
                   "type": "string",
-                  "maxLength": 500
+                  "maxLength": 500,
+                  "description": "What belongs in this section; sent to the model."
                 },
                 "categories": {
                   "default": [],
@@ -299,11 +344,13 @@
                   "items": {
                     "type": "string",
                     "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
-                  }
+                  },
+                  "description": "Category ids this section collects. Empty: the standard section's categories, or the category with the same id."
                 },
                 "enabled": {
                   "default": true,
-                  "type": "boolean"
+                  "type": "boolean",
+                  "description": "Set false to hide the section."
                 }
               },
               "required": [
@@ -311,21 +358,24 @@
                 "name"
               ],
               "additionalProperties": false
-            }
+            },
+            "description": "The sections to write, in order (at most 15). Replaces the persona's default sections."
           },
           "excludeCategories": {
             "type": "array",
             "items": {
               "type": "string",
               "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
-            }
+            },
+            "description": "Category ids this persona never shows. The built-in customer persona excludes internal."
           }
         },
         "required": [
           "slug"
         ],
         "additionalProperties": false
-      }
+      },
+      "description": "Persona entries, merged over the built-ins by slug."
     },
     "outputs": {
       "default": {},
@@ -337,7 +387,8 @@
           "properties": {
             "enabled": {
               "default": true,
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Write notes, usage and completeness to the job summary."
             },
             "personas": {
               "default": "all",
@@ -353,7 +404,8 @@
                     "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
                   }
                 }
-              ]
+              ],
+              "description": "`all`, or the slugs to show."
             }
           },
           "additionalProperties": false
@@ -364,12 +416,14 @@
           "properties": {
             "enabled": {
               "default": true,
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Write `<dir>/<key>/<persona>.md` and `notes.json` in the workspace."
             },
             "dir": {
               "default": ".releaseray/notes",
               "type": "string",
-              "minLength": 1
+              "minLength": 1,
+              "description": "Directory for the workspace files, relative to the checkout."
             }
           },
           "additionalProperties": false
@@ -380,12 +434,14 @@
           "properties": {
             "enabled": {
               "default": true,
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Write a block into the GitHub Release when `publish` resolves to true."
             },
             "persona": {
               "default": "engineer",
               "type": "string",
-              "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+              "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+              "description": "The persona whose notes go into the release."
             },
             "mode": {
               "default": "section",
@@ -393,7 +449,8 @@
               "enum": [
                 "section",
                 "replace"
-              ]
+              ],
+              "description": "`section` appends a marked block and keeps other text; `replace` writes the whole body."
             },
             "onHumanEdit": {
               "default": "skip",
@@ -401,16 +458,19 @@
               "enum": [
                 "skip",
                 "overwrite"
-              ]
+              ],
+              "description": "`skip` leaves a block a person edited; `overwrite` replaces it."
             },
             "createIfMissing": {
               "default": false,
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Create the release when none exists for the tag. The `create-release` input sets it for one run."
             },
             "nameTemplate": {
               "default": "Release {{tag}}",
               "type": "string",
-              "minLength": 1
+              "minLength": 1,
+              "description": "Name of a created release; `{{tag}}` is the tag."
             },
             "prerelease": {
               "default": "auto",
@@ -422,7 +482,8 @@
                 {
                   "type": "boolean"
                 }
-              ]
+              ],
+              "description": "Prerelease flag of a created release; `auto` follows SemVer."
             }
           },
           "additionalProperties": false
@@ -433,17 +494,20 @@
           "properties": {
             "enabled": {
               "default": false,
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Write a marked entry into the CHANGELOG file in the workspace."
             },
             "path": {
               "default": "CHANGELOG.md",
               "type": "string",
-              "minLength": 1
+              "minLength": 1,
+              "description": "CHANGELOG path, relative to the checkout."
             },
             "persona": {
               "default": "engineer",
               "type": "string",
-              "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+              "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+              "description": "The persona whose notes go into the CHANGELOG."
             },
             "onHumanEdit": {
               "default": "skip",
@@ -451,32 +515,38 @@
               "enum": [
                 "skip",
                 "overwrite"
-              ]
+              ],
+              "description": "`skip` leaves an entry a person wrote or edited; `overwrite` replaces it."
             },
             "push": {
               "default": false,
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Commit and push the entry. The `push` input sets it for one run."
             },
             "branch": {
               "type": "string",
-              "minLength": 1
+              "minLength": 1,
+              "description": "Branch to push to. Default: the checked-out branch, else the default branch."
             },
             "commitMessage": {
               "default": "docs(changelog): {{key}}",
               "type": "string",
-              "minLength": 1
+              "minLength": 1,
+              "description": "Commit subject; `{{key}}` is the release key."
             },
             "author": {
               "type": "object",
               "properties": {
                 "name": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "description": "Commit author name. Default: github-actions[bot]."
                 },
                 "email": {
                   "type": "string",
                   "format": "email",
-                  "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                  "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+                  "description": "Commit author email."
                 }
               },
               "required": [
@@ -605,15 +675,18 @@
                 "additionalProperties": false
               }
             ]
-          }
+          },
+          "description": "Slack, Teams and Intercom. Arrives in v1.1; rejected until then."
         },
         "allowInternalOutputs": {
           "default": false,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Allow an internal persona on the GitHub Release or CHANGELOG."
         },
         "allowInternalOnPublicRepo": {
           "default": false,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Show internal personas in the summary and files of a public repository."
         }
       },
       "additionalProperties": false
@@ -629,54 +702,64 @@
             "openai",
             "bedrock",
             "anthropic"
-          ]
+          ],
+          "description": "`openai` (or any OpenAI-compatible endpoint) or `bedrock`. `anthropic` arrives in v1.1."
         },
         "model": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "Model id. Default: gpt-5-mini on openai, Claude Haiku 4.5 on bedrock. Bedrock accepts inference-profile ARNs."
         },
         "baseUrl": {
           "type": "string",
-          "format": "uri"
+          "format": "uri",
+          "description": "OpenAI-compatible endpoint (openai only)."
         },
         "region": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "AWS region (bedrock only; required there)."
         },
         "maxCompletionTokens": {
           "default": 16384,
           "type": "integer",
           "minimum": 256,
-          "maximum": 65536
+          "maximum": 65536,
+          "description": "Most tokens per model response."
         },
         "maxInputTokens": {
           "default": 200000,
           "type": "integer",
           "minimum": 1000,
-          "maximum": 9007199254740991
+          "maximum": 9007199254740991,
+          "description": "Most input tokens per persona call, estimated at 4 characters each and checked before any call."
         },
         "concurrency": {
           "default": 3,
           "type": "integer",
           "minimum": 1,
-          "maximum": 10
+          "maximum": 10,
+          "description": "Persona calls in parallel."
         },
         "retries": {
           "default": 3,
           "type": "integer",
           "minimum": 0,
-          "maximum": 5
+          "maximum": 5,
+          "description": "Times to ask again after invalid output; transient errors retry separately."
         },
         "pricing": {
           "type": "object",
           "properties": {
             "inputPer1M": {
               "type": "number",
-              "minimum": 0
+              "minimum": 0,
+              "description": "USD per million input tokens, for a model the built-in table lacks."
             },
             "outputPer1M": {
               "type": "number",
-              "minimum": 0
+              "minimum": 0,
+              "description": "USD per million output tokens."
             }
           },
           "required": [
@@ -695,13 +778,15 @@
         "maxRequests": {
           "type": "integer",
           "minimum": 1,
-          "maximum": 9007199254740991
+          "maximum": 9007199254740991,
+          "description": "Request cap for a run. Default: 90% of the token's hourly core limit."
         },
         "concurrency": {
           "default": 1,
           "type": "integer",
           "minimum": 1,
-          "maximum": 10
+          "maximum": 10,
+          "description": "REST reads in parallel. Writes are always serial."
         },
         "onBudgetExceeded": {
           "default": "fail",
@@ -710,13 +795,15 @@
             "fail",
             "wait",
             "degrade"
-          ]
+          ],
+          "description": "When the estimate does not fit: `fail` (exit 3), `wait` for the reset within `maxWaitMinutes`, or `degrade` (drop comments, then linked issues). Also governs `llm.maxInputTokens`."
         },
         "maxWaitMinutes": {
           "default": 0,
           "type": "integer",
           "minimum": 0,
-          "maximum": 300
+          "maximum": 300,
+          "description": "Longest wait for a rate-limit reset. Raise the job's `timeout-minutes` to match."
         }
       },
       "additionalProperties": false
@@ -734,11 +821,13 @@
           "items": {
             "type": "string",
             "minLength": 1
-          }
+          },
+          "description": "Hosts (and their subdomains) whose links are kept; other links are redacted."
         },
         "redactPaths": {
           "default": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Remove file paths from published text."
         }
       },
       "additionalProperties": false
@@ -749,11 +838,13 @@
       "properties": {
         "emoji": {
           "default": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Emoji in section headings."
         },
         "compareLink": {
           "default": true,
-          "type": "boolean"
+          "type": "boolean",
+          "description": "End with a compare link from the previous tag."
         }
       },
       "additionalProperties": false

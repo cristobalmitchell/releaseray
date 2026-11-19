@@ -7,336 +7,283 @@
 [![Status: pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)](#project-status)
 [![Node 24](https://img.shields.io/badge/node-24-339933.svg)](package.json)
 
-[Website](https://www.releaseray.com) · [Roadmap](#roadmap) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
+[Website](https://www.releaseray.com) · [Configuration](docs/configuration.md) · [Security](docs/security.md) · [Contributing](CONTRIBUTING.md)
 
 </div>
 
 ---
 
 > [!IMPORTANT]
-> **ReleaseRay is not ready to use yet.** There is no release, no `action.yml` and no `v1` tag, so `uses: cristobalmitchell/releaseray@v1` does not work today. The generation core is built and tested; the configuration, pipeline and Action layer are in progress. Sections below say which parts exist and which are planned. Watch the repository or the [roadmap](#roadmap) for the first release.
+> **Not released yet.** The Action, its modes and its outputs are built and tested, but there is no `v1.0.0` tag, so `uses: cristobalmitchell/releaseray@v1` does not resolve yet. The quickstart below is what you will run once `v1.0.0` is published; end-to-end tests on sandbox repositories come first ([project status](#project-status)).
 
 ## Table of contents
 
-- [Overview](#overview)
-- [How it will work](#how-it-will-work)
-- [Features](#features)
-- [Configuration](#configuration)
-- [Architecture](#architecture)
-- [Development](#development)
-- [Testing](#testing)
+- [What it does](#what-it-does)
+- [Quickstart](#quickstart)
+- [Starter config](#starter-config)
+- [Workflows](#workflows)
+- [Modes, inputs and outputs](#modes-inputs-and-outputs)
+- [Troubleshooting](#troubleshooting)
+- [How it works](#how-it-works)
 - [Security and privacy](#security-and-privacy)
+- [Development](#development)
 - [Project status](#project-status)
-- [Roadmap](#roadmap)
 - [Coming from the hosted ReleaseRay App](#coming-from-the-hosted-releaseray-app)
 - [License](#license)
 
-## Overview
+## What it does
 
-### The problem
+A single release usually has several readers: engineers who need the API changes, a support or customer-success team that needs talking points, and customers who need plain language. ReleaseRay writes one version for each, from the pull requests and issues merged between two tags.
 
-Release notes have more than one audience. Engineers want every change with its PR number and the upgrade steps. Customer-facing teams want the business impact and talking points. Customers want plain language and what they need to do. Writing three versions of the same release by hand is slow, and GitHub's generated notes are a list of PR titles that serves none of them well.
+- **Personas.** Three built in (`engineer`, `internal`, `customer`); retune their tone, sections and instructions, or add your own, in `.releaseray/config.yml`.
+- **From your history.** Tags, ancestry and commits come from your checkout. Each pull request and linked issue is fetched once per release, within a request budget it checks before it starts.
+- **Your model, your key.** OpenAI (or any OpenAI-compatible endpoint) or AWS Bedrock. Nothing goes anywhere else, and there is no telemetry.
+- **Safe to publish.** Repository text reaches the model only as escaped data. Output is checked against what was fetched: invented references, off-allowlist links, live mentions, HTML and images are removed.
+- **Idempotent.** Marked blocks in the GitHub Release and `CHANGELOG.md` record what was generated. A re-run with nothing changed makes no LLM call and no write; a block someone edited by hand is left alone.
+- **Outputs.** Job summary, workspace files with `notes.json`, the GitHub Release, and `CHANGELOG.md` with an optional push.
 
-### The solution
+## Quickstart
 
-ReleaseRay reads the pull requests and linked issues merged between two tags, groups them into sections, and writes one set of notes per persona with the LLM you choose. It then publishes to the places you already use: the GitHub Release, `CHANGELOG.md`, the job summary and files in the workspace.
-
-It runs entirely inside your GitHub Actions workflow:
-
-- **Your runner, your keys.** It uses `GITHUB_TOKEN` and your OpenAI, OpenAI-compatible or AWS Bedrock credentials. Nothing is sent anywhere except to GitHub and to the LLM provider you configure.
-- **No service to sign up for.** There is no hosted backend, no account and no telemetry. The maintainer runs no infrastructure.
-- **Customizable in your repository.** Personas, sections, tone, categories, exclusions and prompts live in `.releaseray/`, under version control with the rest of your code.
-- **Safe to re-run.** Published text carries hidden markers, so re-running a release makes no LLM call and no write, and keeps edits people made by hand.
-
-ReleaseRay began as a hosted GitHub App. This repository is its open-source successor, built from the same tested generation core.
-
-## How it will work
-
-> [!NOTE]
-> This is the planned interface. It is not usable yet and may change before `v1.0.0`.
-
-Add a workflow that runs when you publish a release:
+1. Add your model key as a repository secret named `OPENAI_API_KEY` (Settings → Secrets and variables → Actions).
+2. Add `.github/workflows/release-notes.yml`:
 
 ```yaml
-# .github/workflows/release-notes.yml
 name: Release notes
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      to:
+        description: "Tag, or HEAD for a preview"
+        type: string
+        required: true
+      publish:
+        description: Update the GitHub Release
+        type: boolean
+        default: false
 
 permissions: {}
+
+concurrency:
+  group: releaseray-${{ github.event.release.tag_name || inputs.to }}
+  cancel-in-progress: false
 
 jobs:
   notes:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
-      contents: write # update the GitHub Release
-      pull-requests: read # read merged PRs
-      issues: read # read linked issues
+      contents: write
+      pull-requests: read
+      issues: read
     steps:
-      - uses: actions/checkout@<full-sha> # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # all history and tags: the range is resolved locally
+          fetch-depth: 0
           persist-credentials: false
-      - uses: cristobalmitchell/releaseray@<full-sha> # v1.0.0
+      - uses: cristobalmitchell/releaseray@v1 # pin to the v1.0.0 commit SHA
         with:
-          to: ${{ github.event.release.tag_name }}
+          to: ${{ github.event.release.tag_name || inputs.to }}
+          publish: ${{ github.event_name == 'release' || inputs.publish }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
 
-With no configuration, ReleaseRay:
+3. Publish a release. The engineer notes are appended to the release body, and every persona appears in the job summary. To try it on an existing tag without writing anything, run the workflow by hand with `publish` off.
 
-1. Finds the previous tag: the highest SemVer tag that is an ancestor of the new one.
-2. Reads the PR numbers from the commits between the two tags, then fetches each PR and its linked issues once.
-3. Classifies the changes and writes notes for the built-in engineer, internal and customer personas.
-4. Adds the engineer notes to the release body inside markers, shows public personas in the job summary, and writes every persona to workspace files.
+No config file is needed: the defaults write for the three built-in personas. Add `.releaseray/config.yml` (below) to change them.
 
-Every task is a value of the `mode` input. There is no separate CLI.
+## Starter config
 
-| `mode`                  | What it does                                                                                   | LLM calls | Writes |
-| ----------------------- | ---------------------------------------------------------------------------------------------- | --------- | ------ |
-| `generate` (default)    | Writes notes and, on release events, publishes them                                            | Yes       | Yes    |
-| `publish`               | Publishes notes generated in an earlier job, checked by digest                                 | No        | Yes    |
-| `preview`               | Shows the range, the PRs found and an approximate classification; optionally the exact prompts | No        | No     |
-| `doctor`                | Checks the token, permissions, clone depth, tags and rate-limit budget                         | No        | No     |
-| `validate-config`       | Validates `.releaseray/config.yml` and reports every error                                     | No        | No     |
-| `migrate-personas`      | Converts personas exported from the hosted App into `config.yml`                               | No        | No     |
-| `adopt` (v1.1)          | Takes over release notes the hosted App already published, without duplicating them            | No        | Yes    |
-| `sync-changelog` (v1.1) | Backfills `CHANGELOG.md` from existing release notes                                           | No        | Yes    |
-
-Pin the Action to a full commit SHA. Releases are immutable, and the SHA is the only reference that cannot move.
-
-## Features
-
-✅ built and tested in this repository · 🚧 planned
-
-### Personas
-
-- ✅ **Three built-in personas.** _Engineer_: technical, complete, with PR references and upgrade instructions. _Internal_: business impact, customer talking points and objection handling for customer-facing teams. _Customer_: plain language, benefits first, breaking changes always first with the action required.
-- ✅ **Tone sliders.** Formality, technical depth, enthusiasm and detail, each from 0 to 100, turned into writing instructions.
-- ✅ **Section layouts per persona.** Each persona chooses which sections appear and in what order, and whether to show highlights, upgrade instructions and contributors.
-- 🚧 **Your own personas** in `config.yml`, extending a built-in one or starting fresh, with free-text instructions.
-- ✅ **Internal visibility flag.** The internal persona is marked internal. 🚧 On public repositories, internal text will be kept out of job summaries and workspace files, which anyone can read.
-
-### Classification
-
-- ✅ **Rules-based classifier** using labels, conventional-commit types, keywords, PR description structure, linked issues and, optionally, review comments. No code diffs are read.
-- ✅ **Categories as data.** Add your own categories, such as _Infrastructure_, mapped to labels and commit types.
-- ✅ **Exclusions.** Skip PRs by title pattern, for example promotion or release PRs. Nothing is excluded by default.
-- ✅ **Breaking changes and security fixes always win** over other signals.
-- ✅ **Commit fallback** for ranges with no pull requests.
-
-### Writing and safety
-
-- ✅ **One prompt per persona.** The model receives only that persona's rules, plus the PR and issue data as a single escaped block that the data cannot close.
-- ✅ **Input sanitizing.** Secrets, tokens, internal URLs, file paths, emails and mentions are redacted before anything reaches the model. HTML comments, zero-width characters and bidirectional controls are removed, so hidden instructions don't get through.
-- ✅ **Output validation.** Model output must parse against a schema, with retries.
-- ✅ **Publish-time sanitizing.** Links outside an allow-list and secret-shaped strings are redacted from published text.
-- 🚧 **Grounding checks.** References to PRs or issues that were not fetched are removed and counted; mentions become inline code so notes never notify anyone.
-
-### LLM providers
-
-- ✅ **OpenAI**, and any OpenAI-compatible endpoint through a base URL.
-- ✅ **AWS Bedrock**, using the AWS SDK's standard credential chain, which is designed to pick up credentials from `aws-actions/configure-aws-credentials` (an end-to-end test is planned).
-- 🚧 **Anthropic**, natively, in v1.1.
-- ✅ **Cost estimates** from a built-in price table, with a check for models it doesn't know, so reports can show "n/a" instead of a false $0.
-
-### Outputs
-
-- ✅ **GitHub Release helpers.** Updates change only the body, so draft releases stay drafts and titles stay as you set them. New releases are named from a template and flagged as pre-releases from SemVer.
-- 🚧 **GitHub Release output.** Notes go in a marked section of the release body, leaving the rest of the body alone.
-- ✅ **`CHANGELOG.md` writer.** Entries follow [Keep a Changelog](https://keepachangelog.com), ordered by SemVer below an `[Unreleased]` section. Marked entries are replaced in place; entries written by hand are left alone.
-- 🚧 **Job summary and workspace files**, with a `notes.json` for later steps.
-- 🚧 **CHANGELOG push** with a retry loop for concurrent pushes, and a commit trailer that stops loops.
-- 🚧 **Slack, Teams and Intercom** in v1.1.
-
-### Reliability
-
-- ✅ **Markers.** Every block ReleaseRay writes is wrapped in comments with room for a generation digest and a content hash. 🚧 Computing those digests comes with the pipeline.
-- 🚧 **Idempotent re-runs.** If the inputs haven't changed, nothing is regenerated or rewritten. If someone edited the published text, ReleaseRay leaves it alone and warns. A failed CHANGELOG push is repaired by re-running, reusing the text already published.
-- 🚧 **Rate-limit budget.** Before any LLM spend, ReleaseRay estimates the GitHub requests a release needs and checks them against the token's remaining budget. A release of 100 PRs needs about 150 requests; `GITHUB_TOKEN` allows 1,000 an hour.
-- ✅ **SemVer ordering and pre-release detection.** `devtools-v1.2.0` is a release; `v1.2.0-rc.1` is a pre-release.
-- 🚧 **Ancestry-aware ranges.** The previous tag will be the highest SemVer _ancestor_ of the new tag, which handles release branches and back-ported tags correctly.
-
-## Configuration
-
-> [!NOTE]
-> Configuration is the next milestone. This shows the design; key names may change before `v1.0.0`.
-
-ReleaseRay works without configuration. To customize it, add `.releaseray/config.yml`:
+Copy this to `.releaseray/config.yml`. The first line lets editors with a YAML language server check the file as you type; `mode: validate-config` runs the same checks in a workflow.
 
 ```yaml
 # yaml-language-server: $schema=https://raw.githubusercontent.com/cristobalmitchell/releaseray/v1/schema/releaseray.schema.json
 version: 1
 
-range:
-  tagPattern: "v*"
-
 classification:
-  categories:
-    - id: infrastructure
-      title: Infrastructure
-      labels: ["area: infra"]
-      conventionalTypes: [build, ci]
   exclude:
-    labels: [skip-release-notes]
-    titlePatterns: ["^chore\\(release\\):"]
+    labels: [skip-release-notes, dependencies]
+    authors: ["dependabot[bot]", "renovate[bot]"]
 
 personas:
   - slug: customer
     tone: { formality: 30, technicalDepth: 10, enthusiasm: 60, detail: 40 }
-  - slug: sales
-    extends: internal
-    name: Sales enablement
-    instructions: |
-      Lead with the customer problem each change solves. One sentence per item.
+    instructions: Lead each item with what the user can now do.
 
 outputs:
-  githubRelease: { persona: engineer, mode: section }
-  changelog: { enabled: true, persona: engineer }
+  githubRelease: { persona: engineer }
+  changelog: { enabled: false }
 
 llm:
   provider: openai
   model: gpt-5-mini
 ```
 
-Configuration comes from three layers, each overriding the one before: built-in defaults, then `.releaseray/config.yml`, then the Action's inputs. Prompt templates can be overridden with files in `.releaseray/prompts/`. A published JSON Schema will let editors flag mistakes as you type, and `mode: validate-config` checks a config without any secrets.
+Every key is documented in the [configuration reference](docs/configuration.md); [`examples/config/releaseray.yml`](examples/config/releaseray.yml) uses most of them.
 
-## Architecture
+## Workflows
+
+| Example                                                                         | When to use it                                                                                                                      |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| [`release-notes.yml`](examples/workflows/release-notes.yml)                     | The quickstart: on every published release, plus a manual dispatch                                                                  |
+| [`release-notes-hardened.yml`](examples/workflows/release-notes-hardened.yml)   | Public repositories that merge outside contributions: the job with the LLM key cannot write, the job that writes never sees the key |
+| [`release-notes-on-tag.yml`](examples/workflows/release-notes-on-tag.yml)       | A pushed tag creates the release and pushes the CHANGELOG entry                                                                     |
+| [`in-release-job.yml`](examples/workflows/in-release-job.yml)                   | Inside an existing release job whose tags are pushed with `GITHUB_TOKEN`                                                            |
+| [`in-release-job-dispatch.yml`](examples/workflows/in-release-job-dispatch.yml) | Release jobs on `workflow_run`, which dispatch the quickstart workflow                                                              |
+| [`release-notes-preview.yml`](examples/workflows/release-notes-preview.yml)     | A weekly draft of unreleased changes; never publishes                                                                               |
+| [`releaseray-tools.yml`](examples/workflows/releaseray-tools.yml)               | `preview`, `doctor`, `validate-config` and `migrate-personas` on demand                                                             |
+
+Recipes: [CHANGELOG as a pull request](examples/recipes/changelog-pr.yml), [GitHub App token](examples/recipes/app-token.yml), [notes as an artifact](examples/recipes/artifact.yml).
+
+Every example grants nothing at workflow level, pins third-party actions to a full commit SHA, and passes values to scripts through `env:`, never inline.
+
+## Modes, inputs and outputs
+
+| `mode`               | What it does                                                                                                        | LLM                                | Writes                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------- |
+| `generate` (default) | Range, fetch, generate per persona, then publish when `publish` is true                                             | Yes, unless stored text is current | Release and CHANGELOG when publishing |
+| `publish`            | Write job of the hardened split: writes from a `notes.json` whose digest matches                                    | No                                 | Release and CHANGELOG                 |
+| `preview`            | Range, PR count, approximate classification and budget estimate; with `preview-prompts`, the exact prompts as files | Never                              | Nothing                               |
+| `doctor`             | Checks configuration, checkout, tags, token, credentials and visibility                                             | Never                              | Nothing                               |
+| `validate-config`    | The run's config checks, with no secrets                                                                            | Never                              | Nothing                               |
+| `migrate-personas`   | Converts the hosted App's persona YAML into a config file in the workspace                                          | Never                              | Nothing on GitHub                     |
+
+**Inputs.** Blank values fall back to the defaults shown.
+
+| Input                          | Default                          | Meaning                                                                                     |
+| ------------------------------ | -------------------------------- | ------------------------------------------------------------------------------------------- |
+| `mode`                         | `generate`                       | See above                                                                                   |
+| `github-token`                 | `github.token`                   | `GITHUB_TOKEN`, a fine-grained PAT, or a GitHub App token; also used for the CHANGELOG push |
+| `config`                       | `.releaseray/config.yml`         | Config path (for `migrate-personas`, where to write)                                        |
+| `to`                           | the event's tag                  | End tag, or `HEAD` for unreleased changes                                                   |
+| `from`                         | highest-SemVer ancestor tag      | Start tag                                                                                   |
+| `since`, `until`, `key`        |                                  | Date window instead of tags; `key` names it                                                 |
+| `personas`                     | all enabled                      | Comma-separated slugs                                                                       |
+| `publish`                      | true on `release` and tag pushes | Write the GitHub targets                                                                    |
+| `create-release`               | `false`                          | Create the release when none exists                                                         |
+| `push`                         | `outputs.changelog.push`         | Push the CHANGELOG entry                                                                    |
+| `notes-dir`, `expected-digest` |                                  | For `publish`: the artifact path and the generate job's `notes-digest`                      |
+| `allow-non-ancestor`           | `false`                          | Allow an explicit `from` on another line of history                                         |
+| `force`                        | `false`                          | Regenerate even when stored text is current                                                 |
+| `allow-sparse`                 | `false`                          | Generate even when the input is thin                                                        |
+| `preview-prompts`              | `false`                          | For `preview`: fetch and write the exact prompts                                            |
+| `personas-file`                | `.releaseray/personas.yml`       | For `migrate-personas`                                                                      |
+| `all-tags`, `notify`           |                                  | Reserved for `adopt`, `sync-changelog` and notifications in v1.1                            |
+
+**Outputs:** `key`, `from`, `to`, `notes-dir`, `notes-digest`, `release-url`, `release-changed`, `changelog-changed`, `github-requests`, `llm-calls`, `llm-cost-usd` (`n/a` when the model's price is unknown).
+
+**Secrets** are environment variables, never inputs: `OPENAI_API_KEY`, or the AWS credentials for Bedrock (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, for example from `aws-actions/configure-aws-credentials`).
+
+## Troubleshooting
+
+Start with the `doctor` mode from the tools workflow; its summary is what an issue report needs.
+
+| Exit code | Meaning                                                                   | Usual fix                                                                                             |
+| --------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| 2         | Configuration, input, event or range error                                | Read the error annotations; `mode: validate-config` lists config problems                             |
+| 3         | The request budget or prompt size does not fit, or GitHub refused a write | Turn off `enrichment.comments`, lower `maxLinkedIssues` or `maxBodyChars`, or pass a PAT or App token |
+| 4         | GitHub data could not be fetched completely                               | Check the token's permissions; re-run after a rate-limit reset                                        |
+| 5         | The model's output was invalid after retries, or the input was too thin   | Re-run, try another model, or set `allow-sparse`                                                      |
+| 6         | The CHANGELOG push was rejected                                           | Use the App-token recipe or the CHANGELOG pull request recipe                                         |
+| 7         | One output was written and another failed                                 | Re-run: written outputs are no-ops                                                                    |
+
+**No notes for a release.**
+
+- _Releases or tags created with `GITHUB_TOKEN` start no workflows._ If semantic-release or another workflow publishes your releases, use [`in-release-job.yml`](examples/workflows/in-release-job.yml) or dispatch the quickstart workflow from that job.
+- _Runs waiting for approval._ On public repositories, GitHub can hold a run it flags until a collaborator with write access approves it; look for a pending run on the Actions tab.
+- _Draft releases._ Creating or editing a draft starts nothing; publishing it does.
+- _More than three tags pushed at once_ start no tag-push runs; dispatch the quickstart workflow per tag.
+
+**"The checkout is shallow".** Set `fetch-depth: 0` on `actions/checkout`; ranges are resolved from local tags.
+
+**"No commit in the range names a pull request".** Pull request numbers come from `Merge pull request #n` and `(#n)` in commit subjects. Rebase merges keep neither, so the notes fall back to commit messages. Squash or merge commits give the best notes.
+
+**A hand-edited block was not updated.** That is `onHumanEdit: skip` protecting the edit. Set it to `overwrite`, or delete the block to regenerate it.
+
+**The release was created without notes.** `GITHUB_TOKEN` cannot create a release whose commit changes `.github/workflows/`. Pass a PAT or App token as `github-token` (see [docs/tokens.md](docs/tokens.md)).
+
+## How it works
 
 ```mermaid
 flowchart TD
-  T["Trigger: release published, tag push, manual dispatch, schedule (preview only)"] --> A["Action entry layer: inputs, event checks, secrets"]
+  T["Trigger: release published, tag push, dispatch, schedule"] --> A["Entry layer: inputs, event allowlist"]
   A --> C["Config: defaults, then .releaseray/config.yml, then inputs"]
   C --> R["Range from local git: tags, ancestry, PR numbers"]
   R --> B["Budget check against GET /rate_limit"]
-  B --> F["Fetch PRs and linked issues once"]
-  F --> P["Plan each output: reuse stored text, generate, or skip"]
-  P --> G["Sanitize, classify once, then per persona: prompt, LLM, validate"]
-  G --> O["Render Markdown and publish: summary, files, release, CHANGELOG"]
+  B --> F["Fetch PRs, re-check budget, fetch linked issues"]
+  F --> P["Plan release and CHANGELOG: reuse stored text, generate, or skip"]
+  P --> G["Classify once; per persona: prompt, LLM, validate, render"]
+  G --> O["Summary, files, GitHub Release, CHANGELOG and push"]
 ```
-
-### Repository layout
 
 ```text
+action.yml               # inputs, outputs, node24, dist/action.js
+dist/                    # committed single-file bundle and bundled licenses
 src/
-├── action/              # the only code that talks to the runner (@actions/*, process.env)
-├── config/              # built-in personas and section layouts; config schema (planned)
+├── action/              # the only code that touches the runner (@actions/core, process.env)
+├── modes/               # generate, publish, preview, doctor, validate-config, migrate-personas
+├── config/              # schema, loader, resolution, built-in personas and categories
 ├── core/
-│   ├── classify/        # rules classifier, patterns, linked issues, commit fallback
-│   ├── llm/             # schema-validated calls; OpenAI and Bedrock providers
-│   ├── prompt/          # one persona prompt builder, templates, tone wording
-│   ├── range/           # PR-number extraction with exclusions
-│   ├── render/          # Markdown rendering and heading shift
-│   ├── sanitize/        # LLM-input, publish-time and redaction sanitizers
-│   ├── state/           # markers for idempotent re-runs
-│   ├── util/            # retry with backoff, SemVer
-│   ├── logger.ts        # structured logger with an injected sink
-│   └── index.ts         # curated public entry point
-└── outputs/             # GitHub Release helpers and CHANGELOG writer
-prompts/                 # bundled system and persona prompt templates
-scripts/                 # CI guards: dependency, import-boundary and carried-test checks
-test/
-├── carried/             # tests carried over from the hosted product, with a manifest
-├── unit/                # tests for new behavior
-├── fixtures/            # recorded data, such as PR-number extraction cases
-└── scripts/             # tests for the CI guards
+│   ├── range/           # tags, ancestry, windows, PR numbers
+│   ├── fetch/           # request policy, budget gate, content fetch
+│   ├── classify/        # rules classifier, linked issues, commit fallback
+│   ├── prompt/          # persona prompt builder, bundled templates, tone
+│   ├── llm/             # providers (OpenAI, Bedrock, fake) and draft generation
+│   ├── validate/        # output validation, input size and sufficiency
+│   ├── state/           # markers, digests, per-output planner
+│   ├── sanitize/        # input, publish and redaction sanitizers
+│   └── run.ts           # the pipeline
+└── outputs/             # files, summary, GitHub Release, CHANGELOG, push loop
+schema/                  # JSON Schema for the config, generated
+examples/                # workflows, recipes, a complete config
+docs/                    # configuration, security, tokens, migration
 ```
 
-### Design rules
-
-- **The core is pure.** Nothing outside `src/action/` imports `@actions/core` or `@actions/github` or reads the environment. A CI check enforces this, so the core stays testable without a workflow run, and a CLI could be added later as a thin wrapper.
-- **One Action, one bundle.** It will ship as a single JavaScript file on Node 24, committed to `dist/` and checked in CI so the bundle always matches the source.
-- **No hosting dependencies.** A CI guard fails if the lockfile ever contains the SDKs of the hosted product's services, such as Prisma, Supabase, BullMQ, Stripe or Vercel.
-- **Small surface.** Configuration and prompt files instead of plugins; recipes instead of built-in integrations for anything users can do with a workflow step.
-
-## Development
-
-### Prerequisites
-
-- Node.js 24
-- pnpm 10 (the version is pinned in `package.json`)
-
-```bash
-pnpm install
-pnpm lint            # ESLint
-pnpm typecheck       # TypeScript, strict
-pnpm test            # Vitest
-pnpm format:check    # Prettier
-pnpm check:deps      # no hosted-product SDKs in the lockfile
-pnpm check:boundary  # @actions/* and process.env only in src/action/
-pnpm check:carried   # carried tests match test/carried/manifest.json
-```
-
-### Continuous integration
-
-Every pull request runs these jobs. All must pass before a merge to `main`.
-
-| Job              | Checks                                                                    |
-| ---------------- | ------------------------------------------------------------------------- |
-| `lint`           | ESLint and Prettier                                                       |
-| `typecheck`      | `tsc --noEmit` in strict mode                                             |
-| `test`           | The full Vitest suite; failures are never ignored                         |
-| `secret-scan`    | gitleaks over the working tree                                            |
-| `check-deps`     | No hosted-product SDK in `pnpm-lock.yaml`                                 |
-| `check-boundary` | The core stays free of runner and environment access                      |
-| `check-carried`  | Every carried test is still present, and the totals go to the job summary |
-
-### Conventions
-
-- Short-lived branches named `{type}/{issue}-{description}`, for example `fix/42-changelog-ordering`, merged into `main` by squash.
-- [Conventional Commits](https://www.conventionalcommits.org) with the issue number: `fix(changelog): keep [Unreleased] first (#42)`.
-- Releases are cut from `main` by tag, and tags are immutable.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
-
-## Testing
-
-The suite has more than 500 tests, in two groups:
-
-- **Carried tests.** 419 tests came over from the hosted product with the code they cover; 46 of them were edited where behavior changed on purpose. `test/carried/manifest.json` records each one, and 66 tests of code that wasn't carried over, as `carry`, `edit` or `retire`, with a reason. `pnpm check:carried` fails if a carried test goes missing or an unlisted one appears in a carried file.
-- **Unit tests** for everything new, including the sanitizer fixes, the persona prompt builder, categories as data, the injected LLM provider, SemVer pre-release detection, CHANGELOG markers and PR-number extraction. That last one is checked against PR numbers recorded from 34 real release ranges.
-
-Tests set no environment variables, and any token-shaped test value is assembled at run time so secret scanners stay quiet.
+**Design rules.** The core never reads the environment or imports `@actions/*` (a CI check enforces it). One committed bundle that CI rebuilds and compares. No hosting dependencies (a lockfile guard). Recipes instead of built-in integrations for anything a workflow step can do.
 
 ## Security and privacy
 
-- **Data stays in your workflow.** ReleaseRay sends PR and issue text only to the LLM provider you configure, after redacting secrets and personal data. It has no telemetry.
-- **Least-privilege tokens.** `GITHUB_TOKEN` is enough for most repositories. A fine-grained token or a GitHub App token you register is needed only for protected branches, triggering other workflows, or a larger request budget.
-- **Prompt injection.** PR and issue text is untrusted. It reaches the model only as escaped data, hidden text is stripped, and published output is filtered for links, mentions, HTML and images.
-- **Supply chain.** Immutable releases, full-SHA pinning in every example, few dependencies and Dependabot today; a committed bundle that CI rebuilds and compares is planned.
+- PR and issue text goes only to the LLM provider you configure, after secrets and personal data are redacted. No telemetry.
+- `GITHUB_TOKEN` is enough for most repositories; [docs/tokens.md](docs/tokens.md) covers when a PAT or App token is needed.
+- Repository text is untrusted. [docs/security.md](docs/security.md) describes the prompt-injection defenses and the test suite behind them, internal-persona visibility, and the hardened workflow.
 
-Please report vulnerabilities privately: see [SECURITY.md](SECURITY.md).
+Report vulnerabilities privately: see [SECURITY.md](SECURITY.md).
+
+## Development
+
+Node.js 24 and pnpm 10 (pinned in `package.json`).
+
+```bash
+pnpm install
+pnpm lint && pnpm typecheck && pnpm test
+pnpm test:injection   # the prompt-injection suite alone
+pnpm build            # dist/action.js and dist/licenses.txt
+pnpm schema           # schema/releaseray.schema.json and docs/configuration.md
+pnpm prompts          # src/core/prompt/bundled.ts from prompts/*.md
+```
+
+CI runs lint, typecheck, the full test suite, gitleaks, actionlint, and guards that fail when the lockfile gains a hosted-product SDK, the core reaches the runner, a carried test goes missing, or `dist/`, the schema, the configuration reference or the bundled prompts are stale. Setting `RELEASERAY_LLM_FAKE=true` swaps in a deterministic fake model, for tests and the end-to-end harness only.
+
+The suite has close to 800 tests. 419 came over from the hosted product with the code they cover (46 of them edited where behavior changed on purpose), recorded in `test/carried/manifest.json` and checked by `pnpm check:carried`. Golden tests compare persona files and `notes.json` byte for byte; range tests build real repositories with diverging release lines; the push loop is tested against a local bare remote.
+
+Branches are `{type}/{issue}-{description}`, commits follow [Conventional Commits](https://www.conventionalcommits.org) with the issue number, and merges to `main` are squashed. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Project status
 
-| Area                                                                                                    | Status          |
-| ------------------------------------------------------------------------------------------------------- | --------------- |
-| Generation core: prompts, sanitizers, classifier, LLM providers, release and CHANGELOG helpers, markers | ✅ Done, tested |
-| Configuration, range resolution, rate-limit budget                                                      | 🚧 In progress  |
-| Output validation, idempotency planner, pipeline                                                        | 🚧 Planned      |
-| `action.yml`, modes, publishing, end-to-end tests                                                       | 🚧 Planned      |
-| `v1.0.0` release and Marketplace listing                                                                | 🚧 Planned      |
-
-## Roadmap
-
-1. **Core extraction.** ✅ The generation core, lifted from the hosted product with its tests, fixes and CI guards.
-2. **Pipeline and config.** Configuration schema and loader, range resolution from local git, the rate-limit budget, fetching, output validation, digests, the per-output planner and the `generate`, `preview`, `doctor`, `validate-config` and `migrate-personas` logic.
-3. **Action and publishing.** `action.yml`, the GitHub Release and CHANGELOG outputs with the push loop, example workflows, end-to-end tests on sandbox repositories, and `v1.0.0-beta` pre-releases.
-4. **`v1.0.0`.** Provider contract tests, a prompt-injection test suite, complete documentation and the Marketplace listing.
-5. **`v1.1.0`.** Slack, Teams and Intercom outputs, the native Anthropic provider, and the `adopt` and `sync-changelog` modes for teams moving off the hosted App.
-6. **On request.** GraphQL enrichment, GitHub Enterprise Server, PR preview comments, signed CHANGELOG commits and other extras, when users ask for them.
+| Area                                                                                      | Status              |
+| ----------------------------------------------------------------------------------------- | ------------------- |
+| Generation core, configuration, range, budget, fetch, validation, planner, pipeline       | ✅ Built and tested |
+| `action.yml`, all six modes, GitHub Release, CHANGELOG and push loop, bundle              | ✅ Built and tested |
+| Example workflows and recipes, provider contract tests, prompt-injection suite            | ✅ Built and tested |
+| End-to-end tests on sandbox repositories, `v1.0.0-beta.1`                                 | 🚧 Next             |
+| `v1.0.0` and the Marketplace listing                                                      | 🚧 After the beta   |
+| `v1.1.0`: Slack, Teams and Intercom, the Anthropic provider, `adopt` and `sync-changelog` | Planned             |
 
 ## Coming from the hosted ReleaseRay App
 
-The hosted App is being retired in favor of this Action. Once `v1.1.0` is out, a migration path will cover:
-
-- `mode: migrate-personas`, to turn personas exported from the hosted dashboard into `.releaseray/config.yml`;
-- `mode: adopt`, so releases the App already published are taken over instead of written twice;
-- `mode: sync-changelog`, to backfill `CHANGELOG.md`.
-
-The hosted App's users will hear about the timeline directly before anything changes.
+The hosted App is being retired in favor of this Action. [docs/migrating-from-hosted.md](docs/migrating-from-hosted.md) maps every hosted setting to a config key. `mode: migrate-personas` converts the persona YAML downloaded from the hosted dashboard today; `adopt` and `sync-changelog`, which take over releases the App already published, arrive in `v1.1.0`. The App's users will hear about the timeline directly before anything changes.
 
 ## License
 
