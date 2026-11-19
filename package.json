@@ -1,0 +1,41 @@
+{
+  "name": "releaseray",
+  "version": "0.0.0",
+  "private": true,
+  "description": "GitHub Action that writes persona-specific release notes from merged pull requests and issues",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.20.0",
+  "volta": {
+    "node": "24.22.1"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:deps": "tsx scripts/check-deps.ts",
+    "check:boundary": "tsx scripts/check-boundary.ts",
+    "check:carried": "tsx scripts/check-carried.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "3.987.0",
+    "@octokit/rest": "20.1.2",
+    "openai": "4.104.0",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.1",
+    "@types/node": "24.19.2",
+    "eslint": "9.39.1",
+    "prettier": "3.8.1",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.0",
+    "vitest": "4.0.18"
+  }
+}

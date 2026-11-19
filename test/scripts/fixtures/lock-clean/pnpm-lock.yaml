@@ -1,0 +1,23 @@
+lockfileVersion: '9.0'
+
+importers:
+
+  .:
+    dependencies:
+      zod:
+        specifier: 3.25.76
+        version: 3.25.76
+      nextra-like:
+        specifier: 1.0.0
+        version: 1.0.0
+
+packages:
+
+  '@octokit/rest@20.1.2':
+    resolution: {integrity: sha512-CCCC}
+
+  nextra-like@1.0.0:
+    resolution: {integrity: sha512-DDDD}
+
+  zod@3.25.76:
+    resolution: {integrity: sha512-BBBB}
