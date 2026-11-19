@@ -169,20 +169,56 @@ function excludedTitles(persona: ResolvedPersona, config: ResolvedConfig): Set<s
   return new Set(config.categories.filter((c) => ids.has(c.id)).map((c) => c.title));
 }
 
+/** A persona with where it may go. */
+export interface RoutedPersona {
+  persona: ResolvedPersona;
+  sinks: PersonaSinks;
+  withheld: string[];
+}
+
+/** Everything before the first LLM call. */
+export interface PreparedRun {
+  range: ResolvedRange;
+  routed: RoutedPersona[];
+  /** Personas with at least one eligible output. */
+  active: RoutedPersona[];
+  fetched: FetchResult | null;
+  commitOnly: boolean;
+  /** The exact system and user prompts for a persona, at the fitted input size. */
+  prompts(persona: ResolvedPersona): { system: string; user: string };
+  /** Estimated input tokens of the largest prompt. */
+  inputTokens: number;
+  input: string;
+  /** Generation digest per persona id. */
+  gen: Map<string, string>;
+  knownRefs: Set<number>;
+  allowedDomains: string[];
+  renderOptions: Omit<typeof CANONICAL_RENDER_OPTIONS, "includeEmojis" | "includeCompareLink"> & {
+    includeEmojis: boolean;
+    includeCompareLink: boolean;
+  };
+  drops: string[];
+  warnings: string[];
+  notices: string[];
+}
+
 /**
- * Runs the pipeline up to rendered text per persona.
+ * Runs the pipeline up to the first LLM call: range, routing, fetch,
+ * classification, input sizing and digests. Previews stop here.
  *
  * @param request - Range, persona filter and flags
  * @param config - Resolved configuration
- * @param deps - Git, GitHub, LLM, templates, repository and clock
- * @returns The range, per-persona results, completeness and usage
+ * @param deps - Git, GitHub, templates, repository and clock
+ * @param options - `fetch: false` skips GitHub and classifies from commit subjects
+ * @returns The prepared run
  * @throws ReleaseRayError with the exit code of the first failing stage
  */
-export async function run(
+export async function prepareRun(
   request: RunRequest,
   config: ResolvedConfig,
-  deps: RunDeps
-): Promise<RunResult> {
+  deps: Omit<RunDeps, "llm" | "priced">,
+  options: { releaseRequests?: number } = {}
+): Promise<PreparedRun> {
   const c = config.config;
   const warnings: string[] = [];
   const notices: string[] = [];
@@ -217,7 +253,8 @@ export async function run(
     persona,
     ...eligibleSinks(persona, c, deps.repo, persisted),
   }));
-  const releaseRequests = routed.some((r) => r.sinks.githubRelease) ? 2 : 0;
+  const releaseRequests =
+    options.releaseRequests ?? (routed.some((r) => r.sinks.githubRelease) ? 2 : 0);
 
   // 3. Fetch once.
   let fetched: FetchResult | null = null;
@@ -367,17 +404,67 @@ export async function run(
   const serverHost = new URL(deps.repo.serverUrl).hostname;
   const allowedDomains = [...new Set([...c.sanitize.allowedDomains, serverHost])];
 
+  const gen = new Map(
+    routed.map((r) => [
+      r.persona.id,
+      generationDigest({
+        input,
+        persona: r.persona,
+        templates,
+        provider: c.llm.provider,
+        model: config.model,
+        maxCompletionTokens: c.llm.maxCompletionTokens,
+        render: renderOptions,
+      }),
+    ])
+  );
+
+  return {
+    range,
+    routed,
+    active,
+    fetched,
+    commitOnly,
+    prompts: (persona) => ({
+      system: deps.templates.system,
+      user: promptFor(persona, fitted.shape),
+    }),
+    inputTokens: fitted.tokens,
+    input,
+    gen,
+    knownRefs,
+    allowedDomains,
+    renderOptions,
+    drops,
+    warnings,
+    notices,
+  };
+}
+
+/**
+ * Runs the pipeline up to rendered text per persona.
+ *
+ * @param request - Range, persona filter and flags
+ * @param config - Resolved configuration
+ * @param deps - Git, GitHub, LLM, templates, repository and clock
+ * @returns The range, per-persona results, completeness and usage
+ * @throws ReleaseRayError with the exit code of the first failing stage
+ */
+export async function run(
+  request: RunRequest,
+  config: ResolvedConfig,
+  deps: RunDeps
+): Promise<RunResult> {
+  const c = config.config;
+  const prepared = await prepareRun(request, config, deps);
+  const { range, routed, active, fetched, knownRefs, allowedDomains, renderOptions } = prepared;
+  const { warnings, notices, drops, commitOnly } = prepared;
+  const pulls = fetched?.pulls ?? [];
+
   // 8. Generate each persona that has somewhere to go.
   const results = await mapLimit(routed, c.llm.concurrency, async (r): Promise<PersonaResult> => {
-    const gen = generationDigest({
-      input,
-      persona: r.persona,
-      templates,
-      provider: c.llm.provider,
-      model: config.model,
-      maxCompletionTokens: c.llm.maxCompletionTokens,
-      render: renderOptions,
-    });
+    const gen = prepared.gen.get(r.persona.id)!;
+    const prompts = prepared.prompts(r.persona);
     const base = {
       id: r.persona.id,
       name: r.persona.name,
@@ -390,8 +477,8 @@ export async function run(
 
     const { draft, usage } = await generateDraft(
       deps.llm(r.persona),
-      deps.templates.system,
-      promptFor(r.persona, fitted.shape),
+      prompts.system,
+      prompts.user,
       {
         retries: c.llm.retries,
         maxCompletionTokens: c.llm.maxCompletionTokens,
@@ -453,7 +540,7 @@ export async function run(
     range,
     personas: results,
     completeness,
-    inputDigest: input,
+    inputDigest: prepared.input,
     drops,
     warnings,
     notices,

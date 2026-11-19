@@ -1,0 +1,34 @@
+# ReleaseRay Persona Configuration
+# This file defines how release notes are generated for different audiences
+# Place this file at .releaseray/personas.yml in your repository
+
+personas:
+  - name: "Engineer"
+    slug: "engineer"
+    description: "Technical details, breaking changes, and code examples for developers"
+    tone: "Technical and precise"
+    audienceLevel: "Advanced"
+    includeIdentifiers: true
+    includeMigrationGuides: true
+    includeBreakingChanges: true
+
+  - name: "Customer"
+    slug: "customer"
+    description: "Benefit-driven, user-friendly language with clear outcomes and visual suggestions for end users"
+    tone: "Friendly and accessible"
+    audienceLevel: "Beginner"
+    includeIdentifiers: false
+    includeMigrationGuides: false
+    includeBreakingChanges: false
+
+  - name: "Sales Enablement"
+    slug: "Sales Enablement"
+    description: "Short talking points for the sales team"
+    tone: "Confident"
+    audienceLevel: "Intermediate"
+    includeIdentifiers: false
+    includeMigrationGuides: false
+    includeBreakingChanges: true
+    customInstructions: |
+      Lead with the customer problem each change solves.
+      One sentence per item.
