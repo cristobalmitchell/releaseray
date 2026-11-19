@@ -21,7 +21,12 @@ export function redactInternalLinks(text: string, allowedDomains: string[] = [])
   return text.replace(urlRegex, (url) => {
     try {
       const urlObj = new URL(url);
-      const isAllowed = allowed.some((domain) => urlObj.hostname.endsWith(domain));
+      // Exact host or a subdomain: a bare suffix check would let "evilgithub.com" through.
+      const host = urlObj.hostname.toLowerCase();
+      const isAllowed = allowed.some((domain) => {
+        const d = domain.toLowerCase();
+        return host === d || host.endsWith(`.${d}`);
+      });
       return isAllowed ? url : "[redacted]";
     } catch {
       // Invalid URL, redact it
