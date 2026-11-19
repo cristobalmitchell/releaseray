@@ -7,6 +7,15 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+    ignore:
+      # typescript-eslint does not support TypeScript 7 yet; lift this hold
+      # when it does.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      # Types track the Action's runtime (runs.using: node24), not the
+      # newest Node release.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
