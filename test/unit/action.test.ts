@@ -375,6 +375,23 @@ describe("main", () => {
     expect(two.log.summary).toContain("personas migrated");
   });
 
+  it("exits 0 on a push of its own CHANGELOG commit, so a PAT push cannot loop", async () => {
+    const { io, log } = fakeIO({ "github-token": "t" });
+    const llm = counting();
+    const e = {
+      ...env("push", {
+        head_commit: {
+          message: "docs(changelog): v1.2.0\n\nGenerated-by: ReleaseRay\nReleaseRay-Key: v1.2.0",
+        },
+      }),
+      GITHUB_REF_TYPE: "branch",
+      GITHUB_REF_NAME: "main",
+    };
+    expect(await main(deps(io, e, llm))).toBe(0);
+    expect(llm.calls()).toBe(0);
+    expect(log.notices).toContain("This push is ReleaseRay's own CHANGELOG commit; nothing to do");
+  });
+
   it("collapses more than 10 warnings into 10 annotations", async () => {
     const ws = mkdtempSync(join(tmpdir(), "releaseray-ws-"));
     dirs.push(ws);

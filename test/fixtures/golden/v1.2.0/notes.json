@@ -7,6 +7,8 @@
     "to": "v1.2.0",
     "toSha": "e6d62a1125062b1210dd9cc29623c64ff021862b",
     "firstRelease": false,
+    "date": "2026-05-07",
+    "touchesWorkflows": false,
     "commits": 4,
     "pullRequests": [
       14,
@@ -25,6 +27,7 @@
       "visibility": "public",
       "status": "generated",
       "gen": "3baa3a797a73f9bc",
+      "plans": null,
       "out": "f8035186185fa106",
       "text": "## 🌟 Highlights\n\n- feat!: drop Node 18 support\n- perf: parse large files in a stream\n\n## ⚠️ Breaking Changes\n\n- **feat!: drop Node 18 support** (#14)\n\n## 🐛 Bug Fixes\n\n- **fix: keep column order when exporting** (#17)\n\n## ⚡ Performance\n\n- **perf: parse large files in a stream** (#15)\n\n## 👏 Contributors\n\nThank you to @alice, @carol, @bob for contributing to this release!\n\n**Full Changelog**: [v1.1.0...v1.2.0](https://github.com/acme/widgets/compare/v1.1.0...v1.2.0)",
       "validation": {
@@ -47,6 +50,7 @@
       "visibility": "public",
       "status": "generated",
       "gen": "6e53132c4b12b915",
+      "plans": null,
       "out": "8777cf49177fbdb8",
       "text": "## 🌟 Highlights\n\n- feat!: drop Node 18 support\n- perf: parse large files in a stream\n\n## ⚠️ Breaking Changes\n\n- **feat!: drop Node 18 support**\n\n## ✨ Improvements\n\n- **perf: parse large files in a stream**\n\n## 🐛 Bug Fixes\n\n- **fix: keep column order when exporting**\n\n**Full Changelog**: [v1.1.0...v1.2.0](https://github.com/acme/widgets/compare/v1.1.0...v1.2.0)",
       "validation": {
@@ -96,7 +100,7 @@
       "GET /repos/{owner}/{repo}/issues/{issue_number}": 1
     },
     "retries": 0,
-    "estimate": 8
+    "estimate": 9
   },
   "warnings": [
     "Low content volume (348 chars). Descriptions may be generic."

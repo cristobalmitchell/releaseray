@@ -39,6 +39,8 @@ export function buildNotesJson(result: RunResult): Record<string, unknown> {
       to: range.to,
       toSha: range.toSha,
       firstRelease: range.firstRelease,
+      date: result.date,
+      touchesWorkflows: result.touchesWorkflows,
       commits: range.commits.length,
       pullRequests: range.prNumbers,
       excludedBySubject: range.excludedPRNumbers,
@@ -53,6 +55,9 @@ export function buildNotesJson(result: RunResult): Record<string, unknown> {
         visibility: p.visibility,
         status: p.status,
         gen: p.gen,
+        plans: p.plans
+          ? Object.fromEntries(Object.entries(p.plans).map(([sink, plan]) => [sink, plan?.action]))
+          : null,
         out: p.out ?? null,
         text: p.text ?? null,
         validation: p.report ?? null,

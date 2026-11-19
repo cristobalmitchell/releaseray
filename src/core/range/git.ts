@@ -149,3 +149,40 @@ export function logCommits(git: Git, args: readonly string[]): Commit[] {
       return { sha, authorName, date, message: message.replace(/\n+$/, "") };
     });
 }
+
+/**
+ * A commit's committer date as YYYY-MM-DD, the CHANGELOG entry date, so
+ * re-applying an entry reproduces the same bytes.
+ *
+ * @param git - Runner
+ * @param ref - Commit-ish
+ * @returns The date
+ */
+export function commitDate(git: Git, ref: string): string {
+  return git.run(["log", "-1", "--format=%cs", ref, "--"]);
+}
+
+/**
+ * Whether a commit changes files under `.github/workflows/`. `GITHUB_TOKEN`
+ * cannot create a release whose target commit does. Merge commits are
+ * compared with their first parent; without `-m --first-parent`,
+ * `git diff-tree` prints nothing for a merge.
+ *
+ * @param git - Runner
+ * @param ref - Commit-ish
+ * @returns True when a workflow file changes
+ */
+export function touchesWorkflows(git: Git, ref: string): boolean {
+  const isRoot = git.run(["rev-list", "--parents", "-n", "1", ref]).split(" ").length === 1;
+  const out = git.run([
+    "diff-tree",
+    "-r",
+    "-m",
+    "--first-parent",
+    "--name-only",
+    "--no-commit-id",
+    ...(isRoot ? ["--root"] : []),
+    ref,
+  ]);
+  return out.split("\n").some((path) => path.startsWith(".github/workflows/"));
+}

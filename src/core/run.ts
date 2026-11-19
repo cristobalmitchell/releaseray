@@ -22,7 +22,7 @@ import {
   type RangeRequest,
   type ResolvedRange,
 } from "./range/resolve";
-import type { Commit, Git } from "./range/git";
+import { commitDate, touchesWorkflows, type Commit, type Git } from "./range/git";
 import { CANONICAL_RENDER_OPTIONS, renderToMarkdown } from "./render/markdown";
 import {
   sanitizeCommentForLLM,
@@ -32,6 +32,13 @@ import {
 } from "./sanitize/llm";
 import { sanitizeForPublishing } from "./sanitize/publish";
 import { generationDigest, inputDigest, outputDigest, sha256 } from "./state/digest";
+import {
+  findStoredText,
+  generatesUnpersisted,
+  planSink,
+  type PlanTarget,
+  type SinkPlan,
+} from "./state/planner";
 import type { GroupedChanges, ResolvedPersona } from "./types";
 import { mapLimit } from "./util/limit";
 import { compilePattern } from "./util/regex";
@@ -74,6 +81,17 @@ export interface RunDeps {
   sleep: (ms: number) => Promise<void>;
   /** Current time in milliseconds. */
   now: () => number;
+  /** Reads the release for a tag, for planning and stored-text reuse. */
+  release?: { get(tag: string): Promise<PersistedRelease | null> };
+  /** Reads the workspace CHANGELOG, "" when missing. */
+  changelogText?: () => string;
+}
+
+/** A release body as planning sees it. */
+export interface PersistedRelease {
+  id: number;
+  body: string;
+  url: string;
 }
 
 /** Where one persona's text may go. */
@@ -92,7 +110,14 @@ export interface PersonaResult {
   sinks: PersonaSinks;
   /** Why a sink was withheld, for the summary. */
   withheld: string[];
-  status: "generated" | "skipped";
+  /**
+   * `generated`: new text from the model; `stored`: text reused from a
+   * persisted block with the same `gen`; `unchanged`: not regenerated because
+   * nothing it feeds changes; `skipped`: no eligible output.
+   */
+  status: "generated" | "stored" | "unchanged" | "skipped";
+  /** Plans for the persisted sinks this persona feeds. */
+  plans?: { githubRelease?: SinkPlan; changelog?: SinkPlan };
   /** The generation digest. */
   gen: string;
   /** Canonical Markdown (release form), when generated. */
@@ -118,6 +143,16 @@ export interface RunResult {
   estimate: number | null;
   /** True when the notes come from commit messages only. */
   commitOnly: boolean;
+  /** The release read for planning, or null when absent or not read. */
+  release: PersistedRelease | null;
+  /** The workspace CHANGELOG read for planning, or null when not read. */
+  changelogText: string | null;
+  /** The `to` commit's committer date, YYYY-MM-DD: the CHANGELOG entry date. */
+  date: string;
+  /** Whether the `to` commit changes `.github/workflows/`. */
+  touchesWorkflows: boolean;
+  /** Whether the primary persisted target will change in this run. */
+  primaryChanged: boolean;
 }
 
 /** Applies `sanitizeForLLM` and a character cap. */
@@ -245,16 +280,16 @@ export async function prepareRun(
   // 2. Personas and where each may go.
   const wanted = request.personas ? new Set(request.personas) : null;
   const personas = config.personas.filter((p) => !wanted || wanted.has(p.id));
-  const persisted = {
-    githubRelease: request.publish && range.persisted.githubRelease,
-    changelog: request.publish && range.persisted.changelog,
-  };
+  // Persisted sinks are planned even without publish, so stored text can be reused.
+  const persisted = range.persisted;
   const routed = personas.map((persona) => ({
     persona,
     ...eligibleSinks(persona, c, deps.repo, persisted),
   }));
+  const releaseEligible = routed.some((r) => r.sinks.githubRelease);
   const releaseRequests =
-    options.releaseRequests ?? (routed.some((r) => r.sinks.githubRelease) ? 2 : 0);
+    options.releaseRequests ??
+    (releaseEligible ? 1 : 0) + (releaseEligible && request.publish ? 1 : 0);
 
   // 3. Fetch once.
   let fetched: FetchResult | null = null;
@@ -442,12 +477,14 @@ export async function prepareRun(
 }
 
 /**
- * Runs the pipeline up to rendered text per persona.
+ * Runs the pipeline up to rendered text per persona. Persisted sinks are
+ * planned here (§9.3), so a persona whose block is current reuses its
+ * stored text with no LLM call; the publish layer applies the plans.
  *
  * @param request - Range, persona filter and flags
  * @param config - Resolved configuration
- * @param deps - Git, GitHub, LLM, templates, repository and clock
- * @returns The range, per-persona results, completeness and usage
+ * @param deps - Git, GitHub, LLM, templates, repository, clock and targets
+ * @returns The range, per-persona results and plans, completeness and usage
  * @throws ReleaseRayError with the exit code of the first failing stage
  */
 export async function run(
@@ -461,20 +498,65 @@ export async function run(
   const { warnings, notices, drops, commitOnly } = prepared;
   const pulls = fetched?.pulls ?? [];
 
-  // 8. Generate each persona that has somewhere to go.
-  const results = await mapLimit(routed, c.llm.concurrency, async (r): Promise<PersonaResult> => {
-    const gen = prepared.gen.get(r.persona.id)!;
-    const prompts = prepared.prompts(r.persona);
-    const base = {
-      id: r.persona.id,
-      name: r.persona.name,
-      visibility: r.persona.visibility,
-      sinks: r.sinks,
-      withheld: r.withheld,
-      gen,
+  // 8. Read the persisted targets and plan them (§9.3).
+  const releaseRouted = routed.some((r) => r.sinks.githubRelease);
+  const changelogRouted = routed.some((r) => r.sinks.changelog);
+  const release = releaseRouted && deps.release ? await deps.release.get(range.key) : null;
+  const changelogText = changelogRouted && deps.changelogText ? deps.changelogText() : null;
+  const targets: PlanTarget[] = [];
+  if (releaseRouted && deps.release) {
+    targets.push({
+      sink: "github-release",
+      exists: release !== null,
+      text: release?.body ?? "",
+      mode: c.outputs.githubRelease.mode,
+      onHumanEdit: c.outputs.githubRelease.onHumanEdit,
+      createIfMissing: c.outputs.githubRelease.createIfMissing,
+    });
+  }
+  if (changelogText !== null) {
+    targets.push({
+      sink: "changelog",
+      exists: true,
+      text: changelogText,
+      mode: "section",
+      onHumanEdit: c.outputs.changelog.onHumanEdit,
+      createIfMissing: true,
+    });
+  }
+  const plansFor = (r: RoutedPersona) => {
+    const req = {
+      key: range.key,
+      persona: r.persona.id,
+      gen: prepared.gen.get(r.persona.id)!,
+      force: request.force,
     };
-    if (!active.includes(r)) return { ...base, status: "skipped" };
+    const plans: NonNullable<PersonaResult["plans"]> = {};
+    for (const t of targets) {
+      if (t.sink === "github-release" && r.sinks.githubRelease)
+        plans.githubRelease = planSink(t, req);
+      if (t.sink === "changelog" && r.sinks.changelog) plans.changelog = planSink(t, req);
+    }
+    return plans;
+  };
+  const planned = new Map(routed.map((r) => [r.persona.id, plansFor(r)]));
+  for (const plans of planned.values()) {
+    for (const plan of Object.values(plans)) {
+      if (plan?.warning) warnings.push(plan.warning);
+      if (plan?.notice) notices.push(plan.notice);
+    }
+  }
+  const primary = releaseRouted && deps.release ? "githubRelease" : "changelog";
+  const primaryChanged =
+    request.publish &&
+    [...planned.values()].some((p) => {
+      const plan = p[primary];
+      return plan?.action === "create" || plan?.action === "update";
+    });
+  const persistedEnabled = request.publish && targets.length > 0;
 
+  const generateText = async (r: RoutedPersona) => {
+    const prompts = prepared.prompts(r.persona);
     const { draft, usage } = await generateDraft(
       deps.llm(r.persona),
       prompts.system,
@@ -516,19 +598,59 @@ export async function run(
         `${r.persona.id}: removed ${validated.report.hallucinatedRefs} references to PRs or issues not in this release`
       );
     }
+    return { text, report: validated.report, usage };
+  };
+
+  // 9. Text for each persona: stored, generated, or not needed.
+  const results = await mapLimit(routed, c.llm.concurrency, async (r): Promise<PersonaResult> => {
+    const gen = prepared.gen.get(r.persona.id)!;
+    const plans = planned.get(r.persona.id)!;
+    const base = {
+      id: r.persona.id,
+      name: r.persona.name,
+      visibility: r.persona.visibility,
+      sinks: r.sinks,
+      withheld: r.withheld,
+      gen,
+      ...(Object.keys(plans).length > 0 ? { plans } : {}),
+    };
+    if (!active.includes(r)) return { ...base, status: "skipped" };
+
+    const hasPersisted = Object.keys(plans).length > 0;
+    const stored = findStoredText(targets, {
+      key: range.key,
+      persona: r.persona.id,
+      gen,
+      force: request.force,
+    });
+    if (hasPersisted) {
+      const needsText = Object.values(plans).some((p) => p?.needsText);
+      if (stored && (!needsText || !request.force)) {
+        return { ...base, status: "stored", text: stored.text, out: outputDigest(stored.text) };
+      }
+      if (!needsText) return { ...base, status: "unchanged" };
+    } else if (!generatesUnpersisted({ persistedEnabled, primaryChanged, force: request.force })) {
+      if (stored)
+        return { ...base, status: "stored", text: stored.text, out: outputDigest(stored.text) };
+      return { ...base, status: "unchanged" };
+    }
+    const generated = await generateText(r);
     return {
       ...base,
       status: "generated",
-      text,
-      out: outputDigest(text),
-      report: validated.report,
-      usage,
+      text: generated.text,
+      out: outputDigest(generated.text),
+      report: generated.report,
+      usage: generated.usage,
     };
   });
 
   for (const r of results) {
     if (r.status === "skipped")
       notices.push(`${r.id}: no eligible output in this run; not generated`);
+    if (r.status === "unchanged") notices.push(`${r.id}: unchanged, not regenerated`);
+    if (r.status === "stored")
+      notices.push(`${r.id}: reused stored text (generation digest unchanged)`);
   }
 
   const completeness = [...(fetched?.states.entries() ?? [])]
@@ -547,5 +669,10 @@ export async function run(
     github: deps.github.usage(),
     estimate: fetched?.estimate ?? null,
     commitOnly,
+    release,
+    changelogText,
+    date: commitDate(deps.git, range.toSha),
+    touchesWorkflows: range.kind === "tag" ? touchesWorkflows(deps.git, range.toSha) : false,
+    primaryChanged,
   };
 }

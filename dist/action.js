@@ -2174,9 +2174,9 @@ var require_dispatcher_base = __commonJS({
       }
       close(callback) {
         if (callback === void 0) {
-          return new Promise((resolve5, reject) => {
+          return new Promise((resolve7, reject) => {
             this.close((err, data) => {
-              return err ? reject(err) : resolve5(data);
+              return err ? reject(err) : resolve7(data);
             });
           });
         }
@@ -2214,12 +2214,12 @@ var require_dispatcher_base = __commonJS({
           err = null;
         }
         if (callback === void 0) {
-          return new Promise((resolve5, reject) => {
+          return new Promise((resolve7, reject) => {
             this.destroy(err, (err2, data) => {
               return err2 ? (
                 /* istanbul ignore next: should never error */
                 reject(err2)
-              ) : resolve5(data);
+              ) : resolve7(data);
             });
           });
         }
@@ -4486,8 +4486,8 @@ var require_util2 = __commonJS({
     function createDeferredPromise() {
       let res;
       let rej;
-      const promise2 = new Promise((resolve5, reject) => {
-        res = resolve5;
+      const promise2 = new Promise((resolve7, reject) => {
+        res = resolve7;
         rej = reject;
       });
       return { promise: promise2, resolve: res, reject: rej };
@@ -6738,12 +6738,12 @@ upgrade: ${upgrade}\r
           cb();
         }
       }
-      const waitForDrain = () => new Promise((resolve5, reject) => {
+      const waitForDrain = () => new Promise((resolve7, reject) => {
         assert2(callback === null);
         if (socket[kError]) {
           reject(socket[kError]);
         } else {
-          callback = resolve5;
+          callback = resolve7;
         }
       });
       socket.on("close", onDrain).on("drain", onDrain);
@@ -7413,12 +7413,12 @@ var require_client_h2 = __commonJS({
           cb();
         }
       }
-      const waitForDrain = () => new Promise((resolve5, reject) => {
+      const waitForDrain = () => new Promise((resolve7, reject) => {
         assert2(callback === null);
         if (socket[kError]) {
           reject(socket[kError]);
         } else {
-          callback = resolve5;
+          callback = resolve7;
         }
       });
       h2stream.on("close", onDrain).on("drain", onDrain);
@@ -7897,16 +7897,16 @@ var require_client = __commonJS({
         return this[kNeedDrain] < 2;
       }
       async [kClose]() {
-        return new Promise((resolve5) => {
+        return new Promise((resolve7) => {
           if (this[kSize]) {
-            this[kClosedResolve] = resolve5;
+            this[kClosedResolve] = resolve7;
           } else {
-            resolve5(null);
+            resolve7(null);
           }
         });
       }
       async [kDestroy](err) {
-        return new Promise((resolve5) => {
+        return new Promise((resolve7) => {
           const requests = this[kQueue].splice(this[kPendingIdx]);
           for (let i5 = 0; i5 < requests.length; i5++) {
             const request2 = requests[i5];
@@ -7917,7 +7917,7 @@ var require_client = __commonJS({
               this[kClosedResolve]();
               this[kClosedResolve] = null;
             }
-            resolve5(null);
+            resolve7(null);
           };
           if (this[kHTTPContext]) {
             this[kHTTPContext].destroy(err, callback);
@@ -7968,7 +7968,7 @@ var require_client = __commonJS({
         });
       }
       try {
-        const socket = await new Promise((resolve5, reject) => {
+        const socket = await new Promise((resolve7, reject) => {
           client[kConnector]({
             host,
             hostname: hostname3,
@@ -7980,7 +7980,7 @@ var require_client = __commonJS({
             if (err) {
               reject(err);
             } else {
-              resolve5(socket2);
+              resolve7(socket2);
             }
           });
         });
@@ -8316,8 +8316,8 @@ var require_pool_base = __commonJS({
         if (this[kQueue].isEmpty()) {
           await Promise.all(this[kClients].map((c5) => c5.close()));
         } else {
-          await new Promise((resolve5) => {
-            this[kClosedResolve] = resolve5;
+          await new Promise((resolve7) => {
+            this[kClosedResolve] = resolve7;
           });
         }
       }
@@ -9586,7 +9586,7 @@ var require_readable = __commonJS({
         if (this._readableState.closeEmitted) {
           return null;
         }
-        return await new Promise((resolve5, reject) => {
+        return await new Promise((resolve7, reject) => {
           if (this[kContentLength] > limit2) {
             this.destroy(new AbortError());
           }
@@ -9599,7 +9599,7 @@ var require_readable = __commonJS({
             if (signal?.aborted) {
               reject(signal.reason ?? new AbortError());
             } else {
-              resolve5(null);
+              resolve7(null);
             }
           }).on("error", noop4).on("data", function(chunk) {
             limit2 -= chunk.length;
@@ -9618,7 +9618,7 @@ var require_readable = __commonJS({
     }
     async function consume(stream, type) {
       assert2(!stream[kConsume]);
-      return new Promise((resolve5, reject) => {
+      return new Promise((resolve7, reject) => {
         if (isUnusable(stream)) {
           const rState = stream._readableState;
           if (rState.destroyed && rState.closeEmitted === false) {
@@ -9635,7 +9635,7 @@ var require_readable = __commonJS({
             stream[kConsume] = {
               type,
               stream,
-              resolve: resolve5,
+              resolve: resolve7,
               reject,
               length: 0,
               body: []
@@ -9705,18 +9705,18 @@ var require_readable = __commonJS({
       return buffer;
     }
     function consumeEnd(consume2) {
-      const { type, body: body2, resolve: resolve5, stream, length } = consume2;
+      const { type, body: body2, resolve: resolve7, stream, length } = consume2;
       try {
         if (type === "text") {
-          resolve5(chunksDecode(body2, length));
+          resolve7(chunksDecode(body2, length));
         } else if (type === "json") {
-          resolve5(JSON.parse(chunksDecode(body2, length)));
+          resolve7(JSON.parse(chunksDecode(body2, length)));
         } else if (type === "arrayBuffer") {
-          resolve5(chunksConcat(body2, length).buffer);
+          resolve7(chunksConcat(body2, length).buffer);
         } else if (type === "blob") {
-          resolve5(new Blob(body2, { type: stream[kContentType] }));
+          resolve7(new Blob(body2, { type: stream[kContentType] }));
         } else if (type === "bytes") {
-          resolve5(chunksConcat(body2, length));
+          resolve7(chunksConcat(body2, length));
         }
         consumeFinish(consume2);
       } catch (err) {
@@ -9973,9 +9973,9 @@ var require_api_request = __commonJS({
     };
     function request2(opts, callback) {
       if (callback === void 0) {
-        return new Promise((resolve5, reject) => {
+        return new Promise((resolve7, reject) => {
           request2.call(this, opts, (err, data) => {
-            return err ? reject(err) : resolve5(data);
+            return err ? reject(err) : resolve7(data);
           });
         });
       }
@@ -10198,9 +10198,9 @@ var require_api_stream = __commonJS({
     };
     function stream(opts, factory, callback) {
       if (callback === void 0) {
-        return new Promise((resolve5, reject) => {
+        return new Promise((resolve7, reject) => {
           stream.call(this, opts, factory, (err, data) => {
-            return err ? reject(err) : resolve5(data);
+            return err ? reject(err) : resolve7(data);
           });
         });
       }
@@ -10485,9 +10485,9 @@ var require_api_upgrade = __commonJS({
     };
     function upgrade(opts, callback) {
       if (callback === void 0) {
-        return new Promise((resolve5, reject) => {
+        return new Promise((resolve7, reject) => {
           upgrade.call(this, opts, (err, data) => {
-            return err ? reject(err) : resolve5(data);
+            return err ? reject(err) : resolve7(data);
           });
         });
       }
@@ -10579,9 +10579,9 @@ var require_api_connect = __commonJS({
     };
     function connect(opts, callback) {
       if (callback === void 0) {
-        return new Promise((resolve5, reject) => {
+        return new Promise((resolve7, reject) => {
           connect.call(this, opts, (err, data) => {
-            return err ? reject(err) : resolve5(data);
+            return err ? reject(err) : resolve7(data);
           });
         });
       }
@@ -14444,7 +14444,7 @@ var require_fetch = __commonJS({
       function dispatch({ body: body2 }) {
         const url2 = requestCurrentURL(request2);
         const agent = fetchParams.controller.dispatcher;
-        return new Promise((resolve5, reject) => agent.dispatch(
+        return new Promise((resolve7, reject) => agent.dispatch(
           {
             path: url2.pathname + url2.search,
             origin: url2.origin,
@@ -14520,7 +14520,7 @@ var require_fetch = __commonJS({
               }
               this.body = new Readable7({ read: resume });
               const onError = this.onError.bind(this);
-              resolve5({
+              resolve7({
                 status,
                 statusText,
                 headersList,
@@ -14563,7 +14563,7 @@ var require_fetch = __commonJS({
               for (let i5 = 0; i5 < rawHeaders.length; i5 += 2) {
                 headersList.append(bufferToLowerCasedHeaderName(rawHeaders[i5]), rawHeaders[i5 + 1].toString("latin1"), true);
               }
-              resolve5({
+              resolve7({
                 status,
                 statusText: STATUS_CODES[status],
                 headersList,
@@ -18304,8 +18304,8 @@ var require_util8 = __commonJS({
       return true;
     }
     function delay(ms) {
-      return new Promise((resolve5) => {
-        setTimeout(resolve5, ms).unref();
+      return new Promise((resolve7) => {
+        setTimeout(resolve7, ms).unref();
       });
     }
     module.exports = {
@@ -26912,7 +26912,7 @@ var init_values = __esm({
 var sleep;
 var init_sleep = __esm({
   "node_modules/.pnpm/openai@7.57.0_@aws-sdk+credential-provider-node@3.972.97_@smithy+signature-v4@5.7.5_undici@6.29.1_zod@4.6.6/node_modules/openai/internal/utils/sleep.mjs"() {
-    sleep = (ms, ...signals) => new Promise((resolve5, reject) => {
+    sleep = (ms, ...signals) => new Promise((resolve7, reject) => {
       const activeSignals = [...new Set(signals.filter((signal) => signal != null))];
       let timeout;
       let settled = false;
@@ -26944,7 +26944,7 @@ var init_sleep = __esm({
         return;
       }
       timeout = setTimeout(() => {
-        settle2(resolve5);
+        settle2(resolve7);
       }, ms);
       for (const signal of activeSignals) {
         if (settled) {
@@ -27294,30 +27294,30 @@ var init_line = __esm({
 // node_modules/.pnpm/openai@7.57.0_@aws-sdk+credential-provider-node@3.972.97_@smithy+signature-v4@5.7.5_undici@6.29.1_zod@4.6.6/node_modules/openai/internal/utils/log.mjs
 function noop3() {
 }
-function makeLogFn(fnLevel, logger6, logLevel) {
-  if (!logger6 || levelNumbers[fnLevel] > levelNumbers[logLevel]) {
+function makeLogFn(fnLevel, logger7, logLevel) {
+  if (!logger7 || levelNumbers[fnLevel] > levelNumbers[logLevel]) {
     return noop3;
   } else {
-    return logger6[fnLevel].bind(logger6);
+    return logger7[fnLevel].bind(logger7);
   }
 }
 function loggerFor(client) {
-  const logger6 = client.logger;
+  const logger7 = client.logger;
   const logLevel = client.logLevel ?? "off";
-  if (!logger6) {
+  if (!logger7) {
     return noopLogger;
   }
-  const cachedLogger = cachedLoggers.get(logger6);
+  const cachedLogger = cachedLoggers.get(logger7);
   if (cachedLogger && cachedLogger[0] === logLevel) {
     return cachedLogger[1];
   }
   const levelLogger = {
-    error: makeLogFn("error", logger6, logLevel),
-    warn: makeLogFn("warn", logger6, logLevel),
-    info: makeLogFn("info", logger6, logLevel),
-    debug: makeLogFn("debug", logger6, logLevel)
+    error: makeLogFn("error", logger7, logLevel),
+    warn: makeLogFn("warn", logger7, logLevel),
+    info: makeLogFn("info", logger7, logLevel),
+    debug: makeLogFn("debug", logger7, logLevel)
   };
-  cachedLoggers.set(logger6, [logLevel, levelLogger]);
+  cachedLoggers.set(logger7, [logLevel, levelLogger]);
   return levelLogger;
 }
 function isSensitiveQueryParameter(name) {
@@ -27490,8 +27490,8 @@ function createAbortableSSESource(body2, signal) {
   let interrupt;
   const waitForAbort = () => (
     // oxlint-disable-next-line promise/avoid-new -- AbortSignal callbacks need a portable Promise bridge.
-    new Promise((resolve5) => {
-      interrupt = resolve5;
+    new Promise((resolve7) => {
+      interrupt = resolve7;
     })
   );
   const cancel = () => {
@@ -27735,7 +27735,7 @@ var init_streaming = __esm({
        */
       static fromSSEResponse(response, controller, client, synthesizeEventData, streamMode = "legacy") {
         let consumed = false;
-        const logger6 = client ? loggerFor(client) : console;
+        const logger7 = client ? loggerFor(client) : console;
         async function* iterator2() {
           if (consumed) {
             throw new OpenAIError("Cannot iterate over a consumed stream, use `.tee()` to split the stream.");
@@ -27761,8 +27761,8 @@ var init_streaming = __esm({
               try {
                 data = JSON.parse(sse.data);
               } catch {
-                logger6.error(`Could not parse message into JSON:`);
-                logger6.error(`From chunk:`);
+                logger7.error(`Could not parse message into JSON:`);
+                logger7.error(`From chunk:`);
                 throw new SyntaxError("Error reading response: malformed server-sent event JSON.");
               }
               if (streamMode === "legacy") {
@@ -28762,8 +28762,8 @@ var init_api_promise = __esm({
     init_parse();
     APIPromise = class _APIPromise extends Promise {
       constructor(client, responsePromise, parseResponse2 = defaultParseResponse) {
-        super((resolve5) => {
-          resolve5(null);
+        super((resolve7) => {
+          resolve7(null);
         });
         this.responsePromise = responsePromise;
         this.parseResponse = parseResponse2;
@@ -31935,12 +31935,12 @@ var init_EventStream = __esm({
         _EventStream_aborted.set(this, false);
         _EventStream_catchingPromiseCreated.set(this, false);
         _EventStream_terminalFailure.set(this, void 0);
-        __classPrivateFieldSet(this, _EventStream_connectedPromise, new Promise((resolve5, reject) => {
-          __classPrivateFieldSet(this, _EventStream_resolveConnectedPromise, resolve5, "f");
+        __classPrivateFieldSet(this, _EventStream_connectedPromise, new Promise((resolve7, reject) => {
+          __classPrivateFieldSet(this, _EventStream_resolveConnectedPromise, resolve7, "f");
           __classPrivateFieldSet(this, _EventStream_rejectConnectedPromise, reject, "f");
         }), "f");
-        __classPrivateFieldSet(this, _EventStream_endPromise, new Promise((resolve5, reject) => {
-          __classPrivateFieldSet(this, _EventStream_resolveEndPromise, resolve5, "f");
+        __classPrivateFieldSet(this, _EventStream_endPromise, new Promise((resolve7, reject) => {
+          __classPrivateFieldSet(this, _EventStream_resolveEndPromise, resolve7, "f");
           __classPrivateFieldSet(this, _EventStream_rejectEndPromise, reject, "f");
         }), "f");
         __classPrivateFieldGet(this, _EventStream_connectedPromise, "f").catch(() => void 0);
@@ -32078,7 +32078,7 @@ var init_EventStream = __esm({
        *   const message = await stream.emitted('message') // rejects if the stream errors
        */
       emitted(event) {
-        return new Promise((resolve5, reject) => {
+        return new Promise((resolve7, reject) => {
           __classPrivateFieldSet(this, _EventStream_catchingPromiseCreated, true, "f");
           const onError = (error64) => {
             this.off(event, onEvent);
@@ -32088,7 +32088,7 @@ var init_EventStream = __esm({
             if (event !== "error") {
               this.off("error", onError);
             }
-            resolve5(values.length > 1 ? values : values[0]);
+            resolve7(values.length > 1 ? values : values[0]);
           };
           if (event !== "error") {
             __classPrivateFieldGet(this, _EventStream_instances, "m", _EventStream_onceForEmitted).call(this, "error", onError);
@@ -32304,8 +32304,8 @@ var init_EventStream = __esm({
             if (ended) {
               return Promise.resolve(doneResult());
             }
-            return new Promise((resolve5, reject) => {
-              readQueue.enqueue({ resolve: resolve5, reject });
+            return new Promise((resolve7, reject) => {
+              readQueue.enqueue({ resolve: resolve7, reject });
             });
           },
           return: () => {
@@ -41742,8 +41742,8 @@ var init_tool_dispatcher = __esm({
         try {
           await __classPrivateFieldGet(this, _AgentToolDispatcher_instances, "m", _AgentToolDispatcher_wait).call(this, () => (
             // oxlint-disable-next-line promise/avoid-new -- Own the registration timer so cancellation clears it promptly.
-            new Promise((resolve5) => {
-              timer = setTimeout(resolve5, delay);
+            new Promise((resolve7) => {
+              timer = setTimeout(resolve7, delay);
             })
           ));
         } finally {
@@ -43697,7 +43697,7 @@ var init_steps = __esm({
 
 // node_modules/.pnpm/openai@7.57.0_@aws-sdk+credential-provider-node@3.972.97_@smithy+signature-v4@5.7.5_undici@6.29.1_zod@4.6.6/node_modules/openai/lib/polling.mjs
 function sleepUntilAborted(milliseconds, signal) {
-  return new Promise((resolve5, reject) => {
+  return new Promise((resolve7, reject) => {
     let timer;
     let registered;
     let settled = false;
@@ -43746,7 +43746,7 @@ function sleepUntilAborted(milliseconds, signal) {
       }
       settled = true;
       cleanup();
-      resolve5();
+      resolve7();
     }, milliseconds);
     registered = abort;
     try {
@@ -52582,23 +52582,23 @@ var init_client = __esm({
           map4.set(key, entry);
       }
       return sanitizedValue;
-    }, _OpenAI_sanitizeLogger = function _OpenAI_sanitizeLogger2(logger6) {
-      if (__classPrivateFieldGet(_a5, _a5, "f", _OpenAI_sanitizedLoggers).has(logger6))
-        return logger6;
+    }, _OpenAI_sanitizeLogger = function _OpenAI_sanitizeLogger2(logger7) {
+      if (__classPrivateFieldGet(_a5, _a5, "f", _OpenAI_sanitizedLoggers).has(logger7))
+        return logger7;
       const sanitized = new globalThis.Proxy(/* @__PURE__ */ Object.create(null), {
         get: (_facade, property) => {
-          const value = globalThis.Reflect.get(logger6, property, logger6);
+          const value = globalThis.Reflect.get(logger7, property, logger7);
           if (typeof value !== "function")
             return value;
           if (typeof property !== "string" || !["debug", "info", "warn", "error", "trace", "log"].includes(property)) {
-            return value.bind(logger6);
+            return value.bind(logger7);
           }
           return (...args) => {
             const seen = /* @__PURE__ */ new WeakMap();
-            return globalThis.Reflect.apply(value, logger6, args.map((entry) => __classPrivateFieldGet(this, _OpenAI_instances, "m", _OpenAI_sanitizeLogValue).call(this, entry, seen)));
+            return globalThis.Reflect.apply(value, logger7, args.map((entry) => __classPrivateFieldGet(this, _OpenAI_instances, "m", _OpenAI_sanitizeLogValue).call(this, entry, seen)));
           };
         },
-        set: (_facade, property, value) => globalThis.Reflect.set(logger6, property, value, logger6)
+        set: (_facade, property, value) => globalThis.Reflect.set(logger7, property, value, logger7)
       });
       __classPrivateFieldGet(_a5, _a5, "f", _OpenAI_sanitizedLoggers).add(sanitized);
       return sanitized;
@@ -54258,19 +54258,19 @@ var init_ProviderError = __esm({
       name = "ProviderError";
       tryNextLink;
       constructor(message, options = true) {
-        let logger6;
+        let logger7;
         let tryNextLink = true;
         if (typeof options === "boolean") {
-          logger6 = void 0;
+          logger7 = void 0;
           tryNextLink = options;
         } else if (options != null && typeof options === "object") {
-          logger6 = options.logger;
+          logger7 = options.logger;
           tryNextLink = options.tryNextLink ?? true;
         }
         super(message);
         this.tryNextLink = tryNextLink;
         Object.setPrototypeOf(this, _ProviderError.prototype);
-        logger6?.debug?.(`@smithy/property-provider ${tryNextLink ? "->" : "(!)"} ${message}`);
+        logger7?.debug?.(`@smithy/property-provider ${tryNextLink ? "->" : "(!)"} ${message}`);
       }
       static from(error64, options = true) {
         return Object.assign(new this(error64.message, options), error64);
@@ -54851,8 +54851,8 @@ var init_configLoader = __esm({
     init_fromSharedConfigFiles();
     init_fromStatic();
     loadConfig2 = ({ environmentVariableSelector, configFileSelector, default: defaultValue }, configuration = {}) => {
-      const { signingName, logger: logger6 } = configuration;
-      const envOptions = { signingName, logger: logger6 };
+      const { signingName, logger: logger7 } = configuration;
+      const envOptions = { signingName, logger: logger7 };
       return memoize(chain(fromEnv(environmentVariableSelector, envOptions), fromSharedConfigFiles(configFileSelector, configuration), fromStatic(defaultValue)));
     };
   }
@@ -55218,7 +55218,7 @@ var sleep2;
 var init_sleep2 = __esm({
   "node_modules/.pnpm/@smithy+core@3.40.0/node_modules/@smithy/core/dist-es/submodules/client/util-waiter/utils/sleep.js"() {
     sleep2 = (seconds) => {
-      return new Promise((resolve5) => setTimeout(resolve5, seconds * 1e3));
+      return new Promise((resolve7) => setTimeout(resolve7, seconds * 1e3));
     };
   }
 });
@@ -55383,8 +55383,8 @@ var init_createWaiter = __esm({
     init_waiter();
     abortTimeout = (abortSignal) => {
       let onAbort;
-      const promise2 = new Promise((resolve5) => {
-        onAbort = () => resolve5({ state: WaiterState.ABORTED });
+      const promise2 = new Promise((resolve7) => {
+        onAbort = () => resolve7({ state: WaiterState.ABORTED });
         if (typeof abortSignal.addEventListener === "function") {
           abortSignal.addEventListener("abort", onAbort);
         } else {
@@ -56361,10 +56361,10 @@ var init_command = __esm({
           this.middlewareStack.use(mw);
         }
         const stack = clientStack.concat(this.middlewareStack);
-        const { logger: logger6 } = configuration;
+        const { logger: logger7 } = configuration;
         const additionalSmithyContext = additionalContext[import_types8.SMITHY_CONTEXT_KEY];
         const handlerExecutionContext = {
-          logger: logger6,
+          logger: logger7,
           clientName,
           commandName,
           inputFilterSensitiveLog,
@@ -57254,7 +57254,7 @@ var init_getInstanceMetadataRegion = __esm({
     };
     imdsRequest = async (options) => {
       const { request: request2 } = await import("node:http");
-      return new Promise((resolve5, reject) => {
+      return new Promise((resolve7, reject) => {
         const req = request2({
           hostname: options.hostname,
           port: options.port,
@@ -57282,7 +57282,7 @@ var init_getInstanceMetadataRegion = __esm({
           const chunks = [];
           res.on("data", (chunk) => chunks.push(chunk));
           res.on("end", () => {
-            resolve5(Buffer.concat(chunks));
+            resolve7(Buffer.concat(chunks));
             req.destroy();
           });
         });
@@ -58777,7 +58777,7 @@ var init_resolveEndpoint = __esm({
     init_types2();
     init_utils3();
     resolveEndpoint = (ruleSetObject, options) => {
-      const { endpointParams, logger: logger6 } = options;
+      const { endpointParams, logger: logger7 } = options;
       const { parameters, rules } = ruleSetObject;
       options.logger?.debug?.(`${debugId} Initial EndpointParams: ${toDebugString(endpointParams)}`);
       for (const paramKey in parameters) {
@@ -58794,7 +58794,7 @@ var init_resolveEndpoint = __esm({
           throw new EndpointError(`Missing required parameter: '${paramKey}'`);
         }
       }
-      const endpoint2 = evaluateRules(rules, { endpointParams, logger: logger6, referenceRecord: {} });
+      const endpoint2 = evaluateRules(rules, { endpointParams, logger: logger7, referenceRecord: {} });
       options.logger?.debug?.(`${debugId} Resolved endpoint: ${toDebugString(endpoint2)}`);
       return endpoint2;
     };
@@ -59218,7 +59218,7 @@ var init_ByteArrayCollector = __esm({
 });
 
 // node_modules/.pnpm/@smithy+core@3.40.0/node_modules/@smithy/core/dist-es/submodules/serde/util-stream/createBufferedReadable.browser.js
-function createBufferedReadableStream(upstream, size, logger6) {
+function createBufferedReadableStream(upstream, size, logger7) {
   const reader = upstream.getReader();
   let streamBufferingLoggedWarning = false;
   let bytesSeen = 0;
@@ -59256,7 +59256,7 @@ function createBufferedReadableStream(upstream, size, logger6) {
         const newSize = merge3(buffers, mode, chunk);
         if (!streamBufferingLoggedWarning && bytesSeen > size * 2) {
           streamBufferingLoggedWarning = true;
-          logger6?.warn(`@smithy/util-stream - stream chunk size ${chunkSize} is below threshold of ${size}, automatically buffering.`);
+          logger7?.warn(`@smithy/util-stream - stream chunk size ${chunkSize} is below threshold of ${size}, automatically buffering.`);
         }
         if (newSize >= size) {
           controller.enqueue(flush(buffers, mode));
@@ -59316,9 +59316,9 @@ var init_createBufferedReadable_browser = __esm({
 
 // node_modules/.pnpm/@smithy+core@3.40.0/node_modules/@smithy/core/dist-es/submodules/serde/util-stream/createBufferedReadable.js
 import { Readable as Readable2 } from "node:stream";
-function createBufferedReadable(upstream, size, logger6) {
+function createBufferedReadable(upstream, size, logger7) {
   if (isReadableStream2(upstream)) {
-    return createBufferedReadableStream(upstream, size, logger6);
+    return createBufferedReadableStream(upstream, size, logger7);
   }
   const downstream = new Readable2({ read() {
   } });
@@ -59351,7 +59351,7 @@ function createBufferedReadable(upstream, size, logger6) {
       const newSize = merge3(buffers, mode, chunk);
       if (!streamBufferingLoggedWarning && bytesSeen > size * 2) {
         streamBufferingLoggedWarning = true;
-        logger6?.warn(`@smithy/util-stream - stream chunk size ${chunkSize} is below threshold of ${size}, automatically buffering.`);
+        logger7?.warn(`@smithy/util-stream - stream chunk size ${chunkSize} is below threshold of ${size}, automatically buffering.`);
       }
       if (newSize >= size) {
         downstream.push(flush(buffers, mode));
@@ -59520,7 +59520,7 @@ var init_headStream = __esm({
       if (isReadableStream2(stream)) {
         return headStream(stream, bytes);
       }
-      return new Promise((resolve5, reject) => {
+      return new Promise((resolve7, reject) => {
         const collector = new Collector();
         collector.limit = bytes;
         stream.pipe(collector);
@@ -59531,7 +59531,7 @@ var init_headStream = __esm({
         collector.on("error", reject);
         collector.on("finish", function() {
           const bytes2 = concatBytes2(this.buffers);
-          resolve5(bytes2);
+          resolve7(bytes2);
         });
       });
     };
@@ -59683,7 +59683,7 @@ var init_stream_collector = __esm({
       if (isReadableStream2(stream)) {
         return collectReadableStream(stream);
       }
-      return new Promise((resolve5, reject) => {
+      return new Promise((resolve7, reject) => {
         const collector = new Collector2();
         const nodeStream = stream;
         nodeStream.pipe(collector);
@@ -59694,7 +59694,7 @@ var init_stream_collector = __esm({
         collector.on("error", reject);
         collector.on("finish", function() {
           const bytes = concatBytes2(this.bufferedBytes);
-          resolve5(bytes);
+          resolve7(bytes);
         });
       });
     };
@@ -60032,7 +60032,7 @@ var fileStreamHasher, isReadStream;
 var init_fileStreamHasher = __esm({
   "node_modules/.pnpm/@smithy+core@3.40.0/node_modules/@smithy/core/dist-es/submodules/checksum/hash-stream-node/fileStreamHasher.js"() {
     init_HashCalculator();
-    fileStreamHasher = (hashCtor, fileStream) => new Promise((resolve5, reject) => {
+    fileStreamHasher = (hashCtor, fileStream) => new Promise((resolve7, reject) => {
       if (!isReadStream(fileStream)) {
         reject(new Error("Unable to calculate hash for non-file streams."));
         return;
@@ -60050,7 +60050,7 @@ var init_fileStreamHasher = __esm({
       });
       hashCalculator.on("error", reject);
       hashCalculator.on("finish", function() {
-        hash2.digest().then(resolve5).catch(reject);
+        hash2.digest().then(resolve7).catch(reject);
       });
     });
     isReadStream = (stream) => typeof stream.path === "string";
@@ -60069,14 +60069,14 @@ var init_readableStreamHasher = __esm({
       const hash2 = new hashCtor();
       const hashCalculator = new HashCalculator(hash2);
       readableStream.pipe(hashCalculator);
-      return new Promise((resolve5, reject) => {
+      return new Promise((resolve7, reject) => {
         readableStream.on("error", (err) => {
           hashCalculator.end();
           reject(err);
         });
         hashCalculator.on("error", reject);
         hashCalculator.on("finish", () => {
-          hash2.digest().then(resolve5).catch(reject);
+          hash2.digest().then(resolve7).catch(reject);
         });
       });
     };
@@ -61336,7 +61336,7 @@ async function* readableToIterable(readStream) {
     streamEnded = true;
   });
   while (!generationEnded) {
-    const value = await new Promise((resolve5) => setTimeout(() => resolve5(records.shift()), 0));
+    const value = await new Promise((resolve7) => setTimeout(() => resolve7(records.shift()), 0));
     if (value) {
       yield value;
     }
@@ -64819,12 +64819,12 @@ var init_loggerMiddleware = __esm({
     loggerMiddleware = () => (next, context) => async (args) => {
       try {
         const response = await next(args);
-        const { clientName, commandName, logger: logger6, dynamoDbDocumentClientOptions = {} } = context;
+        const { clientName, commandName, logger: logger7, dynamoDbDocumentClientOptions = {} } = context;
         const { overrideInputFilterSensitiveLog, overrideOutputFilterSensitiveLog } = dynamoDbDocumentClientOptions;
         const inputFilterSensitiveLog = overrideInputFilterSensitiveLog ?? context.inputFilterSensitiveLog;
         const outputFilterSensitiveLog = overrideOutputFilterSensitiveLog ?? context.outputFilterSensitiveLog;
         const { $metadata, ...outputWithoutMetadata } = response.output;
-        logger6?.info?.({
+        logger7?.info?.({
           clientName,
           commandName,
           input: inputFilterSensitiveLog(args.input),
@@ -64833,10 +64833,10 @@ var init_loggerMiddleware = __esm({
         });
         return response;
       } catch (error64) {
-        const { clientName, commandName, logger: logger6, dynamoDbDocumentClientOptions = {} } = context;
+        const { clientName, commandName, logger: logger7, dynamoDbDocumentClientOptions = {} } = context;
         const { overrideInputFilterSensitiveLog } = dynamoDbDocumentClientOptions;
         const inputFilterSensitiveLog = overrideInputFilterSensitiveLog ?? context.inputFilterSensitiveLog;
-        logger6?.error?.({
+        logger7?.error?.({
           clientName,
           commandName,
           input: inputFilterSensitiveLog(args.input),
@@ -65572,11 +65572,11 @@ function resolveUserAgentConfig(input2) {
     userAgentAppId: async () => {
       const appId = await normalizedAppIdProvider();
       if (!isValidUserAgentAppId(appId)) {
-        const logger6 = input2.logger?.constructor?.name === "NoOpLogger" || !input2.logger ? console : input2.logger;
+        const logger7 = input2.logger?.constructor?.name === "NoOpLogger" || !input2.logger ? console : input2.logger;
         if (typeof appId !== "string") {
-          logger6?.warn("userAgentAppId must be a string or undefined.");
+          logger7?.warn("userAgentAppId must be a string or undefined.");
         } else if (appId.length > 50) {
-          logger6?.warn("The provided userAgentAppId exceeds the maximum length of 50 characters.");
+          logger7?.warn("The provided userAgentAppId exceeds the maximum length of 50 characters.");
         }
       }
       return appId;
@@ -66057,7 +66057,7 @@ var init_constants5 = __esm({
 });
 
 // node_modules/.pnpm/@smithy+core@3.40.0/node_modules/@smithy/core/dist-es/submodules/retry/middleware-retry/parseRetryAfterHeader.js
-function parseRetryAfterHeader(response, logger6) {
+function parseRetryAfterHeader(response, logger7) {
   if (!HttpResponse.isInstance(response)) {
     return;
   }
@@ -66074,8 +66074,8 @@ function parseRetryAfterHeader(response, logger6) {
           const date6 = parseRfc7231DateTime(retryAfter);
           retryAfterSeconds = (date6.getTime() - Date.now()) / 1e3;
         } catch (e5) {
-          logger6?.trace?.("Failed to parse retry-after header");
-          logger6?.trace?.(e5);
+          logger7?.trace?.("Failed to parse retry-after header");
+          logger7?.trace?.(e5);
         }
       } else if (retryAfter.match(/ GMT, ((\d+)|(\d+\.\d+))$/)) {
         retryAfterSeconds = Number(retryAfter.match(/ GMT, ([\d.]+)$/)?.[1]);
@@ -66092,15 +66092,15 @@ function parseRetryAfterHeader(response, logger6) {
       const v = response.headers[header2];
       const backoffMilliseconds = Number(v);
       if (isNaN(backoffMilliseconds)) {
-        logger6?.trace?.(`Failed to parse x-amz-retry-after=${v}`);
+        logger7?.trace?.(`Failed to parse x-amz-retry-after=${v}`);
         return;
       }
       return new Date(Date.now() + backoffMilliseconds);
     }
   }
 }
-function getRetryAfterHint(response, logger6) {
-  return parseRetryAfterHeader(response, logger6);
+function getRetryAfterHint(response, logger7) {
+  return parseRetryAfterHeader(response, logger7);
 }
 var init_parseRetryAfterHeader = __esm({
   "node_modules/.pnpm/@smithy+core@3.40.0/node_modules/@smithy/core/dist-es/submodules/retry/middleware-retry/parseRetryAfterHeader.js"() {
@@ -66181,7 +66181,7 @@ function bindRetryMiddleware(isStreamingPayload2) {
           const delay = retryToken.getRetryDelay();
           totalRetryDelay += (retryToken?.$retryLog?.acquisitionDelay ?? 0) + delay;
           if (delay > 0) {
-            await race(new Promise((resolve5) => setTimeout(resolve5, delay)), abortSignal);
+            await race(new Promise((resolve7) => setTimeout(resolve7, delay)), abortSignal);
           }
         }
       }
@@ -66215,12 +66215,12 @@ var init_retryMiddleware = __esm({
     init_parseRetryAfterHeader();
     init_util();
     isRetryStrategyV2 = (retryStrategy) => typeof retryStrategy.acquireInitialRetryToken !== "undefined" && typeof retryStrategy.refreshRetryTokenForRetry !== "undefined" && typeof retryStrategy.recordSuccess !== "undefined";
-    getRetryErrorInfo = (error64, logger6) => {
+    getRetryErrorInfo = (error64, logger7) => {
       const errorInfo = {
         error: error64,
         errorType: getRetryErrorType(error64)
       };
-      const retryAfterHint = parseRetryAfterHeader(error64.$response, logger6);
+      const retryAfterHint = parseRetryAfterHeader(error64.$response, logger7);
       if (retryAfterHint) {
         errorInfo.retryAfterHint = retryAfterHint;
       }
@@ -66314,7 +66314,7 @@ var init_DefaultRateLimiter = __esm({
         this.refillTokenBucket();
         while (amount > this.availableTokens) {
           const delay = (amount - this.availableTokens) / this.fillRate * 1e3;
-          await new Promise((resolve5) => _DefaultRateLimiter.setTimeoutFn(resolve5, delay));
+          await new Promise((resolve7) => _DefaultRateLimiter.setTimeoutFn(resolve7, delay));
           this.refillTokenBucket();
         }
         this.availableTokens = this.availableTokens - amount;
@@ -66752,7 +66752,7 @@ var init_StandardRetryStrategy2 = __esm({
               const delayFromResponse = getDelayFromRetryAfterHeader(err.$response);
               const delay = Math.max(delayFromResponse || 0, delayFromDecider);
               totalDelay += delay;
-              await new Promise((resolve5) => setTimeout(resolve5, delay));
+              await new Promise((resolve7) => setTimeout(resolve7, delay));
               continue;
             }
             if (!err.$metadata) {
@@ -69841,7 +69841,7 @@ var require_dist_cjs3 = __commonJS({
     }
     function requestTimeout(timeoutInMs = 0) {
       let timeoutId;
-      const promise2 = new Promise((resolve5, reject) => {
+      const promise2 = new Promise((resolve7, reject) => {
         if (timeoutInMs) {
           timeoutId = setTimeout(() => {
             const timeoutError = new Error(`Request did not complete within ${timeoutInMs} ms`);
@@ -69961,7 +69961,7 @@ var require_dist_cjs3 = __commonJS({
           timeout.promise
         ];
         if (abortSignal) {
-          raceOfPromises.push(new Promise((resolve5, reject) => {
+          raceOfPromises.push(new Promise((resolve7, reject) => {
             const onAbort = () => {
               const abortError = buildAbortError(abortSignal);
               reject(abortError);
@@ -70064,13 +70064,13 @@ var require_dist_cjs4 = __commonJS({
       }
       async handle(request2) {
         this.config = await this.configPromise;
-        const { logger: logger6 } = this.config;
+        const { logger: logger7 } = this.config;
         if (!isWebSocketRequest(request2)) {
-          logger6?.debug?.(`@aws-sdk - ws fetching ${request2.protocol}${request2.hostname}${request2.path}`);
+          logger7?.debug?.(`@aws-sdk - ws fetching ${request2.protocol}${request2.hostname}${request2.path}`);
           return this.httpHandler.handle(request2);
         }
         const url2 = formatUrl2(request2);
-        logger6?.debug?.(`@aws-sdk - ws connecting ${url2.split("?")[0]}`);
+        logger7?.debug?.(`@aws-sdk - ws connecting ${url2.split("?")[0]}`);
         const socket = new WebSocket(url2);
         if (!this.sockets[url2]) {
           this.sockets[url2] = [];
@@ -70103,7 +70103,7 @@ var require_dist_cjs4 = __commonJS({
         this.sockets[url2] = (this.sockets[url2] ?? []).filter((socket) => ![WebSocket.CLOSING, WebSocket.CLOSED].includes(socket.readyState));
       }
       waitForReady(socket, connectionTimeout) {
-        return new Promise((resolve5, reject) => {
+        return new Promise((resolve7, reject) => {
           const timeout = setTimeout(() => {
             this.removeNotUsableSockets(socket.url);
             reject({
@@ -70115,7 +70115,7 @@ var require_dist_cjs4 = __commonJS({
           }, connectionTimeout);
           socket.onopen = () => {
             clearTimeout(timeout);
-            resolve5();
+            resolve7();
           };
         });
       }
@@ -70168,8 +70168,8 @@ var require_dist_cjs4 = __commonJS({
                 }
                 return { done: item.done, value: item.value };
               }
-              return new Promise((resolve5, reject) => {
-                pendingResolve = resolve5;
+              return new Promise((resolve7, reject) => {
+                pendingResolve = resolve7;
                 pendingReject = reject;
               });
             }
@@ -71481,7 +71481,7 @@ var require_dist_cjs7 = __commonJS({
     var DEFAULT_MAX_RETRIES = 0;
     var providerConfigFromInit = ({ maxRetries = DEFAULT_MAX_RETRIES, timeout = DEFAULT_TIMEOUT }) => ({ maxRetries, timeout });
     function httpRequest(options) {
-      return new Promise((resolve5, reject) => {
+      return new Promise((resolve7, reject) => {
         const req = node_http.request({
           method: "GET",
           ...options,
@@ -71506,7 +71506,7 @@ var require_dist_cjs7 = __commonJS({
             chunks.push(chunk);
           });
           res.on("end", () => {
-            resolve5(Buffer.concat(chunks));
+            resolve7(Buffer.concat(chunks));
             req.destroy();
           });
         });
@@ -71552,7 +71552,7 @@ var require_dist_cjs7 = __commonJS({
     var CMDS_IP = "169.254.170.2";
     var GREENGRASS_HOSTS = /* @__PURE__ */ new Set(["localhost", "127.0.0.1"]);
     var GREENGRASS_PROTOCOLS = /* @__PURE__ */ new Set(["http:", "https:"]);
-    var getCmdsUri = async ({ logger: logger6 }) => {
+    var getCmdsUri = async ({ logger: logger7 }) => {
       if (process.env[ENV_CMDS_RELATIVE_URI]) {
         return {
           hostname: CMDS_IP,
@@ -71564,18 +71564,18 @@ var require_dist_cjs7 = __commonJS({
         try {
           parsed = new URL(process.env[ENV_CMDS_FULL_URI]);
         } catch {
-          throw new CredentialsProviderError2(`${process.env[ENV_CMDS_FULL_URI]} is not a valid container metadata service URL`, { tryNextLink: false, logger: logger6 });
+          throw new CredentialsProviderError2(`${process.env[ENV_CMDS_FULL_URI]} is not a valid container metadata service URL`, { tryNextLink: false, logger: logger7 });
         }
         if (!parsed.hostname || !GREENGRASS_HOSTS.has(parsed.hostname)) {
           throw new CredentialsProviderError2(`${parsed.hostname} is not a valid container metadata service hostname`, {
             tryNextLink: false,
-            logger: logger6
+            logger: logger7
           });
         }
         if (!parsed.protocol || !GREENGRASS_PROTOCOLS.has(parsed.protocol)) {
           throw new CredentialsProviderError2(`${parsed.protocol} is not a valid container metadata service protocol`, {
             tryNextLink: false,
-            logger: logger6
+            logger: logger7
           });
         }
         return {
@@ -71587,7 +71587,7 @@ var require_dist_cjs7 = __commonJS({
       }
       throw new CredentialsProviderError2(`The container metadata credential provider cannot be used unless the ${ENV_CMDS_RELATIVE_URI} or ${ENV_CMDS_FULL_URI} environment variable is set`, {
         tryNextLink: false,
-        logger: logger6
+        logger: logger7
       });
     };
     var InstanceMetadataV1FallbackError = class _InstanceMetadataV1FallbackError extends CredentialsProviderError2 {
@@ -71639,10 +71639,10 @@ var require_dist_cjs7 = __commonJS({
     var STATIC_STABILITY_REFRESH_INTERVAL_SECONDS = 5 * 60;
     var STATIC_STABILITY_REFRESH_INTERVAL_JITTER_WINDOW_SECONDS = 5 * 60;
     var STATIC_STABILITY_DOC_URL = "https://docs.aws.amazon.com/sdkref/latest/guide/feature-static-credentials.html";
-    var getExtendedInstanceMetadataCredentials = (credentials, logger6) => {
+    var getExtendedInstanceMetadataCredentials = (credentials, logger7) => {
       const refreshInterval = STATIC_STABILITY_REFRESH_INTERVAL_SECONDS + Math.floor(Math.random() * STATIC_STABILITY_REFRESH_INTERVAL_JITTER_WINDOW_SECONDS);
       const newExpiration = new Date(Date.now() + refreshInterval * 1e3);
-      logger6.warn(`Attempting credential expiration extension due to a credential service availability issue. A refresh of these credentials will be attempted after ${new Date(newExpiration)}.
+      logger7.warn(`Attempting credential expiration extension due to a credential service availability issue. A refresh of these credentials will be attempted after ${new Date(newExpiration)}.
 For more information, please visit: ` + STATIC_STABILITY_DOC_URL);
       const originalExpiration = credentials.originalExpiration ?? credentials.expiration;
       return {
@@ -71652,19 +71652,19 @@ For more information, please visit: ` + STATIC_STABILITY_DOC_URL);
       };
     };
     var staticStabilityProvider = (provider, options = {}) => {
-      const logger6 = options?.logger || console;
+      const logger7 = options?.logger || console;
       let pastCredentials;
       return async () => {
         let credentials;
         try {
           credentials = await provider();
           if (credentials.expiration && credentials.expiration.getTime() < Date.now()) {
-            credentials = getExtendedInstanceMetadataCredentials(credentials, logger6);
+            credentials = getExtendedInstanceMetadataCredentials(credentials, logger7);
           }
         } catch (e5) {
           if (pastCredentials) {
-            logger6.warn("Credential renew failed: ", e5);
-            credentials = getExtendedInstanceMetadataCredentials(pastCredentials, logger6);
+            logger7.warn("Credential renew failed: ", e5);
+            credentials = getExtendedInstanceMetadataCredentials(pastCredentials, logger7);
           } else {
             throw e5;
           }
@@ -71681,7 +71681,7 @@ For more information, please visit: ` + STATIC_STABILITY_DOC_URL);
     var fromInstanceMetadata = (init = {}) => staticStabilityProvider(getInstanceMetadataProvider(init), { logger: init.logger });
     var getInstanceMetadataProvider = (init = {}) => {
       let disableFetchToken = false;
-      const { logger: logger6, profile } = init;
+      const { logger: logger7, profile } = init;
       const { timeout, maxRetries } = providerConfigFromInit(init);
       const getCredentials = async (maxRetries2, options) => {
         const isImdsV1Fallback = disableFetchToken || options.headers?.[X_AWS_EC2_METADATA_TOKEN2] == null;
@@ -71745,7 +71745,7 @@ For more information, please visit: ` + STATIC_STABILITY_DOC_URL);
       return async () => {
         const endpoint2 = await getInstanceMetadataEndpoint();
         if (disableFetchToken) {
-          logger6?.debug("AWS SDK Instance Metadata", "using v1 fallback (no token fetch)");
+          logger7?.debug("AWS SDK Instance Metadata", "using v1 fallback (no token fetch)");
           return getCredentials(maxRetries, { ...endpoint2, timeout });
         } else {
           let token;
@@ -71759,7 +71759,7 @@ For more information, please visit: ` + STATIC_STABILITY_DOC_URL);
             } else if (error64.message === "TimeoutError" || [403, 404, 405].includes(error64.statusCode)) {
               disableFetchToken = true;
             }
-            logger6?.debug("AWS SDK Instance Metadata", "using v1 fallback (initial)");
+            logger7?.debug("AWS SDK Instance Metadata", "using v1 fallback (initial)");
             return getCredentials(maxRetries, { ...endpoint2, timeout });
           }
           return getCredentials(maxRetries, {
@@ -71883,7 +71883,7 @@ var require_dist_cjs8 = __commonJS({
       }
       return timing.setTimeout(registerTimeout.bind(null, DEFER_EVENT_LISTENER_TIME$2), DEFER_EVENT_LISTENER_TIME$2);
     };
-    var setRequestTimeout = (req, reject, timeoutInMs = 0, throwOnRequestTimeout, logger6) => {
+    var setRequestTimeout = (req, reject, timeoutInMs = 0, throwOnRequestTimeout, logger7) => {
       if (timeoutInMs) {
         return timing.setTimeout(() => {
           let msg = `@smithy/node-http-handler - [${throwOnRequestTimeout ? "ERROR" : "WARN"}] a request has exceeded the configured ${timeoutInMs} ms requestTimeout.`;
@@ -71896,7 +71896,7 @@ var require_dist_cjs8 = __commonJS({
             reject(error64);
           } else {
             msg += ` Init client requestHandler with throwOnRequestTimeout=true to turn this into an error.`;
-            logger6?.warn?.(msg);
+            logger7?.warn?.(msg);
           }
         }, timeoutInMs);
       }
@@ -71969,21 +71969,21 @@ var require_dist_cjs8 = __commonJS({
       let sendBody = true;
       if (!externalAgent && expect === "100-continue") {
         sendBody = await Promise.race([
-          new Promise((resolve5) => {
-            timeoutId = Number(timing.setTimeout(() => resolve5(true), Math.max(MIN_WAIT_TIME, maxContinueTimeoutMs)));
+          new Promise((resolve7) => {
+            timeoutId = Number(timing.setTimeout(() => resolve7(true), Math.max(MIN_WAIT_TIME, maxContinueTimeoutMs)));
           }),
-          new Promise((resolve5) => {
+          new Promise((resolve7) => {
             httpRequest.on("continue", () => {
               timing.clearTimeout(timeoutId);
-              resolve5(true);
+              resolve7(true);
             });
             httpRequest.on("response", () => {
               timing.clearTimeout(timeoutId);
-              resolve5(false);
+              resolve7(false);
             });
             httpRequest.on("error", () => {
               timing.clearTimeout(timeoutId);
-              resolve5(false);
+              resolve7(false);
             });
           })
         ]);
@@ -72033,7 +72033,7 @@ var require_dist_cjs8 = __commonJS({
         }
         return new _NodeHttpHandler(instanceOrOptions);
       }
-      static checkSocketUsage(agent, socketWarningTimestamp, logger6 = console) {
+      static checkSocketUsage(agent, socketWarningTimestamp, logger7 = console) {
         const { sockets, requests, maxSockets } = agent;
         if (typeof maxSockets !== "number" || maxSockets === Infinity) {
           return socketWarningTimestamp;
@@ -72050,7 +72050,7 @@ var require_dist_cjs8 = __commonJS({
             const socketsInUse = sockets[origin]?.length ?? 0;
             const requestsEnqueued = requests[origin]?.length ?? 0;
             if (socketsInUse >= maxSockets && requestsEnqueued >= 2 * maxSockets) {
-              logger6?.warn?.(`@smithy/node-http-handler:WARN - socket usage at capacity=${socketsInUse} and ${requestsEnqueued} additional requests are enqueued.
+              logger7?.warn?.(`@smithy/node-http-handler:WARN - socket usage at capacity=${socketsInUse} and ${requestsEnqueued} additional requests are enqueued.
 See https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/node-configuring-maxsockets.html
 or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler config.`);
               return Date.now();
@@ -72060,13 +72060,13 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
         return socketWarningTimestamp;
       }
       constructor(options) {
-        this.configProvider = new Promise((resolve5, reject) => {
+        this.configProvider = new Promise((resolve7, reject) => {
           if (typeof options === "function") {
             options().then((_options) => {
-              resolve5(this.resolveDefaultConfig(_options));
+              resolve7(this.resolveDefaultConfig(_options));
             }).catch(reject);
           } else {
-            resolve5(this.resolveDefaultConfig(options));
+            resolve7(this.resolveDefaultConfig(options));
           }
         });
       }
@@ -72079,7 +72079,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
           this.config = await this.configProvider;
         }
         const config2 = this.config;
-        const logger6 = config2.logger;
+        const logger7 = config2.logger;
         const isSSL = request2.protocol === "https:";
         if (!isSSL && !this.config.httpAgent) {
           this.config.httpAgent = await this.config.httpAgentProvider();
@@ -72096,7 +72096,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             timing.clearTimeout(requestTimeoutId);
             timing.clearTimeout(keepAliveTimeoutId);
           };
-          const resolve5 = async (arg) => {
+          const resolve7 = async (arg) => {
             await writeRequestBodyPromise;
             clearTimeouts();
             _resolve(arg);
@@ -72121,7 +72121,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             });
           }
           socketWarningTimeoutId = timing.setTimeout(() => {
-            this.socketWarningTimestamp = _NodeHttpHandler.checkSocketUsage(agent, this.socketWarningTimestamp, logger6);
+            this.socketWarningTimestamp = _NodeHttpHandler.checkSocketUsage(agent, this.socketWarningTimestamp, logger7);
           }, config2.socketAcquisitionWarningTimeout ?? (config2.requestTimeout ?? 2e3) + (config2.connectionTimeout ?? 1e3));
           const queryString = request2.query ? buildQueryString2(request2.query) : "";
           let auth2 = void 0;
@@ -72160,7 +72160,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
               headers: getTransformedHeaders(res.headers),
               body: res
             });
-            resolve5({ response: httpResponse });
+            resolve7({ response: httpResponse });
           });
           req.on("error", (err) => {
             if (NODEJS_TIMEOUT_ERROR_CODES2.includes(err.code)) {
@@ -72185,7 +72185,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
           }
           const effectiveRequestTimeout = requestTimeout ?? config2.requestTimeout;
           connectionTimeoutId = setConnectionTimeout(req, reject, config2.connectionTimeout);
-          requestTimeoutId = setRequestTimeout(req, reject, effectiveRequestTimeout, config2.throwOnRequestTimeout, logger6 ?? console);
+          requestTimeoutId = setRequestTimeout(req, reject, effectiveRequestTimeout, config2.throwOnRequestTimeout, logger7 ?? console);
           const defaultSocketTimeout = config2.socketTimeout === void 0 ? resolveDefaultSocketTimeout(config2) : void 0;
           if (defaultSocketTimeout) {
             setSocketTimeout(req, reject, defaultSocketTimeout, true);
@@ -72228,7 +72228,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
         return this.config ?? {};
       }
       resolveDefaultConfig(options) {
-        const { requestTimeout, connectionTimeout, socketTimeout, socketAcquisitionWarningTimeout, httpAgent, httpsAgent, throwOnRequestTimeout, logger: logger6 } = options || {};
+        const { requestTimeout, connectionTimeout, socketTimeout, socketAcquisitionWarningTimeout, httpAgent, httpsAgent, throwOnRequestTimeout, logger: logger7 } = options || {};
         const keepAlive = true;
         const maxSockets = 50;
         let httpAgentPromise;
@@ -72257,7 +72257,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             }
             return new node_https.Agent({ keepAlive, maxSockets, ...httpsAgent });
           })(),
-          logger: logger6
+          logger: logger7
         };
       }
     };
@@ -72499,13 +72499,13 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
         return new _NodeHttp2Handler(instanceOrOptions);
       }
       constructor(options) {
-        this.configProvider = new Promise((resolve5, reject) => {
+        this.configProvider = new Promise((resolve7, reject) => {
           if (typeof options === "function") {
             options().then((opts) => {
-              resolve5(opts || {});
+              resolve7(opts || {});
             }).catch(reject);
           } else {
-            resolve5(options || {});
+            resolve7(options || {});
           }
         });
       }
@@ -72532,7 +72532,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
         return new Promise((_resolve, _reject) => {
           let fulfilled = false;
           let writeRequestBodyPromise = void 0;
-          const resolve5 = async (arg) => {
+          const resolve7 = async (arg) => {
             await writeRequestBodyPromise;
             _resolve(arg);
           };
@@ -72629,7 +72629,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
               body: clientHttp2Stream
             });
             fulfilled = true;
-            resolve5({ response: httpResponse });
+            resolve7({ response: httpResponse });
             if (useIsolatedSession) {
               session.close();
               clientHttp2Stream.on("end", () => {
@@ -72691,7 +72691,7 @@ var require_dist_cjs9 = __commonJS({
     var ECS_CONTAINER_HOST = "169.254.170.2";
     var EKS_CONTAINER_HOST_IPv4 = "169.254.170.23";
     var EKS_CONTAINER_HOST_IPv6 = "[fd00:ec2::23]";
-    var checkUrl = (url2, logger6) => {
+    var checkUrl = (url2, logger7) => {
       if (url2.protocol === "https:") {
         return;
       }
@@ -72718,7 +72718,7 @@ var require_dist_cjs9 = __commonJS({
       throw new CredentialsProviderError2(`URL not accepted. It must either be HTTPS or match one of the following:
   - loopback CIDR 127.0.0.0/8 or [::1/128]
   - ECS container host 169.254.170.2
-  - EKS container host 169.254.170.23 or [fd00:ec2::23]`, { logger: logger6 });
+  - EKS container host 169.254.170.23 or [fd00:ec2::23]`, { logger: logger7 });
     };
     function createGetRequest(url2) {
       return new HttpRequest2({
@@ -72733,13 +72733,13 @@ var require_dist_cjs9 = __commonJS({
         fragment: url2.hash
       });
     }
-    async function getCredentials(response, logger6) {
+    async function getCredentials(response, logger7) {
       const stream = sdkStreamMixin3(response.body);
       const str = await stream.transformToString();
       if (response.statusCode === 200) {
         const parsed = JSON.parse(str);
         if (typeof parsed.AccessKeyId !== "string" || typeof parsed.SecretAccessKey !== "string" || typeof parsed.Token !== "string" || typeof parsed.Expiration !== "string") {
-          throw new CredentialsProviderError2("HTTP credential provider response not of the required format, an object matching: { AccessKeyId: string, SecretAccessKey: string, Token: string, Expiration: string(rfc3339) }", { logger: logger6 });
+          throw new CredentialsProviderError2("HTTP credential provider response not of the required format, an object matching: { AccessKeyId: string, SecretAccessKey: string, Token: string, Expiration: string(rfc3339) }", { logger: logger7 });
         }
         return {
           accessKeyId: parsed.AccessKeyId,
@@ -72754,12 +72754,12 @@ var require_dist_cjs9 = __commonJS({
           parsedBody = JSON.parse(str);
         } catch (e5) {
         }
-        throw Object.assign(new CredentialsProviderError2(`Server responded with status: ${response.statusCode}`, { logger: logger6 }), {
+        throw Object.assign(new CredentialsProviderError2(`Server responded with status: ${response.statusCode}`, { logger: logger7 }), {
           Code: parsedBody.Code,
           Message: parsedBody.Message
         });
       }
-      throw new CredentialsProviderError2(`Server responded with status: ${response.statusCode}`, { logger: logger6 });
+      throw new CredentialsProviderError2(`Server responded with status: ${response.statusCode}`, { logger: logger7 });
     }
     var retryWrapper = (toRetry, maxRetries, delayMs) => {
       return async () => {
@@ -72767,7 +72767,7 @@ var require_dist_cjs9 = __commonJS({
           try {
             return await toRetry();
           } catch (e5) {
-            await new Promise((resolve5) => setTimeout(resolve5, delayMs));
+            await new Promise((resolve7) => setTimeout(resolve7, delayMs));
           }
         }
         return await toRetry();
@@ -77308,14 +77308,14 @@ var require_dist_cjs11 = __commonJS({
     var { getBearerTokenEnvKey: getBearerTokenEnvKey2 } = (init_httpAuthSchemes2(), __toCommonJS(httpAuthSchemes_exports));
     var { TokenProviderError: TokenProviderError2, getSSOTokenFilepath: getSSOTokenFilepath2, parseKnownFiles: parseKnownFiles2, getProfileName: getProfileName2, loadSsoSessionData: loadSsoSessionData2, getSSOTokenFromFile: getSSOTokenFromFile2, memoize: memoize2, chain: chain2 } = (init_config2(), __toCommonJS(config_exports));
     var { promises: promises3 } = __require("node:fs");
-    var fromEnvSigningName = ({ logger: logger6, signingName } = {}) => async () => {
-      logger6?.debug?.("@aws-sdk/token-providers - fromEnvSigningName");
+    var fromEnvSigningName = ({ logger: logger7, signingName } = {}) => async () => {
+      logger7?.debug?.("@aws-sdk/token-providers - fromEnvSigningName");
       if (!signingName) {
-        throw new TokenProviderError2("Please pass 'signingName' to compute environment variable key", { logger: logger6 });
+        throw new TokenProviderError2("Please pass 'signingName' to compute environment variable key", { logger: logger7 });
       }
       const bearerTokenKey = getBearerTokenEnvKey2(signingName);
       if (!(bearerTokenKey in process.env)) {
-        throw new TokenProviderError2(`Token not present in '${bearerTokenKey}' environment variable`, { logger: logger6 });
+        throw new TokenProviderError2(`Token not present in '${bearerTokenKey}' environment variable`, { logger: logger7 });
       }
       const token = { token: process.env[bearerTokenKey] };
       setTokenFeature2(token, "BEARER_SERVICE_ENV_VARS", "3");
@@ -77450,8 +77450,8 @@ var require_dist_cjs11 = __commonJS({
         inFlightRefreshes.delete(ssoSessionName);
       }
     };
-    var fromStatic2 = ({ token, logger: logger6 }) => async () => {
-      logger6?.debug("@aws-sdk/token-providers - fromStatic");
+    var fromStatic2 = ({ token, logger: logger7 }) => async () => {
+      logger7?.debug("@aws-sdk/token-providers - fromStatic");
       if (!token || !token.token) {
         throw new TokenProviderError2(`Please pass a valid token to fromStatic`, false);
       }
@@ -78176,7 +78176,7 @@ var require_dist_cjs12 = __commonJS({
     var { fromSso } = require_dist_cjs11();
     var isSsoProfile = (arg) => arg && (typeof arg.sso_start_url === "string" || typeof arg.sso_account_id === "string" || typeof arg.sso_session === "string" || typeof arg.sso_region === "string" || typeof arg.sso_role_name === "string");
     var SHOULD_FAIL_CREDENTIAL_CHAIN = false;
-    var resolveSSOCredentials = async ({ ssoStartUrl, ssoSession, ssoAccountId, ssoRegion, ssoRoleName, ssoClient, clientConfig, parentClientConfig, callerClientConfig, profile, filepath, configFilepath, ignoreCache, logger: logger6 }) => {
+    var resolveSSOCredentials = async ({ ssoStartUrl, ssoSession, ssoAccountId, ssoRegion, ssoRoleName, ssoClient, clientConfig, parentClientConfig, callerClientConfig, profile, filepath, configFilepath, ignoreCache, logger: logger7 }) => {
       let token;
       const refreshMessage = `To refresh this SSO session run aws sso login with the corresponding profile.`;
       if (ssoSession) {
@@ -78188,7 +78188,7 @@ var require_dist_cjs12 = __commonJS({
             ignoreCache,
             clientConfig,
             parentClientConfig,
-            logger: logger6
+            logger: logger7
           })({ callerClientConfig });
           token = {
             accessToken: _token.token,
@@ -78197,7 +78197,7 @@ var require_dist_cjs12 = __commonJS({
         } catch (e5) {
           throw new CredentialsProviderError2(e5.message, {
             tryNextLink: SHOULD_FAIL_CREDENTIAL_CHAIN,
-            logger: logger6
+            logger: logger7
           });
         }
       } else {
@@ -78206,14 +78206,14 @@ var require_dist_cjs12 = __commonJS({
         } catch (e5) {
           throw new CredentialsProviderError2(`The SSO session associated with this profile is invalid. ${refreshMessage}`, {
             tryNextLink: SHOULD_FAIL_CREDENTIAL_CHAIN,
-            logger: logger6
+            logger: logger7
           });
         }
       }
       if (new Date(token.expiresAt).getTime() - Date.now() <= 0) {
         throw new CredentialsProviderError2(`The SSO session associated with this profile has expired. ${refreshMessage}`, {
           tryNextLink: SHOULD_FAIL_CREDENTIAL_CHAIN,
-          logger: logger6
+          logger: logger7
         });
       }
       const { accessToken } = token;
@@ -78233,14 +78233,14 @@ var require_dist_cjs12 = __commonJS({
       } catch (e5) {
         throw new CredentialsProviderError2(e5, {
           tryNextLink: SHOULD_FAIL_CREDENTIAL_CHAIN,
-          logger: logger6
+          logger: logger7
         });
       }
       const { roleCredentials: { accessKeyId, secretAccessKey, sessionToken, expiration, credentialScope, accountId } = {} } = ssoResp;
       if (!accessKeyId || !secretAccessKey || !sessionToken || !expiration) {
         throw new CredentialsProviderError2("SSO returns an invalid temporary credential.", {
           tryNextLink: SHOULD_FAIL_CREDENTIAL_CHAIN,
-          logger: logger6
+          logger: logger7
         });
       }
       const credentials = {
@@ -78258,11 +78258,11 @@ var require_dist_cjs12 = __commonJS({
       }
       return credentials;
     };
-    var validateSsoProfile = (profile, logger6) => {
+    var validateSsoProfile = (profile, logger7) => {
       const { sso_start_url, sso_account_id, sso_region, sso_role_name } = profile;
       if (!sso_start_url || !sso_account_id || !sso_region || !sso_role_name) {
         throw new CredentialsProviderError2(`Profile is configured with invalid SSO credentials. Required parameters "sso_account_id", "sso_region", "sso_role_name", "sso_start_url". Got ${Object.keys(profile).join(", ")}
-Reference: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html`, { tryNextLink: false, logger: logger6 });
+Reference: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html`, { tryNextLink: false, logger: logger7 });
       }
       return profile;
     };
@@ -79542,9 +79542,9 @@ var init_defaultStsRoleAssumers = __esm({
       return async (sourceCreds, params) => {
         closureSourceCreds = sourceCreds;
         if (!stsClient) {
-          const { logger: logger6 = stsOptions?.parentClientConfig?.logger, profile = stsOptions?.parentClientConfig?.profile, region, requestHandler = stsOptions?.parentClientConfig?.requestHandler, credentialProviderLogger, userAgentAppId = stsOptions?.parentClientConfig?.userAgentAppId } = stsOptions;
+          const { logger: logger7 = stsOptions?.parentClientConfig?.logger, profile = stsOptions?.parentClientConfig?.profile, region, requestHandler = stsOptions?.parentClientConfig?.requestHandler, credentialProviderLogger, userAgentAppId = stsOptions?.parentClientConfig?.userAgentAppId } = stsOptions;
           const resolvedRegion = await resolveRegion(region, stsOptions?.parentClientConfig?.region, credentialProviderLogger, {
-            logger: logger6,
+            logger: logger7,
             profile
           });
           const isCompatibleRequestHandler = !isH2(requestHandler);
@@ -79555,7 +79555,7 @@ var init_defaultStsRoleAssumers = __esm({
             credentialDefaultProvider: () => async () => closureSourceCreds,
             region: resolvedRegion,
             requestHandler: isCompatibleRequestHandler ? requestHandler : void 0,
-            logger: logger6
+            logger: logger7
           });
         }
         const { Credentials: Credentials2, AssumedRoleUser } = await stsClient.send(new AssumeRoleCommand(params));
@@ -79579,9 +79579,9 @@ var init_defaultStsRoleAssumers = __esm({
       let stsClient;
       return async (params) => {
         if (!stsClient) {
-          const { logger: logger6 = stsOptions?.parentClientConfig?.logger, profile = stsOptions?.parentClientConfig?.profile, region, requestHandler = stsOptions?.parentClientConfig?.requestHandler, credentialProviderLogger, userAgentAppId = stsOptions?.parentClientConfig?.userAgentAppId } = stsOptions;
+          const { logger: logger7 = stsOptions?.parentClientConfig?.logger, profile = stsOptions?.parentClientConfig?.profile, region, requestHandler = stsOptions?.parentClientConfig?.requestHandler, credentialProviderLogger, userAgentAppId = stsOptions?.parentClientConfig?.userAgentAppId } = stsOptions;
           const resolvedRegion = await resolveRegion(region, stsOptions?.parentClientConfig?.region, credentialProviderLogger, {
-            logger: logger6,
+            logger: logger7,
             profile
           });
           const isCompatibleRequestHandler = !isH2(requestHandler);
@@ -79591,7 +79591,7 @@ var init_defaultStsRoleAssumers = __esm({
             profile,
             region: resolvedRegion,
             requestHandler: isCompatibleRequestHandler ? requestHandler : void 0,
-            logger: logger6
+            logger: logger7
           });
         }
         const { Credentials: Credentials2, AssumedRoleUser } = await stsClient.send(new AssumeRoleWithWebIdentityCommand(params));
@@ -80637,7 +80637,7 @@ var require_dist_cjs14 = __commonJS({
     var { createHash: createHash6, createPrivateKey, createPublicKey, sign: sign2 } = __require("node:crypto");
     var { promises: promises3 } = __require("node:fs");
     var { homedir: homedir2 } = __require("node:os");
-    var { dirname: dirname2, join: join11 } = __require("node:path");
+    var { dirname: dirname3, join: join13 } = __require("node:path");
     var LoginCredentialsFetcher = class _LoginCredentialsFetcher {
       profileData;
       init;
@@ -80688,7 +80688,7 @@ var require_dist_cjs14 = __commonJS({
           return this.toCredentials(freshToken.accessToken);
         }
         const { SigninClient: SigninClient2, CreateOAuth2TokenCommand: CreateOAuth2TokenCommand2 } = (init_signin(), __toCommonJS(signin_exports));
-        const { logger: logger6, userAgentAppId } = this.callerClientConfig ?? {};
+        const { logger: logger7, userAgentAppId } = this.callerClientConfig ?? {};
         const isH22 = (requestHandler2) => {
           return requestHandler2?.metadata?.handlerProtocol === "h2";
         };
@@ -80702,7 +80702,7 @@ var require_dist_cjs14 = __commonJS({
           },
           region,
           requestHandler,
-          logger: logger6,
+          logger: logger7,
           userAgentAppId,
           ...this.init?.clientConfig,
           ...signInRegion && { region: signInRegion }
@@ -80795,7 +80795,7 @@ var require_dist_cjs14 = __commonJS({
       }
       async saveToken(token) {
         const tokenFilePath = this.getTokenFilePath();
-        const directory = dirname2(tokenFilePath);
+        const directory = dirname3(tokenFilePath);
         try {
           await promises3.mkdir(directory, { recursive: true });
         } catch (error64) {
@@ -80803,10 +80803,10 @@ var require_dist_cjs14 = __commonJS({
         await promises3.writeFile(tokenFilePath, JSON.stringify(token, null, 2), "utf8");
       }
       getTokenFilePath() {
-        const directory = process.env.AWS_LOGIN_CACHE_DIRECTORY ?? join11(homedir2(), ".aws", "login", "cache");
+        const directory = process.env.AWS_LOGIN_CACHE_DIRECTORY ?? join13(homedir2(), ".aws", "login", "cache");
         const loginSessionBytes = Buffer.from(this.loginSession, "utf8");
         const loginSessionSha256 = createHash6("sha256").update(loginSessionBytes).digest("hex");
-        return join11(directory, `${loginSessionSha256}.json`);
+        return join13(directory, `${loginSessionSha256}.json`);
       }
       derToRawSignature(derSignature) {
         let offset = 2;
@@ -80951,7 +80951,7 @@ var require_dist_cjs15 = __commonJS({
       setCredentialFeature2(credentials, "CREDENTIALS_PROCESS", "w");
       return credentials;
     };
-    var resolveProcessCredentials = async (profileName, profiles, logger6) => {
+    var resolveProcessCredentials = async (profileName, profiles, logger7) => {
       const profile = profiles[profileName];
       if (profiles[profileName]) {
         const credentialProcess = profile["credential_process"];
@@ -80967,14 +80967,14 @@ var require_dist_cjs15 = __commonJS({
             }
             return getValidatedProcessCredentials(profileName, data, profiles);
           } catch (error64) {
-            throw new CredentialsProviderError2(error64.message, { logger: logger6 });
+            throw new CredentialsProviderError2(error64.message, { logger: logger7 });
           }
         } else {
-          throw new CredentialsProviderError2(`Profile ${profileName} did not contain credential_process.`, { logger: logger6 });
+          throw new CredentialsProviderError2(`Profile ${profileName} did not contain credential_process.`, { logger: logger7 });
         }
       } else {
         throw new CredentialsProviderError2(`Profile ${profileName} could not be found in shared credentials file.`, {
-          logger: logger6
+          logger: logger7
         });
       }
     };
@@ -80994,7 +80994,7 @@ var require_dist_cjs16 = __commonJS({
   "node_modules/.pnpm/@aws-sdk+credential-provider-web-identity@3.972.90/node_modules/@aws-sdk/credential-provider-web-identity/dist-cjs/index.js"(exports) {
     var { setCredentialFeature: setCredentialFeature2 } = (init_client4(), __toCommonJS(client_exports2));
     var { CredentialsProviderError: CredentialsProviderError2, externalDataInterceptor: externalDataInterceptor2 } = (init_config2(), __toCommonJS(config_exports));
-    var { readFileSync: readFileSync6 } = __require("node:fs");
+    var { readFileSync: readFileSync9 } = __require("node:fs");
     var fromWebToken = (init) => async (awsIdentityProperties) => {
       init.logger?.debug("@aws-sdk/credential-provider-web-identity - fromWebToken");
       const { roleArn, roleSessionName, webIdentityToken, providerId, policyArns, policy, durationSeconds } = init;
@@ -81035,7 +81035,7 @@ var require_dist_cjs16 = __commonJS({
       }
       const credentials = await fromWebToken({
         ...init,
-        webIdentityToken: externalDataInterceptor2?.getTokenRecord?.()[webIdentityTokenFile] ?? readFileSync6(webIdentityTokenFile, { encoding: "ascii" }),
+        webIdentityToken: externalDataInterceptor2?.getTokenRecord?.()[webIdentityTokenFile] ?? readFileSync9(webIdentityTokenFile, { encoding: "ascii" }),
         roleArn,
         roleSessionName
       })(awsIdentityProperties);
@@ -81054,21 +81054,21 @@ var require_dist_cjs17 = __commonJS({
   "node_modules/.pnpm/@aws-sdk+credential-provider-ini@3.973.30/node_modules/@aws-sdk/credential-provider-ini/dist-cjs/index.js"(exports) {
     var { CredentialsProviderError: CredentialsProviderError2, chain: chain2, getProfileName: getProfileName2, parseKnownFiles: parseKnownFiles2 } = (init_config2(), __toCommonJS(config_exports));
     var { setCredentialFeature: setCredentialFeature2 } = (init_client4(), __toCommonJS(client_exports2));
-    var resolveCredentialSource = (credentialSource, profileName, logger6) => {
+    var resolveCredentialSource = (credentialSource, profileName, logger7) => {
       const sourceProvidersMap = {
         EcsContainer: async (options) => {
           const { fromHttp } = require_dist_cjs9();
           const { fromContainerMetadata } = require_dist_cjs7();
-          logger6?.debug("@aws-sdk/credential-provider-ini - credential_source is EcsContainer");
+          logger7?.debug("@aws-sdk/credential-provider-ini - credential_source is EcsContainer");
           return async () => chain2(fromHttp(options ?? {}), fromContainerMetadata(options))().then(setNamedProvider);
         },
         Ec2InstanceMetadata: async (options) => {
-          logger6?.debug("@aws-sdk/credential-provider-ini - credential_source is Ec2InstanceMetadata");
+          logger7?.debug("@aws-sdk/credential-provider-ini - credential_source is Ec2InstanceMetadata");
           const { fromInstanceMetadata } = require_dist_cjs7();
           return async () => fromInstanceMetadata(options)().then(setNamedProvider);
         },
         Environment: async (options) => {
-          logger6?.debug("@aws-sdk/credential-provider-ini - credential_source is Environment");
+          logger7?.debug("@aws-sdk/credential-provider-ini - credential_source is Environment");
           const { fromEnv: fromEnv2 } = require_dist_cjs6();
           return async () => fromEnv2(options)().then(setNamedProvider);
         }
@@ -81076,24 +81076,24 @@ var require_dist_cjs17 = __commonJS({
       if (credentialSource in sourceProvidersMap) {
         return sourceProvidersMap[credentialSource];
       } else {
-        throw new CredentialsProviderError2(`Unsupported credential source in profile ${profileName}. Got ${credentialSource}, expected EcsContainer or Ec2InstanceMetadata or Environment.`, { logger: logger6 });
+        throw new CredentialsProviderError2(`Unsupported credential source in profile ${profileName}. Got ${credentialSource}, expected EcsContainer or Ec2InstanceMetadata or Environment.`, { logger: logger7 });
       }
     };
     var setNamedProvider = (creds) => setCredentialFeature2(creds, "CREDENTIALS_PROFILE_NAMED_PROVIDER", "p");
-    var isAssumeRoleProfile = (arg, { profile = "default", logger: logger6 } = {}) => {
-      return Boolean(arg) && typeof arg === "object" && typeof arg.role_arn === "string" && ["undefined", "string"].indexOf(typeof arg.role_session_name) > -1 && ["undefined", "string"].indexOf(typeof arg.external_id) > -1 && ["undefined", "string"].indexOf(typeof arg.mfa_serial) > -1 && (isAssumeRoleWithSourceProfile(arg, { profile, logger: logger6 }) || isCredentialSourceProfile(arg, { profile, logger: logger6 }));
+    var isAssumeRoleProfile = (arg, { profile = "default", logger: logger7 } = {}) => {
+      return Boolean(arg) && typeof arg === "object" && typeof arg.role_arn === "string" && ["undefined", "string"].indexOf(typeof arg.role_session_name) > -1 && ["undefined", "string"].indexOf(typeof arg.external_id) > -1 && ["undefined", "string"].indexOf(typeof arg.mfa_serial) > -1 && (isAssumeRoleWithSourceProfile(arg, { profile, logger: logger7 }) || isCredentialSourceProfile(arg, { profile, logger: logger7 }));
     };
-    var isAssumeRoleWithSourceProfile = (arg, { profile, logger: logger6 }) => {
+    var isAssumeRoleWithSourceProfile = (arg, { profile, logger: logger7 }) => {
       const withSourceProfile = typeof arg.source_profile === "string" && typeof arg.credential_source === "undefined";
       if (withSourceProfile) {
-        logger6?.debug?.(`    ${profile} isAssumeRoleWithSourceProfile source_profile=${arg.source_profile}`);
+        logger7?.debug?.(`    ${profile} isAssumeRoleWithSourceProfile source_profile=${arg.source_profile}`);
       }
       return withSourceProfile;
     };
-    var isCredentialSourceProfile = (arg, { profile, logger: logger6 }) => {
+    var isCredentialSourceProfile = (arg, { profile, logger: logger7 }) => {
       const withProviderProfile = typeof arg.credential_source === "string" && typeof arg.source_profile === "undefined";
       if (withProviderProfile) {
-        logger6?.debug?.(`    ${profile} isCredentialSourceProfile credential_source=${arg.credential_source}`);
+        logger7?.debug?.(`    ${profile} isCredentialSourceProfile credential_source=${arg.credential_source}`);
       }
       return withProviderProfile;
     };
@@ -81497,8 +81497,8 @@ var require_dist_cjs19 = __commonJS({
           credentials: this.credentials
         });
         let resolvePipeline;
-        const pipelineError = new Promise((resolve5, reject) => {
-          resolvePipeline = () => resolve5(void 0);
+        const pipelineError = new Promise((resolve7, reject) => {
+          resolvePipeline = () => resolve7(void 0);
           pipeline(payload2, signingStream, request2.body, (err) => {
             if (err) {
               reject(new Error(`Pipeline error in @aws-sdk/eventstream-handler-node: ${err.message}`, { cause: err }));
@@ -81529,14 +81529,14 @@ var require_dist_cjs20 = __commonJS({
     var { getBearerTokenEnvKey: getBearerTokenEnvKey2 } = (init_httpAuthSchemes2(), __toCommonJS(httpAuthSchemes_exports));
     var { TokenProviderError: TokenProviderError2, getSSOTokenFilepath: getSSOTokenFilepath2, parseKnownFiles: parseKnownFiles2, getProfileName: getProfileName2, loadSsoSessionData: loadSsoSessionData2, getSSOTokenFromFile: getSSOTokenFromFile2, memoize: memoize2, chain: chain2 } = (init_config2(), __toCommonJS(config_exports));
     var { promises: promises3 } = __require("node:fs");
-    var fromEnvSigningName = ({ logger: logger6, signingName } = {}) => async () => {
-      logger6?.debug?.("@aws-sdk/token-providers - fromEnvSigningName");
+    var fromEnvSigningName = ({ logger: logger7, signingName } = {}) => async () => {
+      logger7?.debug?.("@aws-sdk/token-providers - fromEnvSigningName");
       if (!signingName) {
-        throw new TokenProviderError2("Please pass 'signingName' to compute environment variable key", { logger: logger6 });
+        throw new TokenProviderError2("Please pass 'signingName' to compute environment variable key", { logger: logger7 });
       }
       const bearerTokenKey = getBearerTokenEnvKey2(signingName);
       if (!(bearerTokenKey in process.env)) {
-        throw new TokenProviderError2(`Token not present in '${bearerTokenKey}' environment variable`, { logger: logger6 });
+        throw new TokenProviderError2(`Token not present in '${bearerTokenKey}' environment variable`, { logger: logger7 });
       }
       const token = { token: process.env[bearerTokenKey] };
       setTokenFeature2(token, "BEARER_SERVICE_ENV_VARS", "3");
@@ -81671,8 +81671,8 @@ var require_dist_cjs20 = __commonJS({
         inFlightRefreshes.delete(ssoSessionName);
       }
     };
-    var fromStatic2 = ({ token, logger: logger6 }) => async () => {
-      logger6?.debug("@aws-sdk/token-providers - fromStatic");
+    var fromStatic2 = ({ token, logger: logger7 }) => async () => {
+      logger7?.debug("@aws-sdk/token-providers - fromStatic");
       if (!token || !token.token) {
         throw new TokenProviderError2(`Please pass a valid token to fromStatic`, false);
       }
@@ -85833,11 +85833,11 @@ import { EOL as EOL3 } from "os";
 import { constants, promises } from "fs";
 var __awaiter = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve5) {
-      resolve5(value);
+    return value instanceof P ? value : new P(function(resolve7) {
+      resolve7(value);
     });
   }
-  return new (P || (P = Promise))(function(resolve5, reject) {
+  return new (P || (P = Promise))(function(resolve7, reject) {
     function fulfilled(value) {
       try {
         step(generator.next(value));
@@ -85853,7 +85853,7 @@ var __awaiter = function(thisArg, _arguments, P, generator) {
       }
     }
     function step(result2) {
-      result2.done ? resolve5(result2.value) : adopt(result2.value).then(fulfilled, rejected);
+      result2.done ? resolve7(result2.value) : adopt(result2.value).then(fulfilled, rejected);
     }
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
@@ -86190,7 +86190,8 @@ function createActionsIO() {
 }
 
 // src/action/main.ts
-import { join as join10 } from "node:path";
+import { existsSync as existsSync7, readFileSync as readFileSync8 } from "node:fs";
+import { join as join12 } from "node:path";
 
 // src/config/load.ts
 var import_yaml = __toESM(require_dist(), 1);
@@ -91685,7 +91686,7 @@ var recursive = /* @__PURE__ */ new WeakMap();
 var NONE = 0;
 var ASSUMED = 1;
 var PROVEN = 2;
-function isRecursive(inst, stack, resolve5) {
+function isRecursive(inst, stack, resolve7) {
   const cached2 = recursive.get(inst);
   if (cached2 !== void 0)
     return cached2 ? PROVEN : NONE;
@@ -91695,7 +91696,7 @@ function isRecursive(inst, stack, resolve5) {
   let result2 = NONE;
   const check2 = (child) => {
     if (result2 !== PROVEN && child?._zod) {
-      const answer = isRecursive(child, stack, resolve5);
+      const answer = isRecursive(child, stack, resolve7);
       if (answer > result2)
         result2 = answer;
     }
@@ -91706,7 +91707,7 @@ function isRecursive(inst, stack, resolve5) {
       const desc = Object.getOwnPropertyDescriptor(sh, key);
       if (spread && !desc.enumerable)
         continue;
-      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve5) : NONE;
+      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve7) : NONE;
       if (child > answer)
         answer = child;
     }
@@ -91770,7 +91771,7 @@ function isRecursive(inst, stack, resolve5) {
       break;
     // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
     case "lazy": {
-      const inner = def._cachedInner ?? (resolve5 ? inst._zod.innerType : void 0);
+      const inner = def._cachedInner ?? (resolve7 ? inst._zod.innerType : void 0);
       merge4(inner ? isRecursive(inner, stack, false) : ASSUMED);
       break;
     }
@@ -109102,20 +109103,20 @@ var noop2 = () => {
 };
 var consoleWarn = console.warn.bind(console);
 var consoleError = console.error.bind(console);
-function createLogger2(logger6 = {}) {
-  if (typeof logger6.debug !== "function") {
-    logger6.debug = noop2;
+function createLogger2(logger7 = {}) {
+  if (typeof logger7.debug !== "function") {
+    logger7.debug = noop2;
   }
-  if (typeof logger6.info !== "function") {
-    logger6.info = noop2;
+  if (typeof logger7.info !== "function") {
+    logger7.info = noop2;
   }
-  if (typeof logger6.warn !== "function") {
-    logger6.warn = consoleWarn;
+  if (typeof logger7.warn !== "function") {
+    logger7.warn = consoleWarn;
   }
-  if (typeof logger6.error !== "function") {
-    logger6.error = consoleError;
+  if (typeof logger7.error !== "function") {
+    logger7.error = consoleError;
   }
-  return logger6;
+  return logger7;
 }
 var userAgentTrail = `octokit-core.js/${VERSION4} ${getUserAgent()}`;
 var Octokit = class {
@@ -112402,21 +112403,21 @@ function createGit(cwd) {
     }
   };
 }
-function resolveCommit(git, ref) {
-  if (!git.succeeds(["rev-parse", "--verify", "--quiet", `${ref}^{commit}`])) return null;
-  return git.run(["rev-parse", "--verify", `${ref}^{commit}`]);
+function resolveCommit(git2, ref) {
+  if (!git2.succeeds(["rev-parse", "--verify", "--quiet", `${ref}^{commit}`])) return null;
+  return git2.run(["rev-parse", "--verify", `${ref}^{commit}`]);
 }
-function isTag(git, name) {
-  return git.succeeds(["rev-parse", "--verify", "--quiet", `refs/tags/${name}`]);
+function isTag(git2, name) {
+  return git2.succeeds(["rev-parse", "--verify", "--quiet", `refs/tags/${name}`]);
 }
-function isAncestor(git, ancestor, descendant) {
-  return git.succeeds(["merge-base", "--is-ancestor", ancestor, descendant]);
+function isAncestor(git2, ancestor, descendant) {
+  return git2.succeeds(["merge-base", "--is-ancestor", ancestor, descendant]);
 }
-function isShallow(git) {
-  return git.run(["rev-parse", "--is-shallow-repository"]) === "true";
+function isShallow(git2) {
+  return git2.run(["rev-parse", "--is-shallow-repository"]) === "true";
 }
-function mergedTags(git, to) {
-  const out = git.run([
+function mergedTags(git2, to) {
+  const out = git2.run([
     "for-each-ref",
     "--merged",
     to,
@@ -112431,8 +112432,8 @@ function mergedTags(git, to) {
 }
 var FIELD = "";
 var RECORD = "";
-function logCommits(git, args) {
-  const out = git.run([
+function logCommits(git2, args) {
+  const out = git2.run([
     "log",
     "--reverse",
     `--format=%H${FIELD}%an${FIELD}%aI${FIELD}%B${RECORD}`,
@@ -112443,6 +112444,23 @@ function logCommits(git, args) {
     const [sha, authorName, date6, message] = record2.split(FIELD);
     return { sha, authorName, date: date6, message: message.replace(/\n+$/, "") };
   });
+}
+function commitDate(git2, ref) {
+  return git2.run(["log", "-1", "--format=%cs", ref, "--"]);
+}
+function touchesWorkflows(git2, ref) {
+  const isRoot = git2.run(["rev-list", "--parents", "-n", "1", ref]).split(" ").length === 1;
+  const out = git2.run([
+    "diff-tree",
+    "-r",
+    "-m",
+    "--first-parent",
+    "--name-only",
+    "--no-commit-id",
+    ...isRoot ? ["--root"] : [],
+    ref
+  ]);
+  return out.split("\n").some((path2) => path2.startsWith(".github/workflows/"));
 }
 
 // src/core/util/semver.ts
@@ -112535,19 +112553,19 @@ function globToRegExp(glob) {
   }
   return new RegExp(`^${out}$`);
 }
-function assertFullHistory(git) {
-  if (isShallow(git)) {
+function assertFullHistory(git2) {
+  if (isShallow(git2)) {
     throw invalid("The checkout is shallow, so tags and history are missing", [
       "Set fetch-depth: 0 on actions/checkout so every tag and commit is available"
     ]);
   }
 }
-function findPreviousTag(git, to, options, below, includeTo = false) {
-  const toSha = resolveCommit(git, to);
+function findPreviousTag(git2, to, options, below, includeTo = false) {
+  const toSha = resolveCommit(git2, to);
   const pattern = globToRegExp(options.tagPattern);
   const ignored = [];
   let best = null;
-  for (const { name, sha } of mergedTags(git, to)) {
+  for (const { name, sha } of mergedTags(git2, to)) {
     if (!pattern.test(name)) continue;
     const version2 = parseSemver(name);
     if (!version2) {
@@ -112561,10 +112579,10 @@ function findPreviousTag(git, to, options, below, includeTo = false) {
   }
   return { tag: best?.tag ?? null, ignored };
 }
-function finish(git, base, logArgs, options, notices) {
-  const toSha = resolveCommit(git, base.to);
+function finish(git2, base, logArgs, options, notices) {
+  const toSha = resolveCommit(git2, base.to);
   if (!toSha) throw invalid(`Ref ${base.to} does not exist`);
-  const commits = logCommits(git, logArgs);
+  const commits = logCommits(git2, logArgs);
   const { prNumbers, excludedPRNumbers } = extractPRNumbers(commits, {
     titlePatterns: options.titlePatterns
   });
@@ -112597,13 +112615,13 @@ function ignoredNotice(ignored) {
   const more = ignored.length > 5 ? ` and ${ignored.length - 5} more` : "";
   return [`Ignored tags that match the pattern but hold no SemVer version: ${shown}${more}`];
 }
-function resolveRange(git, request2, options) {
+function resolveRange(git2, request2, options) {
   if (request2.kind === "window") {
     if (!request2.key.trim()) throw invalid("A date window needs a key");
     const args = [`--since=${request2.since}`];
     if (request2.until) args.push(`--until=${request2.until}`);
     return finish(
-      git,
+      git2,
       {
         kind: "window",
         key: request2.key,
@@ -112619,9 +112637,9 @@ function resolveRange(git, request2, options) {
     );
   }
   if (request2.kind === "unreleased") {
-    const { tag: tag2, ignored: ignored2 } = findPreviousTag(git, "HEAD", options, null, true);
+    const { tag: tag2, ignored: ignored2 } = findPreviousTag(git2, "HEAD", options, null, true);
     return finish(
-      git,
+      git2,
       {
         kind: "unreleased",
         key: `unreleased-${request2.today}`,
@@ -112642,19 +112660,19 @@ function resolveRange(git, request2, options) {
       "Set the to input; a workflow_dispatch run carries no event tag"
     ]);
   }
-  if (!isTag(git, to)) throw invalid(`Tag ${to} does not exist`);
+  if (!isTag(git2, to)) throw invalid(`Tag ${to} does not exist`);
   const version2 = parseSemver(to);
   const persisted = { githubRelease: true, changelog: true };
   if (request2.from !== void 0 && request2.from.trim() !== "") {
     const from = request2.from.trim();
-    if (!resolveCommit(git, from)) throw invalid(`Ref ${from} does not exist`);
-    if (!options.allowNonAncestor && !isAncestor(git, from, to)) {
+    if (!resolveCommit(git2, from)) throw invalid(`Ref ${from} does not exist`);
+    if (!options.allowNonAncestor && !isAncestor(git2, from, to)) {
       throw invalid(`${from} is not an ancestor of ${to}`, [
         "Pick a from on the same line of history, or set allow-non-ancestor: true to compare them anyway"
       ]);
     }
     return finish(
-      git,
+      git2,
       { kind: "tag", key: to, from, to, version: version2, firstRelease: false, persisted },
       [`${from}..${to}`],
       options,
@@ -112666,9 +112684,9 @@ function resolveRange(git, request2, options) {
       `Explicit from required: ${to} ${version2 ? `does not match range.tagPattern (${options.tagPattern})` : "holds no SemVer version"}`
     ]);
   }
-  const { tag, ignored } = findPreviousTag(git, to, options, version2);
+  const { tag, ignored } = findPreviousTag(git2, to, options, version2);
   return finish(
-    git,
+    git2,
     { kind: "tag", key: to, from: tag, to, version: version2, firstRelease: tag === null, persisted },
     [tag ? `${tag}..${to}` : to],
     options,
@@ -112779,8 +112797,8 @@ async function doctor(request2, deps) {
 }
 
 // src/modes/generate.ts
-import { readFileSync as readFileSync3 } from "node:fs";
-import { join as join8 } from "node:path";
+import { readFileSync as readFileSync4 } from "node:fs";
+import { join as join9 } from "node:path";
 
 // src/core/classify/commits.ts
 init_logger();
@@ -113384,7 +113402,7 @@ function calculateDelay(attempt, initialDelayMs, maxDelayMs, backoffMultiplier) 
   return Math.floor(cappedDelay + jitter);
 }
 function sleep3(ms) {
-  return new Promise((resolve5) => setTimeout(resolve5, ms));
+  return new Promise((resolve7) => setTimeout(resolve7, ms));
 }
 async function retryWithBackoff(fn, options = {}) {
   const {
@@ -113682,6 +113700,23 @@ var CANONICAL_RENDER_OPTIONS = {
   includeCompareLink: true,
   includeFooter: false
 };
+function shiftHeadings(markdown, levels) {
+  let fence = null;
+  return markdown.split("\n").map((line) => {
+    const fenceMatch = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+    if (fenceMatch) {
+      const marker = fenceMatch[1];
+      if (fence === null) fence = marker;
+      else if (marker[0] === fence[0] && marker.length >= fence.length) fence = null;
+      return line;
+    }
+    if (fence !== null) return line;
+    const heading = /^( {0,3})(#{1,6})(?=\s|$)/.exec(line);
+    if (!heading) return line;
+    const depth = Math.min(6, Math.max(1, heading[2].length + levels));
+    return `${heading[1]}${"#".repeat(depth)}${line.slice(heading[0].length)}`;
+  }).join("\n");
+}
 
 // src/core/state/digest.ts
 import { createHash as createHash5 } from "node:crypto";
@@ -113740,6 +113775,146 @@ function generationDigest(parts) {
 }
 function outputDigest(inner) {
   return sha256(inner.replace(/\r\n/g, "\n")).slice(0, 16);
+}
+
+// src/core/state/marker.ts
+var MARKER_VERSION = 1;
+var VALUE = /^[^\s<>]+$/;
+function checkValue(name, value) {
+  if (!VALUE.test(value) || value.includes("--")) {
+    throw new Error(`Marker ${name} must be non-empty, without spaces, <, > or "--": ${value}`);
+  }
+}
+function writeBeginMarker(fields) {
+  for (const name of ["key", "persona", "gen", "out"]) checkValue(name, fields[name]);
+  return `<!-- releaseray:begin v=${MARKER_VERSION} key=${fields.key} persona=${fields.persona} gen=${fields.gen} out=${fields.out} -->`;
+}
+function writeEndMarker(fields) {
+  checkValue("key", fields.key);
+  checkValue("persona", fields.persona);
+  return `<!-- releaseray:end key=${fields.key} persona=${fields.persona} -->`;
+}
+var BEGIN = /<!-- releaseray:begin v=(\d+) key=(\S+) persona=(\S+) gen=(\S+) out=(\S+) -->/g;
+var END = /<!-- releaseray:end key=(\S+) persona=(\S+) -->/g;
+function parseMarkerLine(line) {
+  const trimmed = line.trim();
+  const begin = new RegExp(`^${BEGIN.source}$`).exec(trimmed);
+  if (begin) {
+    return {
+      type: "begin",
+      version: Number(begin[1]),
+      fields: { key: begin[2], persona: begin[3], gen: begin[4], out: begin[5] }
+    };
+  }
+  const end2 = new RegExp(`^${END.source}$`).exec(trimmed);
+  if (end2) return { type: "end", key: end2[1], persona: end2[2] };
+  return null;
+}
+function writeMarkedBlock(fields, inner) {
+  return `${writeBeginMarker(fields)}
+
+${inner}
+
+${writeEndMarker(fields)}`;
+}
+function findMarkedBlocks(text) {
+  const blocks = [];
+  for (const begin of text.matchAll(BEGIN)) {
+    const fields = { key: begin[2], persona: begin[3], gen: begin[4], out: begin[5] };
+    const from = (begin.index ?? 0) + begin[0].length;
+    const endText = writeEndMarker(fields);
+    const endAt = text.indexOf(endText, from);
+    if (endAt === -1) continue;
+    const nextBegin = text.slice(from, endAt).search(/<!-- releaseray:begin /);
+    if (nextBegin !== -1) continue;
+    blocks.push({
+      fields,
+      inner: text.slice(from, endAt).replace(/^\n+/, "").replace(/\n+$/, ""),
+      start: begin.index ?? 0,
+      end: endAt + endText.length
+    });
+  }
+  return blocks;
+}
+
+// src/core/state/planner.ts
+function isHumanEdited(block) {
+  return outputDigest(block.inner) !== block.fields.out;
+}
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function hasUnmarkedEntry(text, key) {
+  const blocks = findMarkedBlocks(text);
+  const heading = new RegExp(`^## \\[${escapeRegExp(key)}\\]`, "gm");
+  for (const match of text.matchAll(heading)) {
+    const at = match.index ?? 0;
+    if (!blocks.some((b5) => at >= b5.start && at < b5.end)) return true;
+  }
+  return false;
+}
+function planSink(target, request2) {
+  const write = (action, extra = {}) => ({
+    action,
+    needsText: true,
+    ...extra
+  });
+  if (target.sink === "github-release" && !target.exists) {
+    return target.createIfMissing ? write("create") : {
+      action: "skip",
+      needsText: false,
+      notice: `No GitHub Release for ${request2.key}; set outputs.githubRelease.createIfMissing: true to create one`
+    };
+  }
+  const blocks = findMarkedBlocks(target.text);
+  const block = blocks.find(
+    (b5) => b5.fields.key === request2.key && b5.fields.persona === request2.persona
+  );
+  if (!block) {
+    if (target.sink === "changelog" && hasUnmarkedEntry(target.text, request2.key)) {
+      return target.onHumanEdit === "overwrite" ? write("update") : {
+        action: "skip-human",
+        needsText: false,
+        warning: `CHANGELOG already has an unmarked entry for ${request2.key}; left as is (onHumanEdit: skip)`
+      };
+    }
+    if (target.sink === "github-release" && target.mode === "replace") return write("update");
+    const unmarked = target.text.trim().length > 0 && blocks.length === 0;
+    return write(
+      "create",
+      unmarked && target.sink === "github-release" ? {
+        warning: `The release body for ${request2.key} has text without ReleaseRay markers; the notes are appended below it. Run mode: adopt (v1.1) to take it over`
+      } : {}
+    );
+  }
+  const edited = isHumanEdited(block);
+  const matches = block.fields.gen === request2.gen || block.fields.gen === "adopted";
+  if (edited && target.onHumanEdit === "skip" && (request2.force || !matches)) {
+    return {
+      action: "skip-human",
+      needsText: false,
+      block,
+      warning: `The ${request2.persona} block for ${request2.key} in ${target.sink === "changelog" ? "CHANGELOG" : "the GitHub Release"} was edited by hand; left as is (onHumanEdit: skip)`
+    };
+  }
+  if (request2.force) return write("update", { block });
+  if (matches) return { action: "noop", needsText: false, block };
+  return write("update", { block });
+}
+function findStoredText(targets, request2) {
+  if (request2.force) return null;
+  for (const target of targets) {
+    const block = findMarkedBlocks(target.text).find(
+      (b5) => b5.fields.key === request2.key && b5.fields.persona === request2.persona && b5.fields.gen === request2.gen && !isHumanEdited(b5)
+    );
+    if (!block) continue;
+    const text = target.sink === "changelog" ? shiftHeadings(block.inner.replace(/^## \[[^\]]*\][^\n]*\n+/, ""), -1) : block.inner;
+    return { text, from: target.sink };
+  }
+  return null;
+}
+function generatesUnpersisted(state3) {
+  return !state3.persistedEnabled || state3.primaryChanged || state3.force;
 }
 
 // src/core/util/limit.ts
@@ -113855,15 +114030,13 @@ async function prepareRun(request2, config2, deps, options = {}) {
   }
   const wanted = request2.personas ? new Set(request2.personas) : null;
   const personas = config2.personas.filter((p3) => !wanted || wanted.has(p3.id));
-  const persisted = {
-    githubRelease: request2.publish && range2.persisted.githubRelease,
-    changelog: request2.publish && range2.persisted.changelog
-  };
+  const persisted = range2.persisted;
   const routed = personas.map((persona) => ({
     persona,
     ...eligibleSinks(persona, c5, deps.repo, persisted)
   }));
-  const releaseRequests = options.releaseRequests ?? (routed.some((r5) => r5.sinks.githubRelease) ? 2 : 0);
+  const releaseEligible = routed.some((r5) => r5.sinks.githubRelease);
+  const releaseRequests = options.releaseRequests ?? (releaseEligible ? 1 : 0) + (releaseEligible && request2.publish ? 1 : 0);
   let fetched = null;
   if (range2.prNumbers.length > 0) {
     fetched = await fetchContent(deps.github, range2.prNumbers, {
@@ -114039,18 +114212,61 @@ async function run(request2, config2, deps) {
   const { range: range2, routed, active, fetched, knownRefs, allowedDomains, renderOptions } = prepared;
   const { warnings, notices, drops, commitOnly } = prepared;
   const pulls = fetched?.pulls ?? [];
-  const results = await mapLimit(routed, c5.llm.concurrency, async (r5) => {
-    const gen = prepared.gen.get(r5.persona.id);
-    const prompts = prepared.prompts(r5.persona);
-    const base = {
-      id: r5.persona.id,
-      name: r5.persona.name,
-      visibility: r5.persona.visibility,
-      sinks: r5.sinks,
-      withheld: r5.withheld,
-      gen
+  const releaseRouted = routed.some((r5) => r5.sinks.githubRelease);
+  const changelogRouted = routed.some((r5) => r5.sinks.changelog);
+  const release2 = releaseRouted && deps.release ? await deps.release.get(range2.key) : null;
+  const changelogText = changelogRouted && deps.changelogText ? deps.changelogText() : null;
+  const targets = [];
+  if (releaseRouted && deps.release) {
+    targets.push({
+      sink: "github-release",
+      exists: release2 !== null,
+      text: release2?.body ?? "",
+      mode: c5.outputs.githubRelease.mode,
+      onHumanEdit: c5.outputs.githubRelease.onHumanEdit,
+      createIfMissing: c5.outputs.githubRelease.createIfMissing
+    });
+  }
+  if (changelogText !== null) {
+    targets.push({
+      sink: "changelog",
+      exists: true,
+      text: changelogText,
+      mode: "section",
+      onHumanEdit: c5.outputs.changelog.onHumanEdit,
+      createIfMissing: true
+    });
+  }
+  const plansFor = (r5) => {
+    const req = {
+      key: range2.key,
+      persona: r5.persona.id,
+      gen: prepared.gen.get(r5.persona.id),
+      force: request2.force
     };
-    if (!active.includes(r5)) return { ...base, status: "skipped" };
+    const plans = {};
+    for (const t of targets) {
+      if (t.sink === "github-release" && r5.sinks.githubRelease)
+        plans.githubRelease = planSink(t, req);
+      if (t.sink === "changelog" && r5.sinks.changelog) plans.changelog = planSink(t, req);
+    }
+    return plans;
+  };
+  const planned = new Map(routed.map((r5) => [r5.persona.id, plansFor(r5)]));
+  for (const plans of planned.values()) {
+    for (const plan of Object.values(plans)) {
+      if (plan?.warning) warnings.push(plan.warning);
+      if (plan?.notice) notices.push(plan.notice);
+    }
+  }
+  const primary = releaseRouted && deps.release ? "githubRelease" : "changelog";
+  const primaryChanged = request2.publish && [...planned.values()].some((p3) => {
+    const plan = p3[primary];
+    return plan?.action === "create" || plan?.action === "update";
+  });
+  const persistedEnabled = request2.publish && targets.length > 0;
+  const generateText = async (r5) => {
+    const prompts = prepared.prompts(r5.persona);
     const { draft, usage } = await generateDraft(
       deps.llm(r5.persona),
       prompts.system,
@@ -114089,18 +114305,55 @@ async function run(request2, config2, deps) {
         `${r5.persona.id}: removed ${validated.report.hallucinatedRefs} references to PRs or issues not in this release`
       );
     }
+    return { text, report: validated.report, usage };
+  };
+  const results = await mapLimit(routed, c5.llm.concurrency, async (r5) => {
+    const gen = prepared.gen.get(r5.persona.id);
+    const plans = planned.get(r5.persona.id);
+    const base = {
+      id: r5.persona.id,
+      name: r5.persona.name,
+      visibility: r5.persona.visibility,
+      sinks: r5.sinks,
+      withheld: r5.withheld,
+      gen,
+      ...Object.keys(plans).length > 0 ? { plans } : {}
+    };
+    if (!active.includes(r5)) return { ...base, status: "skipped" };
+    const hasPersisted = Object.keys(plans).length > 0;
+    const stored = findStoredText(targets, {
+      key: range2.key,
+      persona: r5.persona.id,
+      gen,
+      force: request2.force
+    });
+    if (hasPersisted) {
+      const needsText = Object.values(plans).some((p3) => p3?.needsText);
+      if (stored && (!needsText || !request2.force)) {
+        return { ...base, status: "stored", text: stored.text, out: outputDigest(stored.text) };
+      }
+      if (!needsText) return { ...base, status: "unchanged" };
+    } else if (!generatesUnpersisted({ persistedEnabled, primaryChanged, force: request2.force })) {
+      if (stored)
+        return { ...base, status: "stored", text: stored.text, out: outputDigest(stored.text) };
+      return { ...base, status: "unchanged" };
+    }
+    const generated = await generateText(r5);
     return {
       ...base,
       status: "generated",
-      text,
-      out: outputDigest(text),
-      report: validated.report,
-      usage
+      text: generated.text,
+      out: outputDigest(generated.text),
+      report: generated.report,
+      usage: generated.usage
     };
   });
   for (const r5 of results) {
     if (r5.status === "skipped")
       notices.push(`${r5.id}: no eligible output in this run; not generated`);
+    if (r5.status === "unchanged") notices.push(`${r5.id}: unchanged, not regenerated`);
+    if (r5.status === "stored")
+      notices.push(`${r5.id}: reused stored text (generation digest unchanged)`);
   }
   const completeness = [...fetched?.states.entries() ?? []].sort(([a5], [b5]) => a5 - b5).map(([number4, state3]) => ({ number: number4, ...state3 }));
   return {
@@ -114114,40 +114367,18 @@ async function run(request2, config2, deps) {
     notices,
     github: deps.github.usage(),
     estimate: fetched?.estimate ?? null,
-    commitOnly
+    commitOnly,
+    release: release2,
+    changelogText,
+    date: commitDate(deps.git, range2.toSha),
+    touchesWorkflows: range2.kind === "tag" ? touchesWorkflows(deps.git, range2.toSha) : false,
+    primaryChanged
   };
 }
 
 // src/outputs/files.ts
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join as join7, resolve as resolve2 } from "node:path";
-
-// src/core/state/marker.ts
-var MARKER_VERSION = 1;
-var VALUE = /^[^\s<>]+$/;
-function checkValue(name, value) {
-  if (!VALUE.test(value) || value.includes("--")) {
-    throw new Error(`Marker ${name} must be non-empty, without spaces, <, > or "--": ${value}`);
-  }
-}
-function writeBeginMarker(fields) {
-  for (const name of ["key", "persona", "gen", "out"]) checkValue(name, fields[name]);
-  return `<!-- releaseray:begin v=${MARKER_VERSION} key=${fields.key} persona=${fields.persona} gen=${fields.gen} out=${fields.out} -->`;
-}
-function writeEndMarker(fields) {
-  checkValue("key", fields.key);
-  checkValue("persona", fields.persona);
-  return `<!-- releaseray:end key=${fields.key} persona=${fields.persona} -->`;
-}
-function writeMarkedBlock(fields, inner) {
-  return `${writeBeginMarker(fields)}
-
-${inner}
-
-${writeEndMarker(fields)}`;
-}
-
-// src/outputs/files.ts
 var NOTES_VERSION = 1;
 function keyDir(key) {
   return key.replace(/[^A-Za-z0-9._-]/g, "_");
@@ -114163,6 +114394,8 @@ function buildNotesJson(result2) {
       to: range2.to,
       toSha: range2.toSha,
       firstRelease: range2.firstRelease,
+      date: result2.date,
+      touchesWorkflows: result2.touchesWorkflows,
       commits: range2.commits.length,
       pullRequests: range2.prNumbers,
       excludedBySubject: range2.excludedPRNumbers
@@ -114175,6 +114408,7 @@ function buildNotesJson(result2) {
       visibility: p3.visibility,
       status: p3.status,
       gen: p3.gen,
+      plans: p3.plans ? Object.fromEntries(Object.entries(p3.plans).map(([sink, plan]) => [sink, plan?.action])) : null,
       out: p3.out ?? null,
       text: p3.text ?? null,
       validation: p3.report ?? null,
@@ -114221,6 +114455,460 @@ function writeNotesFiles(result2, workspace, dir) {
 `);
   written.push(notes);
   return written;
+}
+
+// src/outputs/persisted.ts
+import { existsSync as existsSync4, mkdirSync as mkdirSync2, readFileSync as readFileSync3, writeFileSync as writeFileSync2 } from "node:fs";
+import { dirname, resolve as resolve3 } from "node:path";
+
+// src/outputs/changelog.ts
+init_logger();
+var logger6 = createLogger("changelog-publisher");
+function formatAsChangelog(entry) {
+  let changelog = `## [${entry.version}] - ${entry.date}
+
+`;
+  changelog += entry.content;
+  if (entry.compareUrl) {
+    changelog += `
+
+[${entry.version}]: ${entry.compareUrl}
+`;
+  }
+  return changelog;
+}
+var VERSION_HEADING = /^##\s+\[([^\]]+)\](?:\s+-\s+(.+))?/;
+function findEntrySpans(lines) {
+  const spans = [];
+  let pendingMarker = null;
+  for (let i5 = 0; i5 < lines.length; i5++) {
+    const marker = parseMarkerLine(lines[i5]);
+    if (marker?.type === "begin") {
+      pendingMarker = { line: i5, fields: marker.fields };
+      continue;
+    }
+    const heading = VERSION_HEADING.exec(lines[i5]);
+    if (heading) {
+      const start = pendingMarker ? pendingMarker.line : i5;
+      if (spans.length > 0) spans[spans.length - 1].end = start;
+      spans.push({
+        version: heading[1],
+        start,
+        end: lines.length,
+        marker: pendingMarker?.fields ?? null
+      });
+      pendingMarker = null;
+    } else if (lines[i5].trim() !== "") {
+      pendingMarker = null;
+    }
+  }
+  return spans;
+}
+function isUnreleased(version2) {
+  return version2.toLowerCase() === "unreleased";
+}
+function insertionLine(spans, version2, lineCount) {
+  const newVersion = parseSemver(version2);
+  for (const span of spans) {
+    if (isUnreleased(span.version)) continue;
+    if (!newVersion) return span.start;
+    const existing = parseSemver(span.version);
+    if (existing && compareSemver(existing, newVersion) < 0) return span.start;
+  }
+  if (spans.length === 0) return lineCount;
+  return spans[spans.length - 1].end;
+}
+function trailingLinkStart(lines, from) {
+  let i5 = lines.length;
+  while (i5 > from && (lines[i5 - 1].trim() === "" || /^\[[^\]]+\]:\s/.test(lines[i5 - 1]))) i5--;
+  while (i5 < lines.length && lines[i5].trim() === "") i5++;
+  return i5;
+}
+function spliceAt(lines, at, block, removeUntil = at) {
+  const before = lines.slice(0, at).join("\n").replace(/\n*$/, "");
+  const after = lines.slice(removeUntil).join("\n").replace(/^\n*/, "").replace(/\n*$/, "");
+  const parts = [before, block.replace(/\n*$/, ""), after].filter((p3) => p3.length > 0);
+  return parts.join("\n\n") + "\n";
+}
+function upsertChangelogEntry(existingContent, entry, marker, options = {}) {
+  const block = writeMarkedBlock(marker, formatAsChangelog(entry).replace(/\n+$/, ""));
+  const lines = existingContent.split("\n");
+  const spans = findEntrySpans(lines);
+  const same = spans.find((s2) => s2.version === entry.version);
+  if (same && !same.marker && options.onHumanEdit !== "overwrite") {
+    const warning3 = `CHANGELOG.md already has an entry for ${entry.version} that ReleaseRay did not write; it was left unchanged. Run mode: adopt to let ReleaseRay manage it.`;
+    logger6.warn(warning3, { version: entry.version });
+    return { content: existingContent, action: "skipped-unmarked", warning: warning3 };
+  }
+  if (same) {
+    return { content: spliceAt(lines, same.start, block, same.end), action: "replaced" };
+  }
+  let at = insertionLine(spans, entry.version, lines.length);
+  if (spans.length > 0 && at === spans[spans.length - 1].end) {
+    at = trailingLinkStart(lines, spans[spans.length - 1].start + 1);
+  }
+  return { content: spliceAt(lines, at, block), action: "created" };
+}
+
+// src/outputs/changelog-sink.ts
+var NEW_CHANGELOG_HEADER = "# Changelog\n\nAll notable changes to this project are documented in this file.\n";
+function changelogInner(write) {
+  return formatAsChangelog({
+    version: write.key,
+    date: write.date,
+    content: shiftHeadings(write.text, 1)
+  }).replace(/\n+$/, "");
+}
+function applyChangelogEntry(current, write) {
+  const base = current.trim() ? current : NEW_CHANGELOG_HEADER;
+  const inner = changelogInner(write);
+  return upsertChangelogEntry(
+    base,
+    { version: write.key, date: write.date, content: shiftHeadings(write.text, 1) },
+    { key: write.key, persona: write.persona, gen: write.gen, out: outputDigest(inner) },
+    { onHumanEdit: write.onHumanEdit }
+  );
+}
+
+// src/outputs/github-release/api.ts
+function renderReleaseName(template, tag) {
+  return template.replace(/\{\{\s*([^{}\s]*)\s*\}\}/g, (_match, name) => {
+    if (name !== "tag") throw new Error(`Unknown placeholder {{${name}}} in nameTemplate`);
+    return tag;
+  });
+}
+function isSemverPrerelease(tag) {
+  return (parseSemver(tag)?.prerelease.length ?? 0) > 0;
+}
+
+// src/outputs/github-release/sink.ts
+function createReleaseApi(octokit, repo) {
+  const toTarget = (data) => ({
+    id: data.id,
+    body: data.body ?? "",
+    url: data.html_url
+  });
+  return {
+    async get(tag) {
+      try {
+        const { data } = await octokit.rest.repos.getReleaseByTag({ ...repo, tag });
+        return toTarget(data);
+      } catch (error64) {
+        if (isHttpError(error64) && error64.status === 404) return null;
+        throw error64;
+      }
+    },
+    async updateBody(id, body2) {
+      const { data } = await octokit.rest.repos.updateRelease({ ...repo, release_id: id, body: body2 });
+      return toTarget(data);
+    },
+    async create(input2) {
+      const { data } = await octokit.rest.repos.createRelease({
+        ...repo,
+        tag_name: input2.tag,
+        name: input2.name,
+        body: input2.body,
+        draft: false,
+        prerelease: input2.prerelease
+      });
+      return toTarget(data);
+    }
+  };
+}
+function nextReleaseBody(body2, block, write) {
+  const existing = findMarkedBlocks(body2).find(
+    (b5) => b5.fields.key === write.key && b5.fields.persona === write.persona
+  );
+  if (existing) return `${body2.slice(0, existing.start)}${block}${body2.slice(existing.end)}`;
+  if (write.mode === "replace") return block;
+  return body2.trim() ? `${body2.replace(/\s+$/, "")}
+
+${block}` : block;
+}
+function writeError(error64, write, action) {
+  const status = isHttpError(error64) ? error64.status : 0;
+  const message = isHttpError(error64) ? error64.message ?? "" : String(error64);
+  const details = [];
+  if (/Resource not accessible by integration/i.test(message)) {
+    details.push("The token lacks contents: write; add it to the job's permissions");
+  }
+  if ((status === 404 || status === 403) && action === "create") {
+    details.push(
+      write.touchesWorkflows ? `The tag's commit changes .github/workflows/, and GITHUB_TOKEN cannot create a release for it. Pass a PAT or GitHub App token with workflows write as github-token (see the app-token recipe)` : "Check that the token can write releases (contents: write)"
+    );
+  }
+  return new ReleaseRayError(
+    `Could not ${action} the GitHub Release for ${write.key} (HTTP ${status || "error"})`,
+    EXIT_CODES.budget,
+    details,
+    { cause: error64 }
+  );
+}
+async function applyReleasePlan(api, write) {
+  const warnings = [];
+  const { plan } = write;
+  if (plan.action !== "create" && plan.action !== "update") {
+    return { changed: false, url: write.current?.url ?? null, target: write.current, warnings };
+  }
+  const block = writeMarkedBlock(
+    { key: write.key, persona: write.persona, gen: write.gen, out: outputDigest(write.text) },
+    write.text
+  );
+  if (!write.current) {
+    if (write.touchesWorkflows) {
+      warnings.push(
+        `The commit for ${write.key} changes .github/workflows/; GITHUB_TOKEN cannot create its release. Use a PAT or GitHub App token (the app-token recipe)`
+      );
+    }
+    try {
+      const created = await api.create({
+        tag: write.key,
+        name: renderReleaseName(write.nameTemplate, write.key),
+        body: block,
+        prerelease: write.prerelease === "auto" ? isSemverPrerelease(write.key) : write.prerelease
+      });
+      return { changed: true, url: created.url, target: created, warnings };
+    } catch (error64) {
+      throw writeError(error64, write, "create");
+    }
+  }
+  const body2 = nextReleaseBody(write.current.body, block, write);
+  if (body2 === write.current.body) {
+    return { changed: false, url: write.current.url, target: write.current, warnings };
+  }
+  try {
+    const updated = await api.updateBody(write.current.id, body2);
+    return { changed: true, url: updated.url, target: updated, warnings };
+  } catch (error64) {
+    throw writeError(error64, write, "update");
+  }
+}
+
+// src/outputs/push.ts
+import { execFileSync as execFileSync2 } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join as join8 } from "node:path";
+var GENERATED_BY_TRAILER = "Generated-by: ReleaseRay";
+var GITHUB_ACTIONS_BOT = {
+  name: "github-actions[bot]",
+  email: "41898282+github-actions[bot]@users.noreply.github.com"
+};
+var GitFailure = class extends Error {
+  constructor(message, stderr) {
+    super(message);
+    this.stderr = stderr;
+  }
+  stderr;
+};
+function git(options, args, extra = {}) {
+  const auth2 = extra.auth ? [
+    "-c",
+    `http.${options.serverUrl}/.extraheader=`,
+    "-c",
+    `http.${options.serverUrl}/.extraheader=AUTHORIZATION: basic ${Buffer.from(`x-access-token:${options.token}`).toString("base64")}`
+  ] : [];
+  try {
+    return execFileSync2("git", [...auth2, ...args], {
+      cwd: options.workspace,
+      encoding: "utf8",
+      input: extra.input,
+      env: { ...options.env, GIT_TERMINAL_PROMPT: "0", ...extra.env },
+      stdio: ["pipe", "pipe", "pipe"],
+      maxBuffer: 64 * 1024 * 1024
+    }).replace(/\n$/, "");
+  } catch (error64) {
+    const stderr = String(error64.stderr ?? "");
+    throw new GitFailure(`git ${args[0]} failed`, stderr);
+  }
+}
+function ruleGuidance(stderr) {
+  if (/signature/i.test(stderr)) {
+    return [
+      "The branch requires signed commits. The push loop's commits are unsigned; use the changelog-pr recipe instead"
+    ];
+  }
+  if (/pull request|GH006|GH013|protected branch|ruleset|rule violation/i.test(stderr)) {
+    return [
+      "Branch protection or a ruleset rejected the push",
+      "Required pull requests: add the token's actor to the bypass list, or use the changelog-pr recipe",
+      "Push restrictions: pass a PAT whose user, or a GitHub App you registered, may push (the app-token recipe)"
+    ];
+  }
+  return null;
+}
+function pushChangelog(options) {
+  const remote = options.remote ?? "origin";
+  const max = options.maxAttempts ?? 3;
+  const header2 = Buffer.from(`x-access-token:${options.token}`).toString("base64");
+  options.setSecret(header2);
+  const identity = {
+    GIT_AUTHOR_NAME: options.author.name,
+    GIT_AUTHOR_EMAIL: options.author.email,
+    GIT_COMMITTER_NAME: options.author.name,
+    GIT_COMMITTER_EMAIL: options.author.email
+  };
+  const message = `${options.message}
+
+${GENERATED_BY_TRAILER}
+ReleaseRay-Key: ${options.key}
+`;
+  for (let attempt = 1; attempt <= max; attempt++) {
+    let head;
+    try {
+      git(options, ["fetch", "--no-tags", "--quiet", remote, options.branch], { auth: true });
+      head = git(options, ["rev-parse", "FETCH_HEAD^{commit}"]);
+    } catch (error64) {
+      throw new ReleaseRayError(
+        `Could not fetch ${options.branch} to push CHANGELOG`,
+        EXIT_CODES.push,
+        [
+          error64 instanceof GitFailure ? error64.stderr.trim().split("\n").pop() ?? "" : String(error64)
+        ]
+      );
+    }
+    let current = "";
+    try {
+      current = git(options, ["show", `${head}:${options.path}`]) + "\n";
+    } catch {
+    }
+    const next = options.apply(current);
+    if (next === null || next === current) return { pushed: false, attempts: attempt };
+    const indexDir = mkdtempSync(join8(tmpdir(), "releaseray-index-"));
+    let commit;
+    try {
+      const env2 = { GIT_INDEX_FILE: join8(indexDir, "index") };
+      const blob = git(options, ["hash-object", "-w", "--stdin"], { input: next });
+      git(options, ["read-tree", head], { env: env2 });
+      git(options, ["update-index", "--add", "--cacheinfo", `100644,${blob},${options.path}`], {
+        env: env2
+      });
+      const tree = git(options, ["write-tree"], { env: env2 });
+      commit = git(options, ["commit-tree", tree, "-p", head, "-F", "-"], {
+        input: message,
+        env: identity
+      });
+    } finally {
+      rmSync(indexDir, { recursive: true, force: true });
+    }
+    options.beforePush?.(attempt);
+    try {
+      git(options, ["push", "--quiet", remote, `${commit}:refs/heads/${options.branch}`], {
+        auth: true
+      });
+      return { pushed: true, commit, attempts: attempt };
+    } catch (error64) {
+      const stderr = error64 instanceof GitFailure ? error64.stderr : String(error64);
+      const rule = ruleGuidance(stderr);
+      if (rule) {
+        throw new ReleaseRayError(
+          `The CHANGELOG push to ${options.branch} was rejected`,
+          EXIT_CODES.push,
+          rule
+        );
+      }
+      if (!/non-fast-forward|fetch first|stale info|cannot lock ref/i.test(stderr)) {
+        throw new ReleaseRayError(
+          `The CHANGELOG push to ${options.branch} failed`,
+          EXIT_CODES.push,
+          [stderr.trim().split("\n").pop() ?? ""]
+        );
+      }
+    }
+  }
+  throw new ReleaseRayError(
+    `The CHANGELOG push to ${options.branch} was rejected ${max} times`,
+    EXIT_CODES.push,
+    ["Other pushes kept moving the branch; re-run the workflow, which reuses the stored text"]
+  );
+}
+
+// src/outputs/persisted.ts
+async function applyPersisted(personas, context, settings, deps) {
+  const outcome = {
+    releaseChanged: false,
+    releaseUrl: context.release?.url ?? null,
+    changelogChanged: false,
+    pushed: false,
+    warnings: []
+  };
+  let release2 = context.release;
+  const wrote = () => outcome.releaseChanged || outcome.changelogChanged;
+  try {
+    for (const p3 of personas) {
+      const plan = p3.plans.githubRelease;
+      if (!plan || !deps.release) continue;
+      const result2 = await applyReleasePlan(deps.release, {
+        key: context.key,
+        persona: p3.id,
+        gen: p3.gen,
+        text: p3.text,
+        plan,
+        current: release2,
+        mode: settings.githubRelease.mode,
+        nameTemplate: settings.githubRelease.nameTemplate,
+        prerelease: settings.githubRelease.prerelease,
+        touchesWorkflows: context.touchesWorkflows
+      });
+      outcome.warnings.push(...result2.warnings);
+      if (result2.changed) {
+        outcome.releaseChanged = true;
+        outcome.releaseUrl = result2.url;
+        release2 = result2.target;
+      }
+    }
+    for (const p3 of personas) {
+      const plan = p3.plans.changelog;
+      if (!plan || plan.action !== "create" && plan.action !== "update") continue;
+      const write = {
+        key: context.key,
+        persona: p3.id,
+        gen: p3.gen,
+        text: p3.text,
+        date: context.date,
+        onHumanEdit: settings.changelog.onHumanEdit
+      };
+      const file2 = resolve3(deps.workspace, settings.changelog.path);
+      const current = existsSync4(file2) ? readFileSync3(file2, "utf8") : "";
+      const applied = applyChangelogEntry(current, write);
+      if (applied.warning) outcome.warnings.push(applied.warning);
+      if (applied.content !== current) {
+        mkdirSync2(dirname(file2), { recursive: true });
+        writeFileSync2(file2, applied.content);
+        outcome.changelogChanged = true;
+      }
+      if (settings.changelog.push && deps.push) {
+        const pushed = pushChangelog({
+          ...deps.push,
+          workspace: deps.workspace,
+          branch: settings.changelog.branch ?? deps.push.branch,
+          path: settings.changelog.path,
+          message: settings.changelog.commitMessage.replace(/\{\{\s*key\s*\}\}/g, context.key),
+          key: context.key,
+          author: settings.changelog.author ?? GITHUB_ACTIONS_BOT,
+          apply: (text) => {
+            const next = applyChangelogEntry(text, write);
+            return next.action === "skipped-unmarked" ? null : next.content;
+          }
+        });
+        outcome.pushed = pushed.pushed;
+        if (pushed.pushed) outcome.changelogChanged = true;
+      }
+    }
+  } catch (error64) {
+    if (error64 instanceof ReleaseRayError && wrote() && error64.exitCode !== EXIT_CODES.push) {
+      throw new ReleaseRayError(
+        `Partial publish: ${error64.message}`,
+        EXIT_CODES.partial,
+        error64.details,
+        {
+          cause: error64
+        }
+      );
+    }
+    throw error64;
+  }
+  return outcome;
 }
 
 // src/outputs/summary.ts
@@ -114340,29 +115028,171 @@ function runOutputs(run2, notesDir, workspace) {
   };
   if (notesDir) {
     outputs["notes-dir"] = notesDir;
-    outputs["notes-digest"] = sha256(readFileSync3(join8(workspace, notesDir, "notes.json"), "utf8"));
+    outputs["notes-digest"] = sha256(readFileSync4(join9(workspace, notesDir, "notes.json"), "utf8"));
   }
   return outputs;
 }
 async function generate(request2, config2, deps) {
   const out = await run(request2, config2, deps);
+  let published = {
+    releaseChanged: false,
+    releaseUrl: out.release?.url ?? null,
+    changelogChanged: false
+  };
+  const publishWarnings = [];
+  if (request2.publish && deps.persisted) {
+    const personas = out.personas.filter((p3) => p3.plans && p3.text !== void 0).map((p3) => ({ id: p3.id, gen: p3.gen, text: p3.text, plans: p3.plans }));
+    const outcome = await applyPersisted(
+      personas,
+      {
+        key: out.key,
+        date: out.date,
+        release: out.release,
+        touchesWorkflows: out.touchesWorkflows
+      },
+      {
+        githubRelease: config2.config.outputs.githubRelease,
+        changelog: config2.config.outputs.changelog
+      },
+      deps.persisted
+    );
+    published = outcome;
+    publishWarnings.push(...outcome.warnings);
+  }
   const files = config2.config.outputs.files;
   const mode = result();
   let notesDir = null;
   if (files.enabled) {
     mode.files = writeNotesFiles(out, request2.workspace, files.dir);
-    notesDir = join8(files.dir, keyDir(out.key));
+    notesDir = join9(files.dir, keyDir(out.key));
   }
   mode.summary = config2.config.outputs.summary.enabled ? renderSummary(out, { filesDir: notesDir ?? void 0 }) : "";
-  mode.outputs = runOutputs(out, notesDir, request2.workspace);
-  mode.warnings = out.warnings;
+  mode.outputs = {
+    ...runOutputs(out, notesDir, request2.workspace),
+    "release-url": published.releaseUrl ?? "",
+    "release-changed": String(published.releaseChanged),
+    "changelog-changed": String(published.changelogChanged)
+  };
+  mode.warnings = [...out.warnings, ...publishWarnings];
   return { ...mode, run: out };
+}
+
+// src/modes/publish.ts
+import { existsSync as existsSync5, readFileSync as readFileSync5 } from "node:fs";
+import { join as join10, resolve as resolve4 } from "node:path";
+async function publish(request2, config2, deps) {
+  if (!request2.notesDir || !request2.expectedDigest) {
+    throw new ReleaseRayError(
+      "mode: publish needs notes-dir and expected-digest",
+      EXIT_CODES.invalid,
+      ["Pass the generate job's notes-dir artifact path and its notes-digest output"]
+    );
+  }
+  const file2 = resolve4(request2.workspace, join10(request2.notesDir, "notes.json"));
+  if (!existsSync5(file2)) {
+    throw new ReleaseRayError(
+      `${join10(request2.notesDir, "notes.json")} does not exist`,
+      EXIT_CODES.invalid,
+      []
+    );
+  }
+  const raw = readFileSync5(file2, "utf8");
+  const digest2 = sha256(raw);
+  if (digest2 !== request2.expectedDigest.trim()) {
+    throw new ReleaseRayError(
+      "notes.json does not match expected-digest; nothing was written",
+      EXIT_CODES.invalid,
+      [`expected ${request2.expectedDigest.trim()}, found ${digest2}`]
+    );
+  }
+  const notes = JSON.parse(raw);
+  const c5 = config2.config;
+  const isTag2 = notes.range.kind === "tag";
+  const release2 = isTag2 && c5.outputs.githubRelease.enabled && deps.release ? await deps.release.get(notes.key) : null;
+  const changelogFile = resolve4(request2.workspace, c5.outputs.changelog.path);
+  const targets = [];
+  if (isTag2 && c5.outputs.githubRelease.enabled && deps.release) {
+    targets.push({
+      sink: "github-release",
+      persona: c5.outputs.githubRelease.persona,
+      exists: release2 !== null,
+      text: release2?.body ?? "",
+      mode: c5.outputs.githubRelease.mode,
+      onHumanEdit: c5.outputs.githubRelease.onHumanEdit,
+      createIfMissing: c5.outputs.githubRelease.createIfMissing
+    });
+  }
+  if (c5.outputs.changelog.enabled) {
+    targets.push({
+      sink: "changelog",
+      persona: c5.outputs.changelog.persona,
+      exists: true,
+      text: existsSync5(changelogFile) ? readFileSync5(changelogFile, "utf8") : "",
+      mode: "section",
+      onHumanEdit: c5.outputs.changelog.onHumanEdit,
+      createIfMissing: true
+    });
+  }
+  const mode = result();
+  const personas = [];
+  for (const target of targets) {
+    const persona = notes.personas.find((p3) => p3.id === target.persona);
+    if (!persona?.text) {
+      mode.warnings.push(
+        `notes.json has no text for ${target.persona}; the ${target.sink === "changelog" ? "CHANGELOG" : "release"} was not written`
+      );
+      continue;
+    }
+    const plan = planSink(target, {
+      key: notes.key,
+      persona: persona.id,
+      gen: persona.gen,
+      force: false
+    });
+    if (plan.warning) mode.warnings.push(plan.warning);
+    let entry = personas.find((p3) => p3.id === persona.id);
+    if (!entry) {
+      entry = { id: persona.id, gen: persona.gen, text: persona.text, plans: {} };
+      personas.push(entry);
+    }
+    if (target.sink === "github-release") entry.plans.githubRelease = plan;
+    else entry.plans.changelog = plan;
+  }
+  const outcome = await applyPersisted(
+    personas,
+    {
+      key: notes.key,
+      date: notes.range.date,
+      release: release2,
+      touchesWorkflows: notes.range.touchesWorkflows
+    },
+    { githubRelease: c5.outputs.githubRelease, changelog: c5.outputs.changelog },
+    deps
+  );
+  mode.warnings.push(...outcome.warnings);
+  mode.outputs = {
+    key: notes.key,
+    "notes-digest": digest2,
+    "release-url": outcome.releaseUrl ?? "",
+    "release-changed": String(outcome.releaseChanged),
+    "changelog-changed": String(outcome.changelogChanged),
+    "llm-calls": "0",
+    "llm-cost-usd": "0.0000"
+  };
+  mode.summary = [
+    `# ReleaseRay publish: ${notes.key}`,
+    "",
+    `- GitHub Release: ${outcome.releaseChanged ? `written (${outcome.releaseUrl})` : "unchanged"}`,
+    `- CHANGELOG: ${outcome.changelogChanged ? outcome.pushed ? "written and pushed" : "written" : "unchanged"}`,
+    ""
+  ].join("\n");
+  return mode;
 }
 
 // src/modes/migrate-personas.ts
 var import_yaml2 = __toESM(require_dist(), 1);
-import { existsSync as existsSync4, mkdirSync as mkdirSync2, readFileSync as readFileSync4, writeFileSync as writeFileSync2 } from "node:fs";
-import { dirname, resolve as resolve3 } from "node:path";
+import { existsSync as existsSync6, mkdirSync as mkdirSync3, readFileSync as readFileSync6, writeFileSync as writeFileSync3 } from "node:fs";
+import { dirname as dirname2, resolve as resolve5 } from "node:path";
 var SCHEMA_COMMENT = "# yaml-language-server: $schema=https://raw.githubusercontent.com/cristobalmitchell/releaseray/v1/schema/releaseray.schema.json";
 function slugify2(value) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
@@ -114415,22 +115245,22 @@ function convertPersonas(personas) {
   return { personas: out, notices };
 }
 function migratePersonas(request2) {
-  const source = resolve3(request2.workspace, request2.personasFile);
+  const source = resolve5(request2.workspace, request2.personasFile);
   const target = request2.configPath ?? DEFAULT_CONFIG_PATH;
-  const targetAbs = resolve3(request2.workspace, target);
-  if (!existsSync4(source)) {
+  const targetAbs = resolve5(request2.workspace, target);
+  if (!existsSync6(source)) {
     throw new ReleaseRayError(`${request2.personasFile} does not exist`, EXIT_CODES.invalid, [
       "Set personas-file to the YAML downloaded from the hosted personas page"
     ]);
   }
-  if (existsSync4(targetAbs)) {
+  if (existsSync6(targetAbs)) {
     throw new ReleaseRayError(`${target} already exists; nothing was written`, EXIT_CODES.invalid, [
       "Set the config input to a new path, or move the existing file first"
     ]);
   }
   let parsed;
   try {
-    parsed = (0, import_yaml2.parse)(readFileSync4(source, "utf8"));
+    parsed = (0, import_yaml2.parse)(readFileSync6(source, "utf8"));
   } catch (error64) {
     throw new ReleaseRayError(`${request2.personasFile} is not valid YAML`, EXIT_CODES.invalid, [
       error64.message.split("\n")[0]
@@ -114450,8 +115280,8 @@ function migratePersonas(request2) {
   const yaml = `${SCHEMA_COMMENT}
 # Converted from ${request2.personasFile} by ReleaseRay migrate-personas.
 ${(0, import_yaml2.stringify)(config2, { lineWidth: 0 })}`;
-  mkdirSync2(dirname(targetAbs), { recursive: true });
-  writeFileSync2(targetAbs, yaml);
+  mkdirSync3(dirname2(targetAbs), { recursive: true });
+  writeFileSync3(targetAbs, yaml);
   const mode = result(
     [
       "# ReleaseRay: personas migrated",
@@ -114471,8 +115301,8 @@ ${(0, import_yaml2.stringify)(config2, { lineWidth: 0 })}`;
 }
 
 // src/modes/preview.ts
-import { mkdirSync as mkdirSync3, writeFileSync as writeFileSync3 } from "node:fs";
-import { join as join9, resolve as resolve4 } from "node:path";
+import { mkdirSync as mkdirSync4, writeFileSync as writeFileSync4 } from "node:fs";
+import { join as join11, resolve as resolve6 } from "node:path";
 async function preview(request2, config2, deps) {
   const c5 = config2.config;
   const mode = result();
@@ -114480,8 +115310,8 @@ async function preview(request2, config2, deps) {
     const prepared = await prepareRun({ ...request2, publish: false, force: false }, config2, deps, {
       releaseRequests: 0
     });
-    const dir = join9(c5.outputs.files.dir, keyDir(prepared.range.key), "prompts");
-    mkdirSync3(resolve4(request2.workspace, dir), { recursive: true });
+    const dir = join11(c5.outputs.files.dir, keyDir(prepared.range.key), "prompts");
+    mkdirSync4(resolve6(request2.workspace, dir), { recursive: true });
     const lines2 = [
       `# ReleaseRay preview: ${prepared.range.key}`,
       "",
@@ -114498,12 +115328,12 @@ async function preview(request2, config2, deps) {
         ["system", prompts.system],
         ["user", prompts.user]
       ]) {
-        const file2 = join9(dir, `${r5.persona.id}.${part}.md`);
-        writeFileSync3(resolve4(request2.workspace, file2), `${text}
+        const file2 = join11(dir, `${r5.persona.id}.${part}.md`);
+        writeFileSync4(resolve6(request2.workspace, file2), `${text}
 `);
         mode.files.push(file2);
       }
-      lines2.push(`- ${r5.persona.name}: \`${join9(dir, `${r5.persona.id}.user.md`)}\``);
+      lines2.push(`- ${r5.persona.name}: \`${join11(dir, `${r5.persona.id}.user.md`)}\``);
     }
     lines2.push(
       "",
@@ -114618,7 +115448,7 @@ function validateConfig(request2) {
 }
 
 // src/action/context.ts
-import { readFileSync as readFileSync5 } from "node:fs";
+import { readFileSync as readFileSync7 } from "node:fs";
 function required2(env2, name) {
   const value = env2[name];
   if (!value) {
@@ -114628,7 +115458,7 @@ function required2(env2, name) {
   }
   return value;
 }
-function readContext(env2, readFile3 = (p3) => readFileSync5(p3, "utf8")) {
+function readContext(env2, readFile3 = (p3) => readFileSync7(p3, "utf8")) {
   const [owner, repo] = required2(env2, "GITHUB_REPOSITORY").split("/");
   const eventPath = env2.GITHUB_EVENT_PATH;
   const payload2 = eventPath ? JSON.parse(readFile3(eventPath)) : {};
@@ -114721,13 +115551,13 @@ function planEvent(ctx, inputs, today) {
     );
   }
   const eventPublishes = event === "release" || event === "push" && ctx.refType === "tag";
-  let publish = inputs.publish ?? eventPublishes;
-  if (event === "schedule" && publish) {
+  let publish2 = inputs.publish ?? eventPublishes;
+  if (event === "schedule" && publish2) {
     notices.push("Scheduled runs never publish; publish was turned off");
-    publish = false;
+    publish2 = false;
   }
-  if (mode === "preview") publish = false;
-  return { mode, range: range2, publish, previewPrompts, notices };
+  if (mode === "preview") publish2 = false;
+  return { mode, range: range2, publish: publish2, previewPrompts, notices };
 }
 
 // src/action/inputs.ts
@@ -114875,7 +115705,41 @@ function defaultGitHub(sleep4) {
       sleep: sleep4,
       now: () => Date.now()
     });
-    return createGitHubReader(octokit, policy, { owner: ctx.owner, repo: ctx.repo });
+    const repo = { owner: ctx.owner, repo: ctx.repo };
+    return {
+      reader: createGitHubReader(octokit, policy, repo),
+      release: createReleaseApi(octokit, repo)
+    };
+  };
+}
+function clients(made) {
+  return "reader" in made ? { reader: made.reader, release: made.release } : { reader: made, release: null };
+}
+function pushBranch(ctx) {
+  try {
+    const branch = createGit(ctx.workspace).run(["rev-parse", "--abbrev-ref", "HEAD"]);
+    if (branch && branch !== "HEAD") return branch;
+  } catch {
+  }
+  const repository = ctx.payload.repository;
+  return String(repository?.default_branch ?? "main");
+}
+function persistedDeps(io, env2, ctx, token, release2) {
+  return {
+    release: release2,
+    workspace: ctx.workspace,
+    push: {
+      serverUrl: ctx.serverUrl,
+      token,
+      setSecret: io.setSecret,
+      // git needs PATH and HOME, not the LLM or cloud credentials.
+      env: Object.fromEntries(
+        Object.entries(env2).filter(
+          ([k5]) => !/(_API_KEY|_SECRET|_TOKEN|SECRET_ACCESS_KEY|SESSION_TOKEN)$/.test(k5)
+        )
+      ),
+      branch: pushBranch(ctx)
+    }
   };
 }
 function defaultProvider(env2, io) {
@@ -114906,7 +115770,7 @@ function defaultProvider(env2, io) {
 }
 function loadTemplates(workspace) {
   const { templates, overridden } = templatesWithOverrides(
-    join10(workspace, ".releaseray", "prompts")
+    join12(workspace, ".releaseray", "prompts")
   );
   const unknown2 = findUnknownPlaceholders(templates.persona, PERSONA_TEMPLATE_PLACEHOLDERS);
   if (unknown2.length > 0) {
@@ -114928,6 +115792,11 @@ async function main(deps) {
   try {
     const inputs = readInputs(io);
     const ctx = readContext(env2, deps.readFile);
+    const headCommit = ctx.payload.head_commit?.message;
+    if (ctx.eventName === "push" && String(headCommit ?? "").includes(GENERATED_BY_TRAILER)) {
+      io.notice("This push is ReleaseRay's own CHANGELOG commit; nothing to do");
+      return 0;
+    }
     const event = planEvent(ctx, inputs, now().toISOString().slice(0, 10));
     for (const n3 of event.notices) io.notice(n3);
     const github = deps.github ?? defaultGitHub(sleep4);
@@ -114960,7 +115829,10 @@ async function main(deps) {
             visibility: ctx.visibility,
             nodeVersion: process.versions.node
           },
-          { git: createGit(ctx.workspace), github: github(inputs.githubToken, ctx, loaded) }
+          {
+            git: createGit(ctx.workspace),
+            github: clients(github(inputs.githubToken, ctx, loaded)).reader
+          }
         );
         break;
       }
@@ -114974,9 +115846,10 @@ async function main(deps) {
         for (const w of config2.warnings) io.warning(w);
         const { templates, overridden } = loadTemplates(ctx.workspace);
         if (overridden.length > 0) io.notice(`Prompt overrides in use: ${overridden.join(", ")}`);
+        const made = clients(github(inputs.githubToken, ctx, config2));
         const base = {
           git: createGit(ctx.workspace),
-          github: github(inputs.githubToken, ctx, config2),
+          github: made.reader,
           templates,
           repo: {
             owner: ctx.owner,
@@ -115003,14 +115876,36 @@ async function main(deps) {
             {
               ...base,
               llm: () => provider,
-              priced: Boolean(config2.config.llm.pricing) || hasPricing(config2.model)
+              priced: Boolean(config2.config.llm.pricing) || hasPricing(config2.model),
+              ...made.release ? { release: made.release } : {},
+              changelogText: () => {
+                const file2 = join12(ctx.workspace, config2.config.outputs.changelog.path);
+                return existsSync7(file2) ? readFileSync8(file2, "utf8") : "";
+              },
+              persisted: persistedDeps(io, env2, ctx, inputs.githubToken, made.release)
             }
           );
         }
         break;
       }
-      case "publish":
-        throw new ReleaseRayError("mode: publish is not available yet", EXIT_CODES.invalid, []);
+      case "publish": {
+        const config2 = loadConfig({
+          workspace: ctx.workspace,
+          path: configPath,
+          overrides: configOverrides(inputs)
+        });
+        const made = clients(github(inputs.githubToken, ctx, config2));
+        mode = await publish(
+          {
+            workspace: ctx.workspace,
+            notesDir: inputs.notesDir,
+            expectedDigest: inputs.expectedDigest
+          },
+          config2,
+          persistedDeps(io, env2, ctx, inputs.githubToken, made.release)
+        );
+        break;
+      }
     }
   } catch (error64) {
     if (!(error64 instanceof ReleaseRayError)) {
