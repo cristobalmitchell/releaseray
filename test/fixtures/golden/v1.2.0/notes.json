@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "key": "v1.2.0",
+  "range": {
+    "kind": "tag",
+    "from": "v1.1.0",
+    "to": "v1.2.0",
+    "toSha": "e6d62a1125062b1210dd9cc29623c64ff021862b",
+    "firstRelease": false,
+    "commits": 4,
+    "pullRequests": [
+      14,
+      15,
+      16,
+      17
+    ],
+    "excludedBySubject": []
+  },
+  "commitOnly": false,
+  "inputDigest": "57d12972aff8b6956f25cf30df3922160f81e067452c8dfab16ef93296b4e379",
+  "personas": [
+    {
+      "id": "engineer",
+      "name": "Engineer",
+      "visibility": "public",
+      "status": "generated",
+      "gen": "3baa3a797a73f9bc",
+      "out": "f8035186185fa106",
+      "text": "## 🌟 Highlights\n\n- feat!: drop Node 18 support\n- perf: parse large files in a stream\n\n## ⚠️ Breaking Changes\n\n- **feat!: drop Node 18 support** (#14)\n\n## 🐛 Bug Fixes\n\n- **fix: keep column order when exporting** (#17)\n\n## ⚡ Performance\n\n- **perf: parse large files in a stream** (#15)\n\n## 👏 Contributors\n\nThank you to @alice, @carol, @bob for contributing to this release!\n\n**Full Changelog**: [v1.1.0...v1.2.0](https://github.com/acme/widgets/compare/v1.1.0...v1.2.0)",
+      "validation": {
+        "hallucinatedRefs": 0,
+        "mergedSections": [],
+        "droppedSections": []
+      },
+      "llm": {
+        "calls": 1,
+        "model": "releaseray-fake",
+        "provider": "openai",
+        "promptTokens": 2374,
+        "completionTokens": 94,
+        "costUsd": null
+      }
+    },
+    {
+      "id": "customer",
+      "name": "Customer",
+      "visibility": "public",
+      "status": "generated",
+      "gen": "6e53132c4b12b915",
+      "out": "8777cf49177fbdb8",
+      "text": "## 🌟 Highlights\n\n- feat!: drop Node 18 support\n- perf: parse large files in a stream\n\n## ⚠️ Breaking Changes\n\n- **feat!: drop Node 18 support**\n\n## ✨ Improvements\n\n- **perf: parse large files in a stream**\n\n## 🐛 Bug Fixes\n\n- **fix: keep column order when exporting**\n\n**Full Changelog**: [v1.1.0...v1.2.0](https://github.com/acme/widgets/compare/v1.1.0...v1.2.0)",
+      "validation": {
+        "hallucinatedRefs": 0,
+        "mergedSections": [
+          "Performance"
+        ],
+        "droppedSections": []
+      },
+      "llm": {
+        "calls": 1,
+        "model": "releaseray-fake",
+        "provider": "openai",
+        "promptTokens": 2484,
+        "completionTokens": 94,
+        "costUsd": null
+      }
+    }
+  ],
+  "withheld": [
+    "internal"
+  ],
+  "completeness": [
+    {
+      "number": 14,
+      "state": "fetched"
+    },
+    {
+      "number": 15,
+      "state": "fetched"
+    },
+    {
+      "number": 16,
+      "state": "excluded",
+      "rule": "author renovate[bot]"
+    },
+    {
+      "number": 17,
+      "state": "fetched"
+    }
+  ],
+  "enrichmentDropped": [],
+  "github": {
+    "requests": 5,
+    "byRoute": {
+      "GET /repos/{owner}/{repo}/pulls/{pull_number}": 4,
+      "GET /repos/{owner}/{repo}/issues/{issue_number}": 1
+    },
+    "retries": 0,
+    "estimate": 8
+  },
+  "warnings": [
+    "Low content volume (348 chars). Descriptions may be generic."
+  ],
+  "notices": [
+    "internal: no eligible output in this run; not generated"
+  ]
+}

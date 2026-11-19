@@ -1,0 +1,84 @@
+{
+  "pulls": [
+    {
+      "number": 11,
+      "title": "feat(export): add CSV export",
+      "body": "Adds a CSV export to the reports page so teams can open results in a spreadsheet.",
+      "labels": ["type: feature"],
+      "author": "alice",
+      "merged": true,
+      "mergedAt": "2026-03-02T12:00:00Z",
+      "url": "https://github.com/acme/widgets/pull/11"
+    },
+    {
+      "number": 12,
+      "title": "fix: handle empty rows in the importer",
+      "body": "Empty rows no longer stop an import halfway. Fixes #30.",
+      "labels": ["type: bug"],
+      "author": "bob",
+      "merged": true,
+      "mergedAt": "2026-03-03T12:00:00Z",
+      "url": "https://github.com/acme/widgets/pull/12"
+    },
+    {
+      "number": 14,
+      "title": "feat!: drop Node 18 support",
+      "body": "BREAKING CHANGE: Node 20 or later is now required. Upgrade the runtime before installing this release.",
+      "labels": ["breaking"],
+      "author": "alice",
+      "merged": true,
+      "mergedAt": "2026-05-04T12:00:00Z",
+      "url": "https://github.com/acme/widgets/pull/14"
+    },
+    {
+      "number": 15,
+      "title": "perf: parse large files in a stream",
+      "body": "Parsing a 1 GB file now uses a constant amount of memory instead of loading it whole.",
+      "labels": ["type: performance"],
+      "author": "carol",
+      "merged": true,
+      "mergedAt": "2026-05-05T12:00:00Z",
+      "url": "https://github.com/acme/widgets/pull/15"
+    },
+    {
+      "number": 16,
+      "title": "chore(deps): bump zod to 4.1",
+      "body": "Routine dependency update.",
+      "labels": ["dependencies"],
+      "author": "renovate[bot]",
+      "merged": true,
+      "mergedAt": "2026-05-06T12:00:00Z",
+      "url": "https://github.com/acme/widgets/pull/16"
+    },
+    {
+      "number": 17,
+      "title": "fix: keep column order when exporting",
+      "body": "CSV exports keep the column order shown on screen. Closes #31.",
+      "labels": ["type: bug"],
+      "author": "bob",
+      "merged": true,
+      "mergedAt": "2026-05-07T12:00:00Z",
+      "url": "https://github.com/acme/widgets/pull/17"
+    }
+  ],
+  "issues": [
+    {
+      "number": 30,
+      "title": "Importer stops on empty rows",
+      "body": "Importing a sheet with a blank row stops at that row.",
+      "labels": ["bug"],
+      "author": "user1",
+      "isPullRequest": false,
+      "url": "https://github.com/acme/widgets/issues/30"
+    },
+    {
+      "number": 31,
+      "title": "Export reorders columns",
+      "body": "The exported CSV puts columns in alphabetical order.",
+      "labels": ["bug"],
+      "author": "user2",
+      "isPullRequest": false,
+      "url": "https://github.com/acme/widgets/issues/31"
+    }
+  ]
+}
