@@ -1,0 +1,766 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/cristobalmitchell/releaseray/v1/schema/releaseray.schema.json",
+  "title": "ReleaseRay configuration",
+  "description": "Schema for .releaseray/config.yml. See docs/configuration.md.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "range": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "tagPattern": {
+          "default": "v*",
+          "type": "string",
+          "minLength": 1
+        },
+        "includePrereleases": {
+          "default": false,
+          "type": "boolean"
+        },
+        "allowNonAncestor": {
+          "default": false,
+          "type": "boolean"
+        },
+        "fallbackToCommits": {
+          "default": true,
+          "type": "boolean"
+        },
+        "maxPullRequests": {
+          "default": 250,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5000
+        }
+      },
+      "additionalProperties": false
+    },
+    "classification": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "categories": {
+          "default": [],
+          "maxItems": 30,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "labels": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "conventionalTypes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "internal": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "conventionalCommits": {
+          "default": true,
+          "type": "boolean"
+        },
+        "fallbackCategory": {
+          "default": "improvements",
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+        },
+        "exclude": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "labels": {
+              "default": [
+                "skip-release-notes"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "authors": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "titlePatterns": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "enrichment": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "bodies": {
+          "default": true,
+          "type": "boolean"
+        },
+        "linkedIssues": {
+          "default": true,
+          "type": "boolean"
+        },
+        "maxLinkedIssues": {
+          "default": 100,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 500
+        },
+        "comments": {
+          "default": false,
+          "type": "boolean"
+        },
+        "commentAuthorAssociations": {
+          "default": [
+            "OWNER",
+            "MEMBER",
+            "COLLABORATOR"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "MEMBER",
+              "COLLABORATOR"
+            ]
+          }
+        },
+        "maxBodyChars": {
+          "default": 4000,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20000
+        }
+      },
+      "additionalProperties": false
+    },
+    "personas": {
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+          },
+          "extends": {
+            "type": "string",
+            "enum": [
+              "engineer",
+              "internal",
+              "customer"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "enabled": {
+            "default": true,
+            "type": "boolean"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "public",
+              "internal"
+            ]
+          },
+          "tone": {
+            "type": "object",
+            "properties": {
+              "formality": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "technicalDepth": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "enthusiasm": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "detail": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "additionalProperties": false
+          },
+          "instructions": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "instructionsFile": {
+            "type": "string",
+            "minLength": 1
+          },
+          "include": {
+            "type": "object",
+            "properties": {
+              "identifiers": {
+                "type": "boolean"
+              },
+              "breakingChanges": {
+                "type": "boolean"
+              },
+              "migrationGuides": {
+                "type": "boolean"
+              },
+              "highlights": {
+                "type": "boolean"
+              },
+              "upgradeInstructions": {
+                "type": "boolean"
+              },
+              "contributors": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "sections": {
+            "maxItems": 15,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "description": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "categories": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                  }
+                },
+                "enabled": {
+                  "default": true,
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "excludeCategories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+            }
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "outputs": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "summary": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "type": "boolean"
+            },
+            "personas": {
+              "default": "all",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "all"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "files": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "type": "boolean"
+            },
+            "dir": {
+              "default": ".releaseray/notes",
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "githubRelease": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "type": "boolean"
+            },
+            "persona": {
+              "default": "engineer",
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+            },
+            "mode": {
+              "default": "section",
+              "type": "string",
+              "enum": [
+                "section",
+                "replace"
+              ]
+            },
+            "onHumanEdit": {
+              "default": "skip",
+              "type": "string",
+              "enum": [
+                "skip",
+                "overwrite"
+              ]
+            },
+            "createIfMissing": {
+              "default": false,
+              "type": "boolean"
+            },
+            "nameTemplate": {
+              "default": "Release {{tag}}",
+              "type": "string",
+              "minLength": 1
+            },
+            "prerelease": {
+              "default": "auto",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "auto"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "changelog": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "path": {
+              "default": "CHANGELOG.md",
+              "type": "string",
+              "minLength": 1
+            },
+            "persona": {
+              "default": "engineer",
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+            },
+            "onHumanEdit": {
+              "default": "skip",
+              "type": "string",
+              "enum": [
+                "skip",
+                "overwrite"
+              ]
+            },
+            "push": {
+              "default": false,
+              "type": "boolean"
+            },
+            "branch": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commitMessage": {
+              "default": "docs(changelog): {{key}}",
+              "type": "string",
+              "minLength": 1
+            },
+            "author": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                }
+              },
+              "required": [
+                "name",
+                "email"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "notify": {
+          "default": [],
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "slack"
+                  },
+                  "persona": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                  },
+                  "webhookUrlEnv": {
+                    "type": "string",
+                    "pattern": "^[A-Z_][A-Z0-9_]*$"
+                  },
+                  "when": {
+                    "default": "primary-changed",
+                    "type": "string",
+                    "enum": [
+                      "primary-changed",
+                      "always"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "persona",
+                  "webhookUrlEnv"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "teams"
+                  },
+                  "persona": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                  },
+                  "webhookUrlEnv": {
+                    "type": "string",
+                    "pattern": "^[A-Z_][A-Z0-9_]*$"
+                  },
+                  "when": {
+                    "default": "primary-changed",
+                    "type": "string",
+                    "enum": [
+                      "primary-changed",
+                      "always"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "persona",
+                  "webhookUrlEnv"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "intercom"
+                  },
+                  "persona": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                  },
+                  "apiKeyEnv": {
+                    "type": "string",
+                    "pattern": "^[A-Z_][A-Z0-9_]*$"
+                  },
+                  "collectionId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "state": {
+                    "default": "draft",
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "published"
+                    ]
+                  },
+                  "titleTemplate": {
+                    "default": "Release {{key}}",
+                    "type": "string"
+                  },
+                  "when": {
+                    "default": "primary-changed",
+                    "type": "string",
+                    "enum": [
+                      "primary-changed",
+                      "always"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "persona",
+                  "apiKeyEnv",
+                  "collectionId"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "allowInternalOutputs": {
+          "default": false,
+          "type": "boolean"
+        },
+        "allowInternalOnPublicRepo": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "llm": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "provider": {
+          "default": "openai",
+          "type": "string",
+          "enum": [
+            "openai",
+            "bedrock",
+            "anthropic"
+          ]
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "baseUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1
+        },
+        "maxCompletionTokens": {
+          "default": 16384,
+          "type": "integer",
+          "minimum": 256,
+          "maximum": 65536
+        },
+        "maxInputTokens": {
+          "default": 200000,
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 9007199254740991
+        },
+        "concurrency": {
+          "default": 3,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "retries": {
+          "default": 3,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "pricing": {
+          "type": "object",
+          "properties": {
+            "inputPer1M": {
+              "type": "number",
+              "minimum": 0
+            },
+            "outputPer1M": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "inputPer1M",
+            "outputPer1M"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "github": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "maxRequests": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "concurrency": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "onBudgetExceeded": {
+          "default": "fail",
+          "type": "string",
+          "enum": [
+            "fail",
+            "wait",
+            "degrade"
+          ]
+        },
+        "maxWaitMinutes": {
+          "default": 0,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 300
+        }
+      },
+      "additionalProperties": false
+    },
+    "sanitize": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "allowedDomains": {
+          "default": [
+            "github.com",
+            "gitlab.com"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "redactPaths": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "render": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "emoji": {
+          "default": true,
+          "type": "boolean"
+        },
+        "compareLink": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version"
+  ],
+  "additionalProperties": false
+}

@@ -8,7 +8,12 @@
  * three personas' rules to every call; each persona now carries its own, and
  * the prompt builder sends only the selected one.
  */
-import type { PersonaSectionDefaults, ResolvedPersona, SectionConfig } from "../core/types";
+import type {
+  PersonaSectionDefaults,
+  ResolvedPersona,
+  SectionConfig,
+  ToneSliders,
+} from "../core/types";
 
 /**
  * Standard section palette — the default sections available for all personas.
@@ -379,3 +384,80 @@ export const BUILTIN_PERSONAS: Record<BuiltinPersonaId, ResolvedPersona> = {
     sections: PERSONA_SECTION_DEFAULTS.customer,
   },
 };
+
+/** A category as configuration sees it: a slug id and the title the classifier emits. */
+export interface CategoryDefinition {
+  id: string;
+  title: string;
+  /** Exact label names, or `/regex/` entries. */
+  labels: string[];
+  /** Conventional-commit types that map to this category. */
+  conventionalTypes: string[];
+  /** Hidden from personas that exclude internal changes. */
+  internal: boolean;
+}
+
+/**
+ * The built-in categories by id. Titles are the classifier's category names
+ * (`BUILTIN_CATEGORIES` in core/types), so the hosted label map keeps working.
+ */
+export const BUILTIN_CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
+  {
+    id: "breaking",
+    title: "Breaking Changes",
+    labels: [],
+    conventionalTypes: [],
+    internal: false,
+  },
+  { id: "security", title: "Security", labels: [], conventionalTypes: [], internal: false },
+  { id: "features", title: "Features", labels: [], conventionalTypes: ["feat"], internal: false },
+  { id: "improvements", title: "Improvements", labels: [], conventionalTypes: [], internal: false },
+  { id: "fixes", title: "Fixes", labels: [], conventionalTypes: ["fix"], internal: false },
+  {
+    id: "performance",
+    title: "Performance",
+    labels: [],
+    conventionalTypes: ["perf"],
+    internal: false,
+  },
+  { id: "deprecations", title: "Deprecations", labels: [], conventionalTypes: [], internal: false },
+  { id: "docs", title: "Docs", labels: [], conventionalTypes: ["docs"], internal: false },
+  {
+    id: "internal",
+    title: "Internal",
+    labels: [],
+    conventionalTypes: ["build", "chore", "ci", "refactor", "style", "test"],
+    internal: true,
+  },
+];
+
+/**
+ * Categories each standard section collects when a configured section names
+ * none. `removed` has no category of its own; the model places items there.
+ */
+export const STANDARD_SECTION_CATEGORIES: Readonly<Record<string, readonly string[]>> = {
+  "breaking-changes": ["breaking"],
+  features: ["features"],
+  improvements: ["improvements"],
+  "bug-fixes": ["fixes"],
+  performance: ["performance"],
+  security: ["security"],
+  deprecations: ["deprecations"],
+  removed: [],
+  docs: ["docs"],
+  internal: ["internal"],
+};
+
+/** Tone sliders for a persona that sets none (the hosted schema's column defaults). */
+export const DEFAULT_TONE: ToneSliders = {
+  formality: 50,
+  technicalDepth: 50,
+  enthusiasm: 30,
+  detail: 50,
+};
+
+/** Default model per provider. */
+export const DEFAULT_MODELS = {
+  openai: "gpt-5-mini",
+  bedrock: "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+} as const;
