@@ -7,14 +7,16 @@
 export const EXIT_CODES = {
   /** Invalid configuration, inputs or range. */
   invalid: 2,
-  /** The GitHub request budget or the prompt size does not fit. */
+  /** GitHub access error, or the GitHub request budget or prompt size does not fit. */
   budget: 3,
   /** GitHub data could not be fetched completely. */
   incomplete: 4,
   /** Model output failed validation after retries. */
   modelOutput: 5,
-  /** A write after the release (the CHANGELOG push) failed. */
+  /** The CHANGELOG push was rejected 3 times, or by branch protection. */
   push: 6,
+  /** A sink failed after another succeeded. */
+  partial: 7,
 } as const;
 
 export type ExitCode = (typeof EXIT_CODES)[keyof typeof EXIT_CODES];
