@@ -32,6 +32,14 @@ Tests never set environment variables globally. If a test needs a token-shaped s
 - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) and reference an issue: `fix(changelog): keep [Unreleased] first (#42)`.
 - Releases are cut from `main` by tag. Tags are immutable.
 
+## Releasing (maintainer)
+
+1. On an up-to-date `main` with green CI: `git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z`. Use `vX.Y.Z-beta.N` for a prerelease.
+2. The `Release` workflow checks that the tag is on `main`, runs every check, confirms `dist/` matches a fresh build, publishes the release (a prerelease for `-` tags) and, for stable tags, moves the major tag (`v1`) to the release commit.
+3. After a stable release, open a docs pull request with `pnpm pin-examples vX.Y.Z`, which pins the README and examples to the release's full commit SHA.
+
+Immutable releases are on in the repository settings: a published release's tag and assets cannot change, so a fix ships as a new patch version.
+
 ## License
 
 By contributing, you agree that your contributions are licensed under the [MIT License](LICENSE).
