@@ -6,3 +6,4 @@ prompts/
 schema/
 test/fixtures/golden/
 src/core/prompt/bundled.ts
+docs/configuration.md
