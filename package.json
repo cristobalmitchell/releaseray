@@ -26,7 +26,8 @@
     "prompts": "tsx scripts/generate-prompts.ts",
     "check:prompts": "tsx scripts/generate-prompts.ts --check",
     "build": "tsx scripts/build.ts",
-    "test:injection": "vitest run test/injection"
+    "test:injection": "vitest run test/injection",
+    "pin-examples": "tsx scripts/pin-examples.ts"
   },
   "dependencies": {
     "@actions/core": "3.0.1",

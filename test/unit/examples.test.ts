@@ -6,7 +6,8 @@ import { loadConfig } from "../../src/config/load";
 import { jsonSchemaErrors } from "../helpers/json-schema";
 
 const ROOT = join(__dirname, "..", "..");
-const SELF = "cristobalmitchell/releaseray@v1";
+/** Our own Action: `@v1` before the first release, then a full SHA (scripts/pin-examples.ts). */
+const SELF = "cristobalmitchell/releaseray@";
 
 interface Step {
   uses?: string;
@@ -106,5 +107,23 @@ describe("examples/config/releaseray.yml", () => {
     expect(jsonSchemaErrors(parse(text))).toEqual([]);
     const loaded = loadConfig({ workspace: ROOT, path: "examples/config/releaseray.yml" });
     expect(loaded.personas.map((p) => p.id)).toEqual(["engineer", "internal", "customer", "sales"]);
+  });
+});
+
+describe("pin-examples", () => {
+  it("pins every reference to the release SHA and tag, and is idempotent", async () => {
+    const { pinText, referencingFiles } = await import("../../scripts/pin-examples");
+    const sha = "a".repeat(40);
+    const text =
+      "uses: cristobalmitchell/releaseray@v1 # pin to the full commit SHA of the release you use\n" +
+      "      - uses: cristobalmitchell/releaseray@v1\n";
+    const pinned = pinText(text, sha, "v1.0.0");
+    expect(pinned.count).toBe(2);
+    expect(pinned.text).toBe(
+      `uses: cristobalmitchell/releaseray@${sha} # v1.0.0\n      - uses: cristobalmitchell/releaseray@${sha} # v1.0.0\n`
+    );
+    expect(pinText(pinned.text, sha, "v1.0.0").text).toBe(pinned.text);
+    expect(referencingFiles()).toContain("README.md");
+    expect(referencingFiles().filter((f) => f.startsWith("examples/"))).toHaveLength(10);
   });
 });
