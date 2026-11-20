@@ -1,0 +1,35 @@
+# Flow 2: a pushed tag creates the release and pushes the CHANGELOG entry.
+# Needs outputs.changelog.enabled: true in .releaseray/config.yml.
+# Tags pushed with GITHUB_TOKEN start no workflow; use in-release-job.yml then.
+name: Release notes on tag
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions: {}
+
+concurrency:
+  group: releaseray-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  notes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # create the release and push CHANGELOG
+      pull-requests: read
+      issues: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }} # CHANGELOG.md lives here
+          fetch-depth: 0 # tags resolve from local refs, whatever is checked out
+          persist-credentials: false # the push authenticates with github-token itself
+      - uses: cristobalmitchell/releaseray@v1 # pin to the full commit SHA of the release you use
+        with:
+          to: ${{ github.ref_name }}
+          create-release: "true"
+          push: "true"
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

@@ -1,0 +1,58 @@
+# Flow 1, the quickstart: notes for every published release, plus a manual
+# dispatch for any tag. Copy to .github/workflows/release-notes.yml.
+name: Release notes
+on:
+  release:
+    types: [published] # creating or editing a draft starts nothing
+  workflow_dispatch:
+    inputs:
+      to:
+        description: "Tag, or HEAD for a preview"
+        type: string
+        required: true # a dispatch carries no tag
+      from:
+        description: "Previous tag (blank: highest-SemVer ancestor tag)"
+        type: string
+        required: false
+      personas:
+        description: "Comma-separated slugs (blank: all enabled)"
+        type: string
+        required: false
+      publish:
+        description: Update the GitHub Release
+        type: boolean
+        default: false
+      force:
+        description: Regenerate even if nothing changed
+        type: boolean
+        default: false
+
+permissions: {} # nothing at workflow level; the job asks for what it needs
+
+concurrency:
+  group: releaseray-${{ github.event.release.tag_name || inputs.to || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  notes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # update the release; use read if publish is always false
+      pull-requests: read # read each pull request
+      issues: read # read linked issues
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # every tag and commit, for the local range
+          persist-credentials: false
+      - id: notes
+        uses: cristobalmitchell/releaseray@v1 # pin to the full commit SHA of the release you use
+        with:
+          to: ${{ github.event.release.tag_name || inputs.to }}
+          from: ${{ inputs.from }}
+          personas: ${{ inputs.personas }}
+          publish: ${{ github.event_name == 'release' || inputs.publish }}
+          force: ${{ inputs.force || false }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

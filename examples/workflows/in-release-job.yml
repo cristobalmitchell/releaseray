@@ -1,0 +1,40 @@
+# Flow 2b: inside an existing release job. Tags your release tool pushes with
+# GITHUB_TOKEN start no other workflow, so ReleaseRay runs as later steps of
+# the same job. The event is a branch push, so to is passed explicitly.
+name: Release
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: read
+      issues: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # your release tool may need persisted credentials to push its tag
+      # Replace with your release tool. It must create and push the tag and
+      # expose it as steps.tagger.outputs.tag ('' when nothing was released).
+      - id: tagger
+        run: echo "tag=" >> "$GITHUB_OUTPUT"
+      - if: steps.tagger.outputs.tag != ''
+        run: git fetch --tags --force
+      - if: steps.tagger.outputs.tag != ''
+        uses: cristobalmitchell/releaseray@v1 # pin to the full commit SHA of the release you use
+        with:
+          to: ${{ steps.tagger.outputs.tag }}
+          publish: "true"
+          create-release: "true"
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

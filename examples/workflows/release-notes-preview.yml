@@ -1,0 +1,32 @@
+# Flow 4: a weekly draft of unreleased changes in the job summary. It calls the
+# LLM but never publishes; mode: preview is the check that makes no LLM call.
+name: Release notes preview
+on:
+  schedule:
+    - cron: "23 14 * * 1" # Mondays; avoid minute 0, when schedules queue up
+
+permissions: {}
+
+concurrency:
+  group: releaseray-unreleased
+  cancel-in-progress: true # safe: this flow writes nothing to GitHub
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: cristobalmitchell/releaseray@v1 # pin to the full commit SHA of the release you use
+        with:
+          to: HEAD
+          publish: "false"
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
