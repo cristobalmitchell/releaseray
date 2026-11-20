@@ -3,6 +3,7 @@
  * and reports through the job summary, step outputs, annotations and the
  * exit code. The only module (with `index.ts`) that touches the runner.
  */
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadConfig, type LoadedConfig } from "../config/load";
 import { configureLogger } from "../core/logger";
@@ -15,6 +16,7 @@ import { templatesWithOverrides } from "../core/prompt/templates";
 import { createGit } from "../core/range/git";
 import { doctor } from "../modes/doctor";
 import { generate } from "../modes/generate";
+import { publish } from "../modes/publish";
 import { migratePersonas } from "../modes/migrate-personas";
 import { preview } from "../modes/preview";
 import type { ModeResult } from "../modes/types";
@@ -23,6 +25,9 @@ import { planEvent, readContext, type Env, type RunContext } from "./context";
 import { readInputs, type Inputs } from "./inputs";
 import type { ActionsIO } from "./io";
 import { createActionsLogSink } from "./logger-sink";
+import { createReleaseApi, type ReleaseApi } from "../outputs/github-release/sink";
+import type { PersistedDeps } from "../outputs/persisted";
+import { GENERATED_BY_TRAILER } from "../outputs/push";
 
 /** Most annotations of one kind per step (GitHub shows 10). */
 export const MAX_ANNOTATIONS = 10;
@@ -37,8 +42,12 @@ export interface MainDeps {
   readFile?: (path: string) => string;
   now?: () => Date;
   sleep?: (ms: number) => Promise<void>;
-  /** Replaces the GitHub client, for tests. */
-  github?: (token: string, ctx: RunContext, config: LoadedConfig | null) => GitHubReader;
+  /** Replaces the GitHub clients, for tests. */
+  github?: (
+    token: string,
+    ctx: RunContext,
+    config: LoadedConfig | null
+  ) => GitHubReader | { reader: GitHubReader; release: ReleaseApi };
   /** Replaces provider creation, for tests. */
   provider?: (config: LoadedConfig) => Promise<LLMProvider>;
 }
@@ -85,7 +94,57 @@ function defaultGitHub(sleep: (ms: number) => Promise<void>): NonNullable<MainDe
       sleep,
       now: () => Date.now(),
     });
-    return createGitHubReader(octokit, policy, { owner: ctx.owner, repo: ctx.repo });
+    const repo = { owner: ctx.owner, repo: ctx.repo };
+    return {
+      reader: createGitHubReader(octokit, policy, repo),
+      release: createReleaseApi(octokit, repo),
+    };
+  };
+}
+
+function clients(made: GitHubReader | { reader: GitHubReader; release: ReleaseApi }): {
+  reader: GitHubReader;
+  release: ReleaseApi | null;
+} {
+  return "reader" in made
+    ? { reader: made.reader, release: made.release }
+    : { reader: made, release: null };
+}
+
+/** The branch to push CHANGELOG to: the checked-out branch, else the default branch. */
+function pushBranch(ctx: RunContext): string {
+  try {
+    const branch = createGit(ctx.workspace).run(["rev-parse", "--abbrev-ref", "HEAD"]);
+    if (branch && branch !== "HEAD") return branch;
+  } catch {
+    // Fall through to the default branch.
+  }
+  const repository = ctx.payload.repository as { default_branch?: unknown } | undefined;
+  return String(repository?.default_branch ?? "main");
+}
+
+function persistedDeps(
+  io: ActionsIO,
+  env: Env,
+  ctx: RunContext,
+  token: string,
+  release: ReleaseApi | null
+): PersistedDeps {
+  return {
+    release,
+    workspace: ctx.workspace,
+    push: {
+      serverUrl: ctx.serverUrl,
+      token,
+      setSecret: io.setSecret,
+      // git needs PATH and HOME, not the LLM or cloud credentials.
+      env: Object.fromEntries(
+        Object.entries(env).filter(
+          ([k]) => !/(_API_KEY|_SECRET|_TOKEN|SECRET_ACCESS_KEY|SESSION_TOKEN)$/.test(k)
+        )
+      ),
+      branch: pushBranch(ctx),
+    },
   };
 }
 
@@ -148,6 +207,12 @@ export async function main(deps: MainDeps): Promise<number> {
   try {
     const inputs = readInputs(io);
     const ctx = readContext(env, deps.readFile);
+    // A push of ReleaseRay's own CHANGELOG commit (with a PAT or App token) must not loop.
+    const headCommit = (ctx.payload.head_commit as { message?: unknown } | undefined)?.message;
+    if (ctx.eventName === "push" && String(headCommit ?? "").includes(GENERATED_BY_TRAILER)) {
+      io.notice("This push is ReleaseRay's own CHANGELOG commit; nothing to do");
+      return 0;
+    }
     const event = planEvent(ctx, inputs, now().toISOString().slice(0, 10));
     for (const n of event.notices) io.notice(n);
     const github = deps.github ?? defaultGitHub(sleep);
@@ -182,7 +247,10 @@ export async function main(deps: MainDeps): Promise<number> {
             visibility: ctx.visibility,
             nodeVersion: process.versions.node,
           },
-          { git: createGit(ctx.workspace), github: github(inputs.githubToken, ctx, loaded) }
+          {
+            git: createGit(ctx.workspace),
+            github: clients(github(inputs.githubToken, ctx, loaded)).reader,
+          }
         );
         break;
       }
@@ -196,9 +264,10 @@ export async function main(deps: MainDeps): Promise<number> {
         for (const w of config.warnings) io.warning(w);
         const { templates, overridden } = loadTemplates(ctx.workspace);
         if (overridden.length > 0) io.notice(`Prompt overrides in use: ${overridden.join(", ")}`);
+        const made = clients(github(inputs.githubToken, ctx, config));
         const base = {
           git: createGit(ctx.workspace),
-          github: github(inputs.githubToken, ctx, config),
+          github: made.reader,
           templates,
           repo: {
             owner: ctx.owner,
@@ -226,13 +295,35 @@ export async function main(deps: MainDeps): Promise<number> {
               ...base,
               llm: () => provider,
               priced: Boolean(config.config.llm.pricing) || hasPricing(config.model),
+              ...(made.release ? { release: made.release } : {}),
+              changelogText: () => {
+                const file = join(ctx.workspace, config.config.outputs.changelog.path);
+                return existsSync(file) ? readFileSync(file, "utf8") : "";
+              },
+              persisted: persistedDeps(io, env, ctx, inputs.githubToken, made.release),
             }
           );
         }
         break;
       }
-      case "publish":
-        throw new ReleaseRayError("mode: publish is not available yet", EXIT_CODES.invalid, []);
+      case "publish": {
+        const config = loadConfig({
+          workspace: ctx.workspace,
+          path: configPath,
+          overrides: configOverrides(inputs),
+        });
+        const made = clients(github(inputs.githubToken, ctx, config));
+        mode = await publish(
+          {
+            workspace: ctx.workspace,
+            notesDir: inputs.notesDir,
+            expectedDigest: inputs.expectedDigest,
+          },
+          config,
+          persistedDeps(io, env, ctx, inputs.githubToken, made.release)
+        );
+        break;
+      }
     }
   } catch (error) {
     if (!(error instanceof ReleaseRayError)) {

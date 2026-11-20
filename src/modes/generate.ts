@@ -9,6 +9,7 @@ import type { ResolvedConfig } from "../config/resolve";
 import { run, type RunDeps, type RunRequest, type RunResult } from "../core/run";
 import { sha256 } from "../core/state/digest";
 import { keyDir, writeNotesFiles } from "../outputs/files";
+import { applyPersisted, type PersistedDeps, type PersistedPersona } from "../outputs/persisted";
 import { renderSummary } from "../outputs/summary";
 import { result, type ModeResult } from "./types";
 
@@ -64,9 +65,36 @@ export function runOutputs(
 export async function generate(
   request: GenerateRequest,
   config: ResolvedConfig,
-  deps: RunDeps
+  deps: RunDeps & { persisted?: PersistedDeps }
 ): Promise<ModeResult & { run: RunResult }> {
   const out = await run(request, config, deps);
+  let published = {
+    releaseChanged: false,
+    releaseUrl: out.release?.url ?? null,
+    changelogChanged: false,
+  };
+  const publishWarnings: string[] = [];
+  if (request.publish && deps.persisted) {
+    const personas: PersistedPersona[] = out.personas
+      .filter((p) => p.plans && p.text !== undefined)
+      .map((p) => ({ id: p.id, gen: p.gen, text: p.text!, plans: p.plans! }));
+    const outcome = await applyPersisted(
+      personas,
+      {
+        key: out.key,
+        date: out.date,
+        release: out.release,
+        touchesWorkflows: out.touchesWorkflows,
+      },
+      {
+        githubRelease: config.config.outputs.githubRelease,
+        changelog: config.config.outputs.changelog,
+      },
+      deps.persisted
+    );
+    published = outcome;
+    publishWarnings.push(...outcome.warnings);
+  }
   const files = config.config.outputs.files;
   const mode = result();
   let notesDir: string | null = null;
@@ -77,7 +105,12 @@ export async function generate(
   mode.summary = config.config.outputs.summary.enabled
     ? renderSummary(out, { filesDir: notesDir ?? undefined })
     : "";
-  mode.outputs = runOutputs(out, notesDir, request.workspace);
-  mode.warnings = out.warnings;
+  mode.outputs = {
+    ...runOutputs(out, notesDir, request.workspace),
+    "release-url": published.releaseUrl ?? "",
+    "release-changed": String(published.releaseChanged),
+    "changelog-changed": String(published.changelogChanged),
+  };
+  mode.warnings = [...out.warnings, ...publishWarnings];
   return { ...mode, run: out };
 }

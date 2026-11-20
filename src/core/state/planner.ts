@@ -173,7 +173,11 @@ export function findStoredText(
         !isHumanEdited(b)
     );
     if (!block) continue;
-    const text = target.sink === "changelog" ? shiftHeadings(block.inner, -1) : block.inner;
+    // A CHANGELOG block starts with its "## [key] - date" heading, which the release form lacks.
+    const text =
+      target.sink === "changelog"
+        ? shiftHeadings(block.inner.replace(/^## \[[^\]]*\][^\n]*\n+/, ""), -1)
+        : block.inner;
     return { text, from: target.sink };
   }
   return null;

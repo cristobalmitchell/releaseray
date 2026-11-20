@@ -223,7 +223,7 @@ describe("stored text", () => {
   });
 
   it("reuses a matching CHANGELOG block, shifted back to release headings", () => {
-    const shifted = shiftHeadings(TEXT, 1);
+    const shifted = `## [${KEY}] - 2026-09-13\n\n${shiftHeadings(TEXT, 1)}`;
     expect(findStoredText([changelog(block(shifted))], request)).toEqual({
       text: TEXT,
       from: "changelog",
