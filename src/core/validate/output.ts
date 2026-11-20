@@ -101,6 +101,12 @@ export function groundInlineRefs(
   let removed = 0;
   const out = outsideCode(text, (plain) =>
     plain
+      // A pull or issue URL is a reference too, even on an allowed host.
+      .replace(/https?:\/\/[^\s)\]]+\/(?:pull|issues)\/(\d+)[^\s)\]]*/g, (url, n: string) => {
+        if (known.has(Number(n))) return url;
+        removed++;
+        return "";
+      })
       .replace(INLINE_REF, (match, lead: string, n: string) => {
         if (known.has(Number(n))) return match;
         removed++;

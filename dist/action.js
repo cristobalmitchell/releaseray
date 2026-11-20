@@ -113253,7 +113253,11 @@ function groundInlineRefs(text, known) {
   let removed = 0;
   const out = outsideCode(
     text,
-    (plain) => plain.replace(INLINE_REF, (match, lead, n3) => {
+    (plain) => plain.replace(/https?:\/\/[^\s)\]]+\/(?:pull|issues)\/(\d+)[^\s)\]]*/g, (url2, n3) => {
+      if (known.has(Number(n3))) return url2;
+      removed++;
+      return "";
+    }).replace(INLINE_REF, (match, lead, n3) => {
       if (known.has(Number(n3))) return match;
       removed++;
       return lead;

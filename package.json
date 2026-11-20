@@ -25,7 +25,8 @@
     "check:schema": "tsx scripts/generate-schema.ts --check",
     "prompts": "tsx scripts/generate-prompts.ts",
     "check:prompts": "tsx scripts/generate-prompts.ts --check",
-    "build": "tsx scripts/build.ts"
+    "build": "tsx scripts/build.ts",
+    "test:injection": "vitest run test/injection"
   },
   "dependencies": {
     "@actions/core": "3.0.1",
