@@ -21,6 +21,8 @@ export interface OpenAIProviderOptions {
   model: string;
   /** OpenAI-compatible endpoint; the SDK default when unset */
   baseUrl?: string;
+  /** Replaces the global fetch, for contract tests. */
+  fetch?: typeof globalThis.fetch;
 }
 
 /**
@@ -33,7 +35,13 @@ export interface OpenAIProviderOptions {
  */
 export function createOpenAIProvider(options: OpenAIProviderOptions): LLMProvider {
   const { model } = options;
-  const openai = new OpenAI({ apiKey: options.apiKey, baseURL: options.baseUrl });
+  // retryLLMCall owns retries; SDK retries on top would multiply attempts on the user's key.
+  const openai = new OpenAI({
+    apiKey: options.apiKey,
+    baseURL: options.baseUrl,
+    maxRetries: 0,
+    ...(options.fetch ? { fetch: options.fetch } : {}),
+  });
 
   return {
     async generateStructured(
