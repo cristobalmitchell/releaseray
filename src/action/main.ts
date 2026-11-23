@@ -157,15 +157,17 @@ function defaultProvider(env: Env, io: ActionsIO): NonNullable<MainDeps["provide
     const { llm } = config.config;
     const apiKey = env.OPENAI_API_KEY;
     if (apiKey) io.setSecret(apiKey);
+    const anthropicApiKey = env.ANTHROPIC_API_KEY;
+    if (anthropicApiKey) io.setSecret(anthropicApiKey);
     try {
       return await createProvider(
         {
-          provider: llm.provider === "bedrock" ? "bedrock" : "openai",
+          provider: llm.provider,
           model: config.model,
           baseUrl: llm.baseUrl,
           region: llm.region,
         },
-        { openaiApiKey: apiKey }
+        { openaiApiKey: apiKey, anthropicApiKey }
       );
     } catch (error) {
       throw new ReleaseRayError("The LLM provider could not be set up", EXIT_CODES.invalid, [
@@ -242,6 +244,7 @@ export async function main(deps: MainDeps): Promise<number> {
             configPath,
             credentials: {
               openai: Boolean(env.OPENAI_API_KEY),
+              anthropic: Boolean(env.ANTHROPIC_API_KEY),
               aws: Boolean(env.AWS_ACCESS_KEY_ID),
             },
             visibility: ctx.visibility,

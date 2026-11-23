@@ -703,12 +703,12 @@
             "bedrock",
             "anthropic"
           ],
-          "description": "`openai` (or any OpenAI-compatible endpoint) or `bedrock`. `anthropic` arrives in v1.1."
+          "description": "`openai` (or any OpenAI-compatible endpoint), `bedrock` or `anthropic`."
         },
         "model": {
           "type": "string",
           "minLength": 1,
-          "description": "Model id. Default: gpt-5-mini on openai, Claude Haiku 4.5 on bedrock. Bedrock accepts inference-profile ARNs."
+          "description": "Model id. Default: gpt-5-mini on openai, Claude Haiku 4.5 on bedrock, claude-opus-5-5 on anthropic. Bedrock accepts inference-profile ARNs."
         },
         "baseUrl": {
           "type": "string",

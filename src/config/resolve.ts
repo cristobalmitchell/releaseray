@@ -143,7 +143,7 @@ export function resolveConfig(
       resolvePersona(v.slug, configured.get(v.slug), v.visibility, categoryIds, instructionsFiles)
     );
   const fallback = categories.find((c) => c.id === config.classification.fallbackCategory);
-  const provider = config.llm.provider === "bedrock" ? "bedrock" : "openai";
+  const provider = config.llm.provider;
   return {
     config,
     personas,

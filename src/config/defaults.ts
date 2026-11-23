@@ -460,4 +460,5 @@ export const DEFAULT_TONE: ToneSliders = {
 export const DEFAULT_MODELS = {
   openai: "gpt-5-mini",
   bedrock: "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+  anthropic: "claude-opus-5-5",
 } as const;

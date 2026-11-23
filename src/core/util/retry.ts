@@ -159,6 +159,7 @@ export async function retryLLMCall<T>(
       "503",
       "502",
       "500",
+      "529", // Anthropic: overloaded
       "ECONNRESET",
       "socket hang up",
       "network error",

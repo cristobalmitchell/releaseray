@@ -22,7 +22,7 @@ export interface DoctorRequest {
   workspace: string;
   configPath?: string;
   /** Which credentials are present in the environment; never their values. */
-  credentials: { openai: boolean; aws: boolean };
+  credentials: { openai: boolean; anthropic: boolean; aws: boolean };
   visibility: "public" | "private" | "unknown";
   /** `process.versions.node`. */
   nodeVersion: string;
@@ -110,7 +110,7 @@ export async function doctor(
   }
 
   const provider = loaded?.config.llm.provider ?? "openai";
-  const keyPresent = provider === "bedrock" ? request.credentials.aws : request.credentials.openai;
+  const keyPresent = request.credentials[provider === "bedrock" ? "aws" : provider];
   checks.push({
     name: "LLM credentials",
     status: keyPresent ? "ok" : "warn",
@@ -118,7 +118,7 @@ export async function doctor(
       ? `${provider}: credentials found in the environment`
       : provider === "bedrock"
         ? "bedrock: no AWS_ACCESS_KEY_ID in the environment; generate will fail unless another credential source applies"
-        : "openai: OPENAI_API_KEY is not set; generate will fail (preview and validate-config do not need it)",
+        : `${provider}: ${provider === "anthropic" ? "ANTHROPIC_API_KEY" : "OPENAI_API_KEY"} is not set; generate will fail (preview and validate-config do not need it)`,
   });
   if (loaded) {
     checks.push({ name: "Model", status: "ok", detail: `${provider} / ${loaded.model}` });

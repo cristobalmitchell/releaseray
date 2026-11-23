@@ -197,7 +197,7 @@ describe("no-cost modes", () => {
     const out = await doctor(
       {
         workspace: ws,
-        credentials: { openai: false, aws: false },
+        credentials: { openai: false, anthropic: false, aws: false },
         visibility: "public",
         nodeVersion: "24.22.1",
       },

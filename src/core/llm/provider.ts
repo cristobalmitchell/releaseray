@@ -2,7 +2,7 @@
  * LLM Provider Abstraction
  *
  * Lightweight provider-agnostic interface for LLM calls.
- * Supports OpenAI (and OpenAI-compatible endpoints) and AWS Bedrock.
+ * Supports OpenAI (and OpenAI-compatible endpoints), AWS Bedrock and Anthropic.
  *
  * Lifted from packages/shared/src/llm/provider.ts at 7d1d56f8. The caller
  * builds the provider from configuration with `createProvider`; nothing here
@@ -11,6 +11,7 @@
  *
  * @see https://platform.openai.com/docs/api-reference/chat/create
  * @see https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html
+ * @see https://platform.claude.com/docs/en/api/messages
  * @see https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html
  */
 
@@ -25,7 +26,7 @@ const logger = createLogger("llm-provider");
 /**
  * Supported LLM providers
  */
-export type LLMProviderType = "openai" | "bedrock";
+export type LLMProviderType = "openai" | "bedrock" | "anthropic";
 
 /**
  * Provider configuration, from `.releaseray/config.yml`
@@ -48,6 +49,7 @@ export interface ProviderConfig {
  */
 export interface ProviderCredentials {
   openaiApiKey?: string;
+  anthropicApiKey?: string;
 }
 
 /**
@@ -118,6 +120,7 @@ export interface LLMProvider {
  * Prices sourced from official provider pricing pages:
  * @see https://openai.com/api/pricing/
  * @see https://aws.amazon.com/bedrock/pricing/
+ * @see https://platform.claude.com/docs/en/about-claude/pricing
  *
  * Updated: 2026-02-10
  */
@@ -127,6 +130,18 @@ export const PROVIDER_PRICING: Record<string, { inputPer1M: number; outputPer1M:
   "gpt-5": { inputPer1M: 2.5, outputPer1M: 10.0 },
   "gpt-4o": { inputPer1M: 2.5, outputPer1M: 10.0 },
   "gpt-4o-mini": { inputPer1M: 0.15, outputPer1M: 0.6 },
+  // Anthropic first-party API (updated 2026-11-23). Claude Haiku 5.5's price
+  // is for prompts up to 100K tokens; longer prompts cost $0.50 / $2.50.
+  "claude-fable-5-2": { inputPer1M: 8.0, outputPer1M: 40.0 },
+  "claude-fable-5-1": { inputPer1M: 10.0, outputPer1M: 50.0 },
+  "claude-opus-5-5": { inputPer1M: 4.0, outputPer1M: 20.0 },
+  "claude-opus-5": { inputPer1M: 5.0, outputPer1M: 25.0 },
+  "claude-opus-4-8": { inputPer1M: 5.0, outputPer1M: 25.0 },
+  "claude-sonnet-5-5": { inputPer1M: 2.0, outputPer1M: 10.0 },
+  "claude-sonnet-5": { inputPer1M: 2.0, outputPer1M: 10.0 },
+  "claude-sonnet-4-6": { inputPer1M: 3.0, outputPer1M: 15.0 },
+  "claude-haiku-5-5": { inputPer1M: 0.1, outputPer1M: 0.5 },
+  "claude-haiku-4-5": { inputPer1M: 1.0, outputPer1M: 5.0 },
   // AWS Bedrock — Claude 4.5 models (require cross-region inference profiles)
   // US inference profile IDs (us.anthropic.*) — recommended for US-based deployments
   "us.anthropic.claude-haiku-4-5-20251001-v1:0": {
@@ -218,6 +233,7 @@ export function calculateCost(model: string, usage: TokenUsage): TokenCost {
 /** Default models per provider */
 export const DEFAULT_OPENAI_MODEL = "gpt-5-mini";
 export const DEFAULT_BEDROCK_MODEL = "us.anthropic.claude-haiku-4-5-20251001-v1:0";
+export const DEFAULT_ANTHROPIC_MODEL = "claude-opus-5-5";
 
 /**
  * Build the provider named in configuration.
@@ -252,6 +268,16 @@ export async function createProvider(
         region: config.region,
         model: config.model ?? DEFAULT_BEDROCK_MODEL,
         pricingModel: config.pricingModel,
+      });
+    }
+    case "anthropic": {
+      if (!credentials.anthropicApiKey) {
+        throw new Error("The anthropic provider needs an API key (ANTHROPIC_API_KEY)");
+      }
+      const { createAnthropicProvider } = await import("./providers/anthropic");
+      return createAnthropicProvider({
+        apiKey: credentials.anthropicApiKey,
+        model: config.model ?? DEFAULT_ANTHROPIC_MODEL,
       });
     }
     default:

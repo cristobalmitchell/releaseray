@@ -37,7 +37,7 @@ A single release usually has several readers: engineers who need the API changes
 
 - **Personas.** Three built in (`engineer`, `internal`, `customer`); retune their tone, sections and instructions, or add your own, in `.releaseray/config.yml`.
 - **From your history.** Tags, ancestry and commits come from your checkout. Each pull request and linked issue is fetched once per release, within a request budget it checks before it starts.
-- **Your model, your key.** OpenAI (or any OpenAI-compatible endpoint) or AWS Bedrock. Nothing goes anywhere else, and there is no telemetry.
+- **Your model, your key.** OpenAI (or any OpenAI-compatible endpoint), Anthropic, or AWS Bedrock. Nothing goes anywhere else, and there is no telemetry.
 - **Safe to publish.** Repository text reaches the model only as escaped data. Output is checked against what was fetched: invented references, off-allowlist links, live mentions, HTML and images are removed.
 - **Idempotent.** Marked blocks in the GitHub Release and `CHANGELOG.md` record what was generated. A re-run with nothing changed makes no LLM call and no write; a block someone edited by hand is left alone.
 - **Outputs.** Job summary, workspace files with `notes.json`, the GitHub Release, and `CHANGELOG.md` with an optional push.
@@ -174,7 +174,7 @@ Every example grants nothing at workflow level, pins third-party actions to a fu
 
 **Outputs:** `key`, `from`, `to`, `notes-dir`, `notes-digest`, `release-url`, `release-changed`, `changelog-changed`, `github-requests`, `llm-calls`, `llm-cost-usd` (`n/a` when the model's price is unknown).
 
-**Secrets** are environment variables, never inputs: `OPENAI_API_KEY`, or the AWS credentials for Bedrock (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, for example from `aws-actions/configure-aws-credentials`).
+**Secrets** are environment variables, never inputs: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` (with `llm.provider: anthropic`), or the AWS credentials for Bedrock (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, for example from `aws-actions/configure-aws-credentials`).
 
 ## Troubleshooting
 
@@ -230,7 +230,7 @@ src/
 │   ├── fetch/           # request policy, budget gate, content fetch
 │   ├── classify/        # rules classifier, linked issues, commit fallback
 │   ├── prompt/          # persona prompt builder, bundled templates, tone
-│   ├── llm/             # providers (OpenAI, Bedrock, fake) and draft generation
+│   ├── llm/             # providers (OpenAI, Anthropic, Bedrock, fake) and draft generation
 │   ├── validate/        # output validation, input size and sufficiency
 │   ├── state/           # markers, digests, per-output planner
 │   ├── sanitize/        # input, publish and redaction sanitizers
@@ -272,14 +272,15 @@ Branches are `{type}/{issue}-{description}`, commits follow [Conventional Commit
 
 ## Project status
 
-| Area                                                                                      | Status              |
-| ----------------------------------------------------------------------------------------- | ------------------- |
-| Generation core, configuration, range, budget, fetch, validation, planner, pipeline       | ✅ Built and tested |
-| `action.yml`, all six modes, GitHub Release, CHANGELOG and push loop, bundle              | ✅ Built and tested |
-| Example workflows and recipes, provider contract tests, prompt-injection suite            | ✅ Built and tested |
-| End-to-end tests on sandbox repositories, `v1.0.0-beta.1`                                 | 🚧 Next             |
-| `v1.0.0` and the Marketplace listing                                                      | 🚧 After the beta   |
-| `v1.1.0`: Slack, Teams and Intercom, the Anthropic provider, `adopt` and `sync-changelog` | Planned             |
+| Area                                                                                | Status              |
+| ----------------------------------------------------------------------------------- | ------------------- |
+| Generation core, configuration, range, budget, fetch, validation, planner, pipeline | ✅ Built and tested |
+| `action.yml`, all six modes, GitHub Release, CHANGELOG and push loop, bundle        | ✅ Built and tested |
+| Example workflows and recipes, provider contract tests, prompt-injection suite      | ✅ Built and tested |
+| Anthropic provider                                                                  | ✅ Built and tested |
+| End-to-end tests on sandbox repositories, `v1.0.0-beta.1`                           | 🚧 Next             |
+| `v1.0.0` and the Marketplace listing                                                | 🚧 After the beta   |
+| `v1.1.0`: Slack, Teams and Intercom, `adopt` and `sync-changelog`                   | Planned             |
 
 ## Coming from the hosted ReleaseRay App
 
