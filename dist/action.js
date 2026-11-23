@@ -107306,7 +107306,12 @@ var OutputsSchema = external_exports.strictObject({
     /** Default: the checked-out branch. */
     branch: external_exports.string().min(1).optional(),
     commitMessage: external_exports.string().min(1).default("docs(changelog): {{key}}"),
-    author: external_exports.strictObject({ name: external_exports.string().min(1), email: external_exports.email() }).optional()
+    author: external_exports.strictObject({
+      name: external_exports.string().min(1),
+      // Not z.email(): a GitHub App's noreply address has brackets,
+      // as in 41898282+github-actions[bot]@users.noreply.github.com.
+      email: external_exports.string().regex(/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/, "Invalid email address")
+    }).optional()
   }).prefault({}),
   /** Slack, Teams and Intercom, from v1.1. */
   notify: external_exports.array(NotifySchema).max(10).default([]),
