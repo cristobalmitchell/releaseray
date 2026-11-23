@@ -24,6 +24,7 @@
 import { BedrockRuntimeClient, ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
 import type { LLMProvider, ProviderStructuredResult } from "../provider";
 import { calculateCost } from "../provider";
+import { stripCodeFences } from "../json-text";
 import { createLogger } from "../../logger";
 
 const logger = createLogger("bedrock-provider");
@@ -36,22 +37,6 @@ export interface BedrockProviderOptions {
   pricingModel?: string;
   /** For tests: a pre-built client */
   client?: Pick<BedrockRuntimeClient, "send">;
-}
-
-/**
- * Strip JSON from markdown code fences if present
- *
- * Some models (especially Claude) may wrap JSON in ```json ... ``` fences
- * even when instructed not to. This ensures clean JSON parsing.
- */
-function stripCodeFences(text: string): string {
-  const trimmed = text.trim();
-  // Match ```json ... ``` or ``` ... ```
-  const fenceMatch = trimmed.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?\s*```$/);
-  if (fenceMatch?.[1]) {
-    return fenceMatch[1].trim();
-  }
-  return trimmed;
 }
 
 /**

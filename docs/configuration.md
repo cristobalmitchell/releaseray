@@ -132,8 +132,8 @@ The model provider and its limits. Keys come from environment variables, never f
 
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
-| `llm.provider` | `openai` \| `bedrock` \| `anthropic` | `openai` | `openai` (or any OpenAI-compatible endpoint) or `bedrock`. `anthropic` arrives in v1.1. |
-| `llm.model` | string |  | Model id. Default: gpt-5-mini on openai, Claude Haiku 4.5 on bedrock. Bedrock accepts inference-profile ARNs. |
+| `llm.provider` | `openai` \| `bedrock` \| `anthropic` | `openai` | `openai` (or any OpenAI-compatible endpoint), `bedrock` or `anthropic`. |
+| `llm.model` | string |  | Model id. Default: gpt-5-mini on openai, Claude Haiku 4.5 on bedrock, claude-opus-5-5 on anthropic. Bedrock accepts inference-profile ARNs. |
 | `llm.baseUrl` | string |  | OpenAI-compatible endpoint (openai only). |
 | `llm.region` | string |  | AWS region (bedrock only; required there). |
 | `llm.maxCompletionTokens` | integer 256–65536 | `16384` | Most tokens per model response. |

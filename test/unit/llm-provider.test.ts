@@ -86,6 +86,17 @@ describe("createProvider", () => {
     await expect(createProvider({ provider: "openai" })).rejects.toThrow("needs an API key");
   });
 
+  it("fails clearly without an Anthropic key", async () => {
+    await expect(createProvider({ provider: "anthropic" })).rejects.toThrow(
+      "needs an API key (ANTHROPIC_API_KEY)"
+    );
+  });
+
+  it("builds the Anthropic provider with an injected key", async () => {
+    const provider = await createProvider({ provider: "anthropic" }, { anthropicApiKey: "k" });
+    expect(typeof provider.generateStructured).toBe("function");
+  });
+
   it("fails clearly without a Bedrock region", async () => {
     await expect(createProvider({ provider: "bedrock" })).rejects.toThrow("needs llm.region");
   });

@@ -98,6 +98,15 @@ describe("loading", () => {
     expect(loaded.model).toBe("from-input");
   });
 
+  it("defaults the model per provider", () => {
+    const loaded = loadConfig({
+      workspace: workspace({
+        ".releaseray/config.yml": "version: 1\nllm:\n  provider: anthropic\n",
+      }),
+    });
+    expect(loaded.model).toBe("claude-opus-5-5");
+  });
+
   it("merges objects key by key and replaces arrays", () => {
     expect(mergeLayers({ a: { b: 1, c: [1, 2] }, d: 1 }, { a: { c: [3] }, d: undefined })).toEqual({
       a: { b: 1, c: [3] },
@@ -387,9 +396,10 @@ describe("cross-field rules", () => {
         llm: { provider: "bedrock", region: "us-east-1", baseUrl: "https://x.test" },
       })
     ).toEqual(["llm.baseUrl: applies only to llm.provider openai"]);
-    expect(problems({ ...base, llm: { provider: "anthropic" } })).toEqual([
-      "llm.provider: anthropic arrives in v1.1; use openai or bedrock",
-    ]);
+    expect(problems({ ...base, llm: { provider: "anthropic" } })).toEqual([]);
+    expect(
+      problems({ ...base, llm: { provider: "anthropic", baseUrl: "https://x.test" } })
+    ).toEqual(["llm.baseUrl: applies only to llm.provider openai"]);
   });
 
   it("notifications wait for v1.1", () => {

@@ -1,0 +1,24 @@
+{
+  "_source": "Shape of the example response in the Claude API reference, Messages > Create (https://platform.claude.com/docs/en/api/messages); an empty thinking block as Claude Opus 5.5 returns by default, and text replaced with a ReleaseRay draft in a code fence.",
+  "id": "msg_013Zva2CMHLNnXjNJJKqJ2EF",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-opus-5-5",
+  "content": [
+    { "type": "thinking", "thinking": "", "signature": "EqQBCkYIBRgCIkB..." },
+    {
+      "type": "text",
+      "text": "```json\n{\"highlights\":[\"Faster imports\"],\"sections\":[{\"title\":\"Features\",\"items\":[{\"title\":\"Faster imports\",\"ref\":\"#12\"}]}]}\n```"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "stop_details": null,
+  "usage": {
+    "input_tokens": 1093,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 24,
+    "output_tokens": 61,
+    "service_tier": "standard"
+  }
+}

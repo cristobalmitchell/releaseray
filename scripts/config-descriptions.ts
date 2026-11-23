@@ -153,10 +153,9 @@ export const DESCRIPTIONS: Record<string, string> = {
   "outputs.allowInternalOnPublicRepo":
     "Show internal personas in the summary and files of a public repository.",
 
-  "llm.provider":
-    "`openai` (or any OpenAI-compatible endpoint) or `bedrock`. `anthropic` arrives in v1.1.",
+  "llm.provider": "`openai` (or any OpenAI-compatible endpoint), `bedrock` or `anthropic`.",
   "llm.model":
-    "Model id. Default: gpt-5-mini on openai, Claude Haiku 4.5 on bedrock. Bedrock accepts inference-profile ARNs.",
+    "Model id. Default: gpt-5-mini on openai, Claude Haiku 4.5 on bedrock, claude-opus-5-5 on anthropic. Bedrock accepts inference-profile ARNs.",
   "llm.baseUrl": "OpenAI-compatible endpoint (openai only).",
   "llm.region": "AWS region (bedrock only; required there).",
   "llm.maxCompletionTokens": "Most tokens per model response.",

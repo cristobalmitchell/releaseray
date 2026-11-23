@@ -197,7 +197,7 @@ const OutputsSchema = z.strictObject({
 
 const LlmSchema = z.strictObject({
   provider: z.enum(["openai", "bedrock", "anthropic"]).default("openai"),
-  /** Default: gpt-5-mini on openai, Claude Haiku 4.5 on bedrock. */
+  /** Default: gpt-5-mini on openai, Claude Haiku 4.5 on bedrock, Claude Opus 5.5 on anthropic. */
   model: z.string().min(1).optional(),
   /** OpenAI-compatible endpoint; openai only. */
   baseUrl: z.url().optional(),
@@ -452,12 +452,6 @@ export function crossFieldIssues(config: Config): Issue[] {
   }
 
   const { llm } = config;
-  if (llm.provider === "anthropic") {
-    issues.push({
-      path: ["llm", "provider"],
-      message: "anthropic arrives in v1.1; use openai or bedrock",
-    });
-  }
   if (llm.provider === "bedrock" && !llm.region) {
     issues.push({ path: ["llm", "region"], message: "required when llm.provider is bedrock" });
   }

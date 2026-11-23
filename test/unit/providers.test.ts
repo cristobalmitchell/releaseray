@@ -4,6 +4,7 @@ import { BedrockRuntimeClient, type ConverseCommand } from "@aws-sdk/client-bedr
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { generateDraft } from "../../src/core/llm/draft";
 import { hasPricing } from "../../src/core/llm/provider";
+import { createAnthropicProvider, FALLBACK_BETA } from "../../src/core/llm/providers/anthropic";
 import { createBedrockProvider } from "../../src/core/llm/providers/bedrock";
 import { createOpenAIProvider } from "../../src/core/llm/providers/openai";
 import { BoundedDraftSchema } from "../../src/core/validate/output";
@@ -111,6 +112,111 @@ describe("openai contract", () => {
       retries: 0,
       maxCompletionTokens: 256,
       priced: hasPricing("acme-local-7b"),
+    });
+    expect(usage.costUsd).toBeNull();
+  });
+});
+
+describe("anthropic contract", () => {
+  const message = () => fixture("anthropic-message.json");
+
+  it("sends a Messages request with effort and fallbacks, and maps the documented response", async () => {
+    const { fetch, calls } = fakeFetch(() => json(message()));
+    const provider = createAnthropicProvider({
+      apiKey: "sk-ant-test",
+      model: "claude-opus-5-5",
+      fetch,
+    });
+    const result = await provider.generateStructured("system text", "user text", 2048);
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toMatch(/^https:\/\/api\.anthropic\.com\/v1\/messages(\?beta=true)?$/);
+    expect(calls[0].headers.get("authorization")).toBe("Bearer sk-ant-test");
+    expect(calls[0].headers.get("anthropic-version")).toBeTruthy();
+    expect(calls[0].headers.get("anthropic-beta")).toBe(FALLBACK_BETA);
+    expect(calls[0].body).toMatchObject({
+      model: "claude-opus-5-5",
+      max_tokens: 2048,
+      output_config: { effort: "medium" },
+      fallbacks: "default",
+      messages: [{ role: "user", content: "user text" }],
+    });
+    expect(String(calls[0].body.system)).toMatch(
+      /^system text\n\nRespond with one valid JSON object only/
+    );
+    expect(calls[0].body).not.toHaveProperty("thinking");
+    expect(calls[0].body).not.toHaveProperty("temperature");
+    expect(BoundedDraftSchema.parse(JSON.parse(result.content)).sections[0].title).toBe("Features");
+    expect(result).toMatchObject({
+      usage: { promptTokens: 1117, completionTokens: 61, totalTokens: 1178 },
+      cost: { inputCost: 0.004468, outputCost: 0.00122, totalCost: 0.005688 },
+      model: "claude-opus-5-5",
+      provider: "anthropic",
+    });
+  });
+
+  it("sends no fallbacks or effort to a model that does not take them", async () => {
+    const reply = message();
+    reply.model = "claude-haiku-4-5";
+    const { fetch, calls } = fakeFetch(() => json(reply));
+    const provider = createAnthropicProvider({ apiKey: "k", model: "claude-haiku-4-5", fetch });
+    await provider.generateStructured("s", "u", 256);
+    expect(calls[0].headers.get("anthropic-beta")).toBeNull();
+    expect(calls[0].body).not.toHaveProperty("fallbacks");
+    expect(calls[0].body).not.toHaveProperty("output_config");
+  });
+
+  it("fails on a refusal, naming its category", async () => {
+    const refused = message();
+    refused.content = [];
+    refused.stop_reason = "refusal";
+    refused.stop_details = { type: "refusal", category: "cyber", explanation: null };
+    const { fetch } = fakeFetch(() => json(refused));
+    const provider = createAnthropicProvider({ apiKey: "k", model: "claude-opus-5-5", fetch });
+    await expect(provider.generateStructured("s", "u", 256)).rejects.toThrow(
+      "The model declined the request (refusal: cyber)"
+    );
+  });
+
+  it("fails on max_tokens, naming the setting to raise", async () => {
+    const cut = message();
+    cut.stop_reason = "max_tokens";
+    const { fetch } = fakeFetch(() => json(cut));
+    const provider = createAnthropicProvider({ apiKey: "k", model: "claude-opus-5-5", fetch });
+    await expect(provider.generateStructured("s", "u", 256)).rejects.toThrow(
+      /max_tokens \(256\).*llm\.maxCompletionTokens/
+    );
+  });
+
+  it("fails on a response without text", async () => {
+    const empty = message();
+    empty.content = [{ type: "thinking", thinking: "", signature: "x" }];
+    const { fetch } = fakeFetch(() => json(empty));
+    const provider = createAnthropicProvider({ apiKey: "k", model: "claude-opus-5-5", fetch });
+    await expect(provider.generateStructured("s", "u", 256)).rejects.toThrow(
+      "No text content in Anthropic response"
+    );
+  });
+
+  it("leaves retries to ReleaseRay: one HTTP call per attempt, with the status in the error", async () => {
+    const { fetch, calls } = fakeFetch(() =>
+      json({ type: "error", error: { type: "overloaded_error", message: "Overloaded" } }, 529)
+    );
+    const provider = createAnthropicProvider({ apiKey: "k", model: "claude-opus-5-5", fetch });
+    await expect(provider.generateStructured("s", "u", 256)).rejects.toThrow(/529/);
+    expect(calls).toHaveLength(1);
+  });
+
+  it("prices the model that answered, and reports n/a for one without pricing", async () => {
+    expect(hasPricing("claude-opus-5-5")).toBe(true);
+    const unpriced = message();
+    unpriced.model = "claude-future-9";
+    const { fetch } = fakeFetch(() => json(unpriced));
+    const provider = createAnthropicProvider({ apiKey: "k", model: "claude-future-9", fetch });
+    const { usage } = await generateDraft(provider, "s", "u", {
+      retries: 0,
+      maxCompletionTokens: 256,
+      priced: hasPricing("claude-future-9"),
     });
     expect(usage.costUsd).toBeNull();
   });

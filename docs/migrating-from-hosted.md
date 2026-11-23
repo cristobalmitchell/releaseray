@@ -8,7 +8,7 @@ The hosted ReleaseRay GitHub App is being retired in favor of this Action. The A
 2. **Convert them.** Add the [tools workflow](../examples/workflows/releaseray-tools.yml) and run it with `mode: migrate-personas`. It writes the converted config to the workspace (never over an existing file), shows it in the job summary, and uploads it as an artifact. Copy it to `.releaseray/config.yml` and commit it.
 3. **Check the result.** Run the tools workflow with `mode: validate-config`, then `mode: preview` on a recent tag.
 4. **Check what the App already published.** Before turning on publishing, open the GitHub Release for each recent tag. A range the App marked as failed may still have published, and a scheduled range may never have.
-5. **Add the release-notes workflow** from the [quickstart](../README.md#quickstart), and the `OPENAI_API_KEY` secret, or the AWS credentials for Bedrock.
+5. **Add the release-notes workflow** from the [quickstart](../README.md#quickstart), and the `OPENAI_API_KEY` secret (or `ANTHROPIC_API_KEY` with `llm.provider: anthropic`), or the AWS credentials for Bedrock.
 6. **Uninstall the App** once the workflow has published a release.
 
 Until `v1.1.0`, the Action appends its own block below text the App wrote, with a warning. `v1.1.0` adds `mode: adopt`, which marks the App's existing release bodies and CHANGELOG entries as taken over, so nothing is written twice; for releases the App already published, consider waiting for it or running with `publish: false`.
