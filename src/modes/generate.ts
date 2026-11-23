@@ -67,24 +67,24 @@ export async function generate(
   config: ResolvedConfig,
   deps: RunDeps & { persisted?: PersistedDeps }
 ): Promise<ModeResult & { run: RunResult }> {
-  const out = await run(request, config, deps);
+  const ran = await run(request, config, deps);
   let published = {
     releaseChanged: false,
-    releaseUrl: out.release?.url ?? null,
+    releaseUrl: ran.release?.url ?? null,
     changelogChanged: false,
   };
   const publishWarnings: string[] = [];
   if (request.publish && deps.persisted) {
-    const personas: PersistedPersona[] = out.personas
+    const personas: PersistedPersona[] = ran.personas
       .filter((p) => p.plans && p.text !== undefined)
       .map((p) => ({ id: p.id, gen: p.gen, text: p.text!, plans: p.plans! }));
     const outcome = await applyPersisted(
       personas,
       {
-        key: out.key,
-        date: out.date,
-        release: out.release,
-        touchesWorkflows: out.touchesWorkflows,
+        key: ran.key,
+        date: ran.date,
+        release: ran.release,
+        touchesWorkflows: ran.touchesWorkflows,
       },
       {
         githubRelease: config.config.outputs.githubRelease,
@@ -95,6 +95,9 @@ export async function generate(
     published = outcome;
     publishWarnings.push(...outcome.warnings);
   }
+  // Count the run's own release and CHANGELOG requests too: the snapshot in
+  // `ran` was taken before the persisted sinks wrote.
+  const out: RunResult = { ...ran, github: deps.github.usage() };
   const files = config.config.outputs.files;
   const mode = result();
   let notesDir: string | null = null;

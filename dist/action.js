@@ -115047,22 +115047,22 @@ function runOutputs(run2, notesDir, workspace) {
   return outputs;
 }
 async function generate(request2, config2, deps) {
-  const out = await run(request2, config2, deps);
+  const ran = await run(request2, config2, deps);
   let published = {
     releaseChanged: false,
-    releaseUrl: out.release?.url ?? null,
+    releaseUrl: ran.release?.url ?? null,
     changelogChanged: false
   };
   const publishWarnings = [];
   if (request2.publish && deps.persisted) {
-    const personas = out.personas.filter((p3) => p3.plans && p3.text !== void 0).map((p3) => ({ id: p3.id, gen: p3.gen, text: p3.text, plans: p3.plans }));
+    const personas = ran.personas.filter((p3) => p3.plans && p3.text !== void 0).map((p3) => ({ id: p3.id, gen: p3.gen, text: p3.text, plans: p3.plans }));
     const outcome = await applyPersisted(
       personas,
       {
-        key: out.key,
-        date: out.date,
-        release: out.release,
-        touchesWorkflows: out.touchesWorkflows
+        key: ran.key,
+        date: ran.date,
+        release: ran.release,
+        touchesWorkflows: ran.touchesWorkflows
       },
       {
         githubRelease: config2.config.outputs.githubRelease,
@@ -115073,6 +115073,7 @@ async function generate(request2, config2, deps) {
     published = outcome;
     publishWarnings.push(...outcome.warnings);
   }
+  const out = { ...ran, github: deps.github.usage() };
   const files = config2.config.outputs.files;
   const mode = result();
   let notesDir = null;
