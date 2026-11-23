@@ -459,6 +459,19 @@ describe("publish mode", () => {
   });
 });
 
+describe("a release that does not exist", () => {
+  it("still writes the release persona to the summary and files without publishing", async () => {
+    const h = harness(null);
+    const { out, llm } = await runGenerate(h, config(), { publish: false });
+    const engineer = out.run.personas.find((p) => p.id === "engineer")!;
+    expect(engineer.status).toBe("generated");
+    expect(out.files).toContain(".releaseray/notes/v1.2.0/engineer.md");
+    expect(out.summary).not.toContain("_Not generated in this run._");
+    expect(llm.calls()).toBe(2);
+    expect(h.releases.writes).toEqual([]);
+  });
+});
+
 describe("release lookup", () => {
   /** An Octokit whose fetch answers from a route table and logs the routes asked. */
   function api(routes: Record<string, { status: number; body: unknown }>) {

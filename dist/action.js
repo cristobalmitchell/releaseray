@@ -114334,7 +114334,7 @@ async function run(request2, config2, deps) {
       ...Object.keys(plans).length > 0 ? { plans } : {}
     };
     if (!active.includes(r5)) return { ...base, status: "skipped" };
-    const hasPersisted = Object.keys(plans).length > 0;
+    const hasPersisted = Object.values(plans).some((p3) => p3 && p3.action !== "skip");
     const stored = findStoredText(targets, {
       key: range2.key,
       persona: r5.persona.id,

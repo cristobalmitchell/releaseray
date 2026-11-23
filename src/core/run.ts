@@ -617,7 +617,9 @@ export async function run(
     };
     if (!active.includes(r)) return { ...base, status: "skipped" };
 
-    const hasPersisted = Object.keys(plans).length > 0;
+    // A skipped target (no release and createIfMissing off) holds no text to
+    // reuse and takes none, so the persona is planned like an unpersisted one.
+    const hasPersisted = Object.values(plans).some((p) => p && p.action !== "skip");
     const stored = findStoredText(targets, {
       key: range.key,
       persona: r.persona.id,
