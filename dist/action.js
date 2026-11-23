@@ -114050,7 +114050,7 @@ async function prepareRun(request2, config2, deps, options = {}) {
     ...eligibleSinks(persona, c5, deps.repo, persisted)
   }));
   const releaseEligible = routed.some((r5) => r5.sinks.githubRelease);
-  const releaseRequests = options.releaseRequests ?? (releaseEligible ? 1 : 0) + (releaseEligible && request2.publish ? 1 : 0);
+  const releaseRequests = options.releaseRequests ?? (releaseEligible ? 2 : 0) + (releaseEligible && request2.publish ? 1 : 0);
   let fetched = null;
   if (range2.prNumbers.length > 0) {
     fetched = await fetchContent(deps.github, range2.prNumbers, {
@@ -114605,12 +114605,14 @@ function createReleaseApi(octokit, repo) {
   return {
     async get(tag) {
       try {
-        const { data } = await octokit.rest.repos.getReleaseByTag({ ...repo, tag });
-        return toTarget(data);
+        const { data: data2 } = await octokit.rest.repos.getReleaseByTag({ ...repo, tag });
+        return toTarget(data2);
       } catch (error64) {
-        if (isHttpError(error64) && error64.status === 404) return null;
-        throw error64;
+        if (!(isHttpError(error64) && error64.status === 404)) throw error64;
       }
+      const { data } = await octokit.rest.repos.listReleases({ ...repo, per_page: 100 });
+      const draft = data.find((r5) => r5.draft && r5.tag_name === tag);
+      return draft ? toTarget(draft) : null;
     },
     async updateBody(id, body2) {
       const { data } = await octokit.rest.repos.updateRelease({ ...repo, release_id: id, body: body2 });

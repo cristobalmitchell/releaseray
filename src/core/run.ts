@@ -287,9 +287,10 @@ export async function prepareRun(
     ...eligibleSinks(persona, c, deps.repo, persisted),
   }));
   const releaseEligible = routed.some((r) => r.sinks.githubRelease);
+  // Lookup by tag, the draft fallback when there is no published release, and the write.
   const releaseRequests =
     options.releaseRequests ??
-    (releaseEligible ? 1 : 0) + (releaseEligible && request.publish ? 1 : 0);
+    (releaseEligible ? 2 : 0) + (releaseEligible && request.publish ? 1 : 0);
 
   // 3. Fetch once.
   let fetched: FetchResult | null = null;
