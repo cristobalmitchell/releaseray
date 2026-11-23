@@ -189,12 +189,19 @@ function loadTemplates(workspace: string) {
 }
 
 /**
- * Runs the Action once.
+ * Runs the Action once and sets the `exit-code` output, so a later step
+ * (with `continue-on-error` on this one) can tell exit 6 from exit 3.
  *
  * @param deps - Runner I/O, environment and test seams
  * @returns The process exit code
  */
 export async function main(deps: MainDeps): Promise<number> {
+  const code = await runOnce(deps);
+  deps.io.setOutput("exit-code", String(code));
+  return code;
+}
+
+async function runOnce(deps: MainDeps): Promise<number> {
   const { io, env } = deps;
   const now = deps.now ?? (() => new Date());
   const sleep = deps.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));

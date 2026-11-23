@@ -115790,6 +115790,11 @@ function loadTemplates(workspace) {
   return { templates, overridden };
 }
 async function main(deps) {
+  const code = await runOnce(deps);
+  deps.io.setOutput("exit-code", String(code));
+  return code;
+}
+async function runOnce(deps) {
   const { io, env: env2 } = deps;
   const now = deps.now ?? (() => /* @__PURE__ */ new Date());
   const sleep4 = deps.sleep ?? ((ms) => new Promise((r5) => setTimeout(r5, ms)));
