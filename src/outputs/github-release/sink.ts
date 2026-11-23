@@ -57,9 +57,14 @@ export function createReleaseApi(
         const { data } = await octokit.rest.repos.getReleaseByTag({ ...repo, tag });
         return toTarget(data);
       } catch (error) {
-        if (isHttpError(error) && error.status === 404) return null;
-        throw error;
+        if (!(isHttpError(error) && error.status === 404)) throw error;
       }
+      // "Get a release by tag name" returns published releases only. A draft
+      // for the tag shows in the newest page of the list (to tokens that can
+      // push), so a person's draft is updated rather than duplicated.
+      const { data } = await octokit.rest.repos.listReleases({ ...repo, per_page: 100 });
+      const draft = data.find((r) => r.draft && r.tag_name === tag);
+      return draft ? toTarget(draft) : null;
     },
     async updateBody(id, body) {
       const { data } = await octokit.rest.repos.updateRelease({ ...repo, release_id: id, body });

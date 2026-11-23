@@ -14,7 +14,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { parseConfig } from "../../src/config/load";
 import { resolveConfig } from "../../src/config/resolve";
 import { ReleaseRayError } from "../../src/core/errors";
-import type { IssueData, PullData } from "../../src/core/fetch/github";
+import { createOctokit, type IssueData, type PullData } from "../../src/core/fetch/github";
 import type { LLMProvider } from "../../src/core/llm/provider";
 import { createFakeProvider } from "../../src/core/llm/providers/fake";
 import { BUNDLED_TEMPLATES } from "../../src/core/prompt/templates";
@@ -23,6 +23,7 @@ import { shiftHeadings } from "../../src/core/render/markdown";
 import { findMarkedBlocks } from "../../src/core/state/marker";
 import { generate } from "../../src/modes/generate";
 import { publish } from "../../src/modes/publish";
+import { createReleaseApi } from "../../src/outputs/github-release/sink";
 import { GENERATED_BY_TRAILER, pushChangelog } from "../../src/outputs/push";
 import { recordedGitHub } from "../helpers/fake-github";
 import { fakeReleases } from "../helpers/fake-release";
@@ -455,5 +456,75 @@ describe("publish mode", () => {
     );
     expect(second.outputs["release-changed"]).toBe("false");
     expect(h.releases.writes).toHaveLength(1);
+  });
+});
+
+describe("a release that does not exist", () => {
+  it("still writes the release persona to the summary and files without publishing", async () => {
+    const h = harness(null);
+    const { out, llm } = await runGenerate(h, config(), { publish: false });
+    const engineer = out.run.personas.find((p) => p.id === "engineer")!;
+    expect(engineer.status).toBe("generated");
+    expect(out.files).toContain(".releaseray/notes/v1.2.0/engineer.md");
+    expect(out.summary).not.toContain("_Not generated in this run._");
+    expect(llm.calls()).toBe(2);
+    expect(h.releases.writes).toEqual([]);
+  });
+});
+
+describe("release lookup", () => {
+  /** An Octokit whose fetch answers from a route table and logs the routes asked. */
+  function api(routes: Record<string, { status: number; body: unknown }>) {
+    const asked: string[] = [];
+    const fetch = async (url: string | URL | Request, init?: RequestInit) => {
+      const path = new URL(String(url)).pathname;
+      const key = `${init?.method ?? "GET"} ${path}`;
+      asked.push(key);
+      const hit = routes[key] ?? { status: 404, body: { message: "Not Found" } };
+      return new Response(JSON.stringify(hit.body), {
+        status: hit.status,
+        headers: { "content-type": "application/json" },
+      });
+    };
+    const { octokit } = createOctokit({
+      token: "t",
+      concurrency: 1,
+      maxWaitMinutes: 0,
+      sleep: async () => {},
+      now: () => 0,
+      fetch,
+    });
+    return { releases: createReleaseApi(octokit, { owner: "acme", repo: "widgets" }), asked };
+  }
+
+  it("finds a draft for the tag, which get-by-tag does not return", async () => {
+    const { releases, asked } = api({
+      "GET /repos/acme/widgets/releases": {
+        status: 200,
+        body: [
+          { id: 7, tag_name: "v1.2.0", draft: true, body: "Draft text", html_url: "https://x/7" },
+          { id: 6, tag_name: "v1.1.0", draft: false, body: "", html_url: "https://x/6" },
+        ],
+      },
+    });
+    expect(await releases.get("v1.2.0")).toEqual({ id: 7, body: "Draft text", url: "https://x/7" });
+    expect(await releases.get("v1.1.0")).toBeNull();
+    expect(asked).toEqual([
+      "GET /repos/acme/widgets/releases/tags/v1.2.0",
+      "GET /repos/acme/widgets/releases",
+      "GET /repos/acme/widgets/releases/tags/v1.1.0",
+      "GET /repos/acme/widgets/releases",
+    ]);
+  });
+
+  it("uses a published release without listing", async () => {
+    const { releases, asked } = api({
+      "GET /repos/acme/widgets/releases/tags/v1.2.0": {
+        status: 200,
+        body: { id: 8, tag_name: "v1.2.0", draft: false, body: "Hi", html_url: "https://x/8" },
+      },
+    });
+    expect(await releases.get("v1.2.0")).toEqual({ id: 8, body: "Hi", url: "https://x/8" });
+    expect(asked).toEqual(["GET /repos/acme/widgets/releases/tags/v1.2.0"]);
   });
 });

@@ -134,6 +134,18 @@ describe("errors", () => {
   it("requires version 1", () => {
     expect(problems({})[0]).toMatch(/^version: /);
   });
+
+  it("accepts a GitHub App bot's noreply address as the CHANGELOG author", () => {
+    const author = (email: string) => ({
+      version: 1,
+      outputs: { changelog: { author: { name: "my-app[bot]", email } } },
+    });
+    expect(problems(author("41898282+github-actions[bot]@users.noreply.github.com"))).toEqual([]);
+    expect(problems(author("not an email"))).toEqual([
+      "outputs.changelog.author.email: Invalid email address",
+    ]);
+    expect(problems(author("a<b>@example.com"))).toHaveLength(1);
+  });
 });
 
 describe("tone", () => {

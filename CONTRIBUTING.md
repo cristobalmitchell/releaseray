@@ -26,6 +26,12 @@ The CI checks you will see on a pull request:
 
 Tests never set environment variables globally. If a test needs a token-shaped string, build it at runtime instead of writing it out literally, so secret scanners stay quiet.
 
+## End-to-end tests
+
+`pnpm test:e2e` runs the committed bundle, `dist/action.js`, the way the runner runs it: one process per step, with inputs, an event payload and output files. It talks only to local stand-ins: a fake GitHub REST server, a bare git repository as `origin` (with a pre-receive hook for branch protection), and an OpenAI-compatible stub for the README quickstart. It needs no credentials and takes a few seconds. Rebuild with `pnpm build` first when you change `src/`. [test/e2e/spec.ts](test/e2e/spec.ts) maps each acceptance criterion to its test file.
+
+The `E2E` workflow runs that suite on every pull request and push to `main`, plus a live, read-only job: `mode: doctor` and `mode: preview` against this repository with the job's own `GITHUB_TOKEN`, through a proxy that refuses writes (`pnpm test:e2e:live`).
+
 ## Branches and commits
 
 - Work on a short-lived branch named `{type}/{issue-number}-{short-description}`, for example `fix/42-changelog-ordering`, and open a pull request into `main`.

@@ -287,9 +287,10 @@ export async function prepareRun(
     ...eligibleSinks(persona, c, deps.repo, persisted),
   }));
   const releaseEligible = routed.some((r) => r.sinks.githubRelease);
+  // Lookup by tag, the draft fallback when there is no published release, and the write.
   const releaseRequests =
     options.releaseRequests ??
-    (releaseEligible ? 1 : 0) + (releaseEligible && request.publish ? 1 : 0);
+    (releaseEligible ? 2 : 0) + (releaseEligible && request.publish ? 1 : 0);
 
   // 3. Fetch once.
   let fetched: FetchResult | null = null;
@@ -616,7 +617,9 @@ export async function run(
     };
     if (!active.includes(r)) return { ...base, status: "skipped" };
 
-    const hasPersisted = Object.keys(plans).length > 0;
+    // A skipped target (no release and createIfMissing off) holds no text to
+    // reuse and takes none, so the persona is planned like an unpersisted one.
+    const hasPersisted = Object.values(plans).some((p) => p && p.action !== "skip");
     const stored = findStoredText(targets, {
       key: range.key,
       persona: r.persona.id,
