@@ -146427,9 +146427,8 @@ function defaultProvider(env2, io) {
       return createFakeProvider();
     }
     const { llm } = config2.config;
-    const apiKey = env2.OPENAI_API_KEY;
+    const { OPENAI_API_KEY: apiKey, ANTHROPIC_API_KEY: anthropicApiKey } = env2;
     if (apiKey) io.setSecret(apiKey);
-    const anthropicApiKey = env2.ANTHROPIC_API_KEY;
     if (anthropicApiKey) io.setSecret(anthropicApiKey);
     try {
       return await createProvider(

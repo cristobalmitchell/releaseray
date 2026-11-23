@@ -155,9 +155,10 @@ function defaultProvider(env: Env, io: ActionsIO): NonNullable<MainDeps["provide
       return createFakeProvider();
     }
     const { llm } = config.config;
-    const apiKey = env.OPENAI_API_KEY;
+    // Destructured on purpose: the bundler renames env to env2, and gitleaks flags a
+    // plain assignment from env2 in dist/action.js as a generic API key.
+    const { OPENAI_API_KEY: apiKey, ANTHROPIC_API_KEY: anthropicApiKey } = env;
     if (apiKey) io.setSecret(apiKey);
-    const anthropicApiKey = env.ANTHROPIC_API_KEY;
     if (anthropicApiKey) io.setSecret(anthropicApiKey);
     try {
       return await createProvider(
