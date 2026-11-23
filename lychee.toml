@@ -1,6 +1,6 @@
 # Link checker settings for .github/workflows/links.yml.
 
-include_fragments = true
+include_fragments = "anchor-only" # lychee 0.24+ takes a mode, not a boolean
 max_retries = 3
 retry_wait_time = 5
 timeout = 20
