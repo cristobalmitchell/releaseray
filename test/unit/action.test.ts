@@ -102,6 +102,7 @@ describe("action.yml", () => {
     expect(Object.keys(meta.outputs).sort()).toEqual(
       [
         "changelog-changed",
+        "exit-code",
         "from",
         "github-requests",
         "key",
@@ -316,7 +317,12 @@ describe("main", () => {
     expect(log.errors).toEqual([]);
     expect(code).toBe(0);
     expect(llm.calls()).toBe(2);
-    expect(log.outputs).toMatchObject({ key: "v1.2.0", from: "v1.1.0", "llm-calls": "2" });
+    expect(log.outputs).toMatchObject({
+      key: "v1.2.0",
+      from: "v1.1.0",
+      "llm-calls": "2",
+      "exit-code": "0",
+    });
     expect(log.summary).toContain("## Engineer");
   });
 
@@ -335,6 +341,7 @@ describe("main", () => {
     expect(await main(deps(io, env("pull_request_target")))).toBe(2);
     expect(log.errors[0]).toBe("pull_request_target is not supported");
     expect(log.summary).toContain("# ReleaseRay failed");
+    expect(log.outputs).toEqual({ "exit-code": "2" });
   });
 
   it("exits 2 on a depth-1 checkout and names fetch-depth: 0", async () => {

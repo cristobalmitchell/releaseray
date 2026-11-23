@@ -91,6 +91,8 @@ outputs:
     description: LLM calls made
   llm-cost-usd:
     description: "Estimated LLM cost, or n/a when pricing is unknown"
+  exit-code:
+    description: "The exit code: 0, or 2 to 7 as documented; set even when the step fails"
 runs:
   using: node24
   main: dist/action.js

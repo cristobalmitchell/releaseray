@@ -172,7 +172,7 @@ Every example grants nothing at workflow level, pins third-party actions to a fu
 | `personas-file`                | `.releaseray/personas.yml`       | For `migrate-personas`                                                                      |
 | `all-tags`, `notify`           |                                  | Reserved for `adopt`, `sync-changelog` and notifications in v1.1                            |
 
-**Outputs:** `key`, `from`, `to`, `notes-dir`, `notes-digest`, `release-url`, `release-changed`, `changelog-changed`, `github-requests`, `llm-calls`, `llm-cost-usd` (`n/a` when the model's price is unknown).
+**Outputs:** `key`, `from`, `to`, `notes-dir`, `notes-digest`, `release-url`, `release-changed`, `changelog-changed`, `github-requests`, `llm-calls`, `llm-cost-usd` (`n/a` when the model's price is unknown), `exit-code` (set even when the step fails, for a later step to branch on).
 
 **Secrets** are environment variables, never inputs: `OPENAI_API_KEY`, or the AWS credentials for Bedrock (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, for example from `aws-actions/configure-aws-credentials`).
 

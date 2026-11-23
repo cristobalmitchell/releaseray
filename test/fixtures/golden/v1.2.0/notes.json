@@ -100,7 +100,7 @@
       "GET /repos/{owner}/{repo}/issues/{issue_number}": 1
     },
     "retries": 0,
-    "estimate": 9
+    "estimate": 10
   },
   "warnings": [
     "Low content volume (348 chars). Descriptions may be generic."

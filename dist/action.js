@@ -107306,7 +107306,12 @@ var OutputsSchema = external_exports.strictObject({
     /** Default: the checked-out branch. */
     branch: external_exports.string().min(1).optional(),
     commitMessage: external_exports.string().min(1).default("docs(changelog): {{key}}"),
-    author: external_exports.strictObject({ name: external_exports.string().min(1), email: external_exports.email() }).optional()
+    author: external_exports.strictObject({
+      name: external_exports.string().min(1),
+      // Not z.email(): a GitHub App's noreply address has brackets,
+      // as in 41898282+github-actions[bot]@users.noreply.github.com.
+      email: external_exports.string().regex(/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/, "Invalid email address")
+    }).optional()
   }).prefault({}),
   /** Slack, Teams and Intercom, from v1.1. */
   notify: external_exports.array(NotifySchema).max(10).default([]),
@@ -114045,7 +114050,7 @@ async function prepareRun(request2, config2, deps, options = {}) {
     ...eligibleSinks(persona, c5, deps.repo, persisted)
   }));
   const releaseEligible = routed.some((r5) => r5.sinks.githubRelease);
-  const releaseRequests = options.releaseRequests ?? (releaseEligible ? 1 : 0) + (releaseEligible && request2.publish ? 1 : 0);
+  const releaseRequests = options.releaseRequests ?? (releaseEligible ? 2 : 0) + (releaseEligible && request2.publish ? 1 : 0);
   let fetched = null;
   if (range2.prNumbers.length > 0) {
     fetched = await fetchContent(deps.github, range2.prNumbers, {
@@ -114329,7 +114334,7 @@ async function run(request2, config2, deps) {
       ...Object.keys(plans).length > 0 ? { plans } : {}
     };
     if (!active.includes(r5)) return { ...base, status: "skipped" };
-    const hasPersisted = Object.keys(plans).length > 0;
+    const hasPersisted = Object.values(plans).some((p3) => p3 && p3.action !== "skip");
     const stored = findStoredText(targets, {
       key: range2.key,
       persona: r5.persona.id,
@@ -114600,12 +114605,14 @@ function createReleaseApi(octokit, repo) {
   return {
     async get(tag) {
       try {
-        const { data } = await octokit.rest.repos.getReleaseByTag({ ...repo, tag });
-        return toTarget(data);
+        const { data: data2 } = await octokit.rest.repos.getReleaseByTag({ ...repo, tag });
+        return toTarget(data2);
       } catch (error64) {
-        if (isHttpError(error64) && error64.status === 404) return null;
-        throw error64;
+        if (!(isHttpError(error64) && error64.status === 404)) throw error64;
       }
+      const { data } = await octokit.rest.repos.listReleases({ ...repo, per_page: 100 });
+      const draft = data.find((r5) => r5.draft && r5.tag_name === tag);
+      return draft ? toTarget(draft) : null;
     },
     async updateBody(id, body2) {
       const { data } = await octokit.rest.repos.updateRelease({ ...repo, release_id: id, body: body2 });
@@ -115042,22 +115049,22 @@ function runOutputs(run2, notesDir, workspace) {
   return outputs;
 }
 async function generate(request2, config2, deps) {
-  const out = await run(request2, config2, deps);
+  const ran = await run(request2, config2, deps);
   let published = {
     releaseChanged: false,
-    releaseUrl: out.release?.url ?? null,
+    releaseUrl: ran.release?.url ?? null,
     changelogChanged: false
   };
   const publishWarnings = [];
   if (request2.publish && deps.persisted) {
-    const personas = out.personas.filter((p3) => p3.plans && p3.text !== void 0).map((p3) => ({ id: p3.id, gen: p3.gen, text: p3.text, plans: p3.plans }));
+    const personas = ran.personas.filter((p3) => p3.plans && p3.text !== void 0).map((p3) => ({ id: p3.id, gen: p3.gen, text: p3.text, plans: p3.plans }));
     const outcome = await applyPersisted(
       personas,
       {
-        key: out.key,
-        date: out.date,
-        release: out.release,
-        touchesWorkflows: out.touchesWorkflows
+        key: ran.key,
+        date: ran.date,
+        release: ran.release,
+        touchesWorkflows: ran.touchesWorkflows
       },
       {
         githubRelease: config2.config.outputs.githubRelease,
@@ -115068,6 +115075,7 @@ async function generate(request2, config2, deps) {
     published = outcome;
     publishWarnings.push(...outcome.warnings);
   }
+  const out = { ...ran, github: deps.github.usage() };
   const files = config2.config.outputs.files;
   const mode = result();
   let notesDir = null;
@@ -115790,6 +115798,11 @@ function loadTemplates(workspace) {
   return { templates, overridden };
 }
 async function main(deps) {
+  const code = await runOnce(deps);
+  deps.io.setOutput("exit-code", String(code));
+  return code;
+}
+async function runOnce(deps) {
   const { io, env: env2 } = deps;
   const now = deps.now ?? (() => /* @__PURE__ */ new Date());
   const sleep4 = deps.sleep ?? ((ms) => new Promise((r5) => setTimeout(r5, ms)));
