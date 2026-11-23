@@ -108,18 +108,18 @@ describe("renamed edits", () => {
 });
 
 describe("test/carried/manifest.json", () => {
-  it("lists 485 tests: 419 carry or edit, 46 of them edit, and 66 retire", async () => {
+  it("lists 550 tests: 484 carry or edit, 46 of them edit, and 66 retire", async () => {
     const { readFileSync } = await import("node:fs");
     const { join } = await import("node:path");
     const real = JSON.parse(
       readFileSync(join(__dirname, "..", "carried", "manifest.json"), "utf8")
     ) as CarriedManifest;
     const count = (status: string) => real.tests.filter((t) => t.status === status).length;
-    expect(real.tests).toHaveLength(485);
-    expect(count("carry") + count("edit")).toBe(419);
+    expect(real.tests).toHaveLength(550);
+    expect(count("carry") + count("edit")).toBe(484);
     expect(count("edit")).toBe(46);
     expect(count("retire")).toBe(66);
-    expect(Object.keys(real.files)).toHaveLength(12);
+    expect(Object.keys(real.files)).toHaveLength(15);
     expect(real.tests.every((t) => t.sourceFile in real.files)).toBe(true);
   });
 });

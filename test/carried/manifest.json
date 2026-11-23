@@ -13,7 +13,10 @@
     "packages/shared/src/github-releases.test.ts": "test/carried/outputs/github-release-api.test.ts",
     "apps/app/src/lib/persona-utils.test.ts": "test/carried/prompt/tone.test.ts",
     "apps/app/src/lib/publishers/changelog.test.ts": "test/carried/outputs/changelog.test.ts",
-    "apps/app/src/lib/publishers/__tests__/sanitize.test.ts": "test/carried/sanitize/publish.test.ts"
+    "apps/app/src/lib/publishers/__tests__/sanitize.test.ts": "test/carried/sanitize/publish.test.ts",
+    "apps/app/src/lib/publishers/__tests__/slack.test.ts": "test/carried/notify/slack.test.ts",
+    "apps/app/src/lib/publishers/__tests__/intercom.test.ts": "test/carried/notify/intercom.test.ts",
+    "apps/app/src/server/publish/__tests__/teams.test.ts": "test/carried/notify/teams.test.ts"
   },
   "tests": [
     {
@@ -2950,6 +2953,396 @@
     {
       "sourceFile": "apps/app/src/lib/publishers/__tests__/sanitize.test.ts",
       "fullName": "sanitizeForPublishing > real-world release notes > should sanitize a typical engineer release note",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should format basic release message with header",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should include repo name and persona in section",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should include divider block",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should truncate long content summary to 300 characters",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should not add ellipsis for short content",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should add GitHub button when URL provided",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should add changelog button when URL provided",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should add hosted button when URL provided",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should add all buttons when all URLs provided",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should not add actions block when no URLs provided",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should handle empty content gracefully",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should handle content with only whitespace",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should extract first three lines for summary",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should handle different personas",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should handle special characters in content",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > formatForSlack > should handle unicode and emoji in content",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > sendToSlack > should successfully send message to valid webhook",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > sendToSlack > should handle 404 error (invalid webhook URL)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > sendToSlack > should handle 500 server error",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > sendToSlack > should handle network errors",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > sendToSlack > should send JSON content type header",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > publishToSlack > should successfully publish release to Slack",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > publishToSlack > should handle webhook failure",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > publishToSlack > should format message before sending",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > publishToSlack > should work with minimal parameters",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/slack.test.ts",
+      "fullName": "Slack Publisher > publishToSlack > should work with all URLs",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Create New Article > should successfully create a new article",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Create New Article > should return article URL from API response",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Create New Article > should convert markdown to HTML before sending",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Create New Article > should include optional description when provided",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Create New Article > should include author ID when provided",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Create New Article > should default to draft state when not specified",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Update Existing Article > should update existing article when title matches",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Update Existing Article > should create new article when title does not match existing",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Error Handling > should handle 401 unauthorized (invalid API key)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Error Handling > should handle 403 forbidden (insufficient permissions)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Error Handling > should handle 404 not found (collection not found)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Error Handling > should handle 500 server error",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Error Handling > should gracefully handle article search failure",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Error Handling > should return error message for unknown errors",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Markdown Conversion > should convert headers to HTML",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Markdown Conversion > should convert lists to HTML",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Markdown Conversion > should convert code blocks to HTML",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Markdown Conversion > should convert inline formatting to HTML",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Markdown Conversion > should convert links to HTML",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Markdown Conversion > should handle tables (GFM)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Markdown Conversion > should handle unicode and emoji",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Markdown Conversion > should handle empty body",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Markdown Conversion > should handle body with only whitespace",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Edge Cases > should handle very long body content",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Edge Cases > should handle special characters in title",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Edge Cases > should handle version with v prefix",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Edge Cases > should handle version without v prefix",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/lib/publishers/__tests__/intercom.test.ts",
+      "fullName": "Intercom Publisher > Edge Cases > should handle repo full name with org",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Success Cases > should successfully publish to valid webhook URL",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Success Cases > should create Adaptive Card payload",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Success Cases > should handle missing optional fields",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Success Cases > should truncate long content",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Error Handling > should handle 404 (invalid webhook URL)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Error Handling > should handle 500 (Teams service error)",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Error Handling > should handle missing webhook URL",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Error Handling > should validate webhook URL format",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Edge Cases > should handle empty body",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Edge Cases > should handle markdown with special characters",
+      "status": "carry",
+      "reason": ""
+    },
+    {
+      "sourceFile": "apps/app/src/server/publish/__tests__/teams.test.ts",
+      "fullName": "Teams Publisher > Edge Cases > should handle unicode and emoji",
       "status": "carry",
       "reason": ""
     }
