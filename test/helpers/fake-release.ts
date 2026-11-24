@@ -37,7 +37,7 @@ export function fakeReleases(initial: Array<Partial<FakeRelease> & { tag: string
     async get(tag) {
       reads++;
       const r = releases.get(tag);
-      return r ? { id: r.id, body: r.body, url: r.url } : null;
+      return r ? { id: r.id, body: r.body, url: r.url, draft: r.draft } : null;
     },
     async updateBody(id, body) {
       const r = [...releases.values()].find((x) => x.id === id)!;

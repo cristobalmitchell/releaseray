@@ -14,12 +14,14 @@ import { createFakeProvider } from "../core/llm/providers/fake";
 import { findUnknownPlaceholders, PERSONA_TEMPLATE_PLACEHOLDERS } from "../core/prompt/build";
 import { templatesWithOverrides } from "../core/prompt/templates";
 import { createGit } from "../core/range/git";
+import { adopt } from "../modes/adopt";
 import { doctor } from "../modes/doctor";
 import { generate } from "../modes/generate";
 import { publish } from "../modes/publish";
 import { migratePersonas } from "../modes/migrate-personas";
 import { preview } from "../modes/preview";
 import type { ModeResult } from "../modes/types";
+import { syncChangelog } from "../modes/sync-changelog";
 import { validateConfig } from "../modes/validate-config";
 import { planEvent, readContext, type Env, type RunContext } from "./context";
 import { readInputs, type Inputs } from "./inputs";
@@ -315,6 +317,30 @@ async function runOnce(deps: MainDeps): Promise<number> {
             }
           );
         }
+        break;
+      }
+      case "adopt":
+      case "sync-changelog": {
+        const config = loadConfig({
+          workspace: ctx.workspace,
+          path: configPath,
+          overrides: configOverrides(inputs),
+        });
+        for (const w of config.warnings) io.warning(w);
+        const made = clients(github(inputs.githubToken, ctx, config));
+        const request = { workspace: ctx.workspace, to: inputs.to, allTags: inputs.allTags };
+        const deps = {
+          git: createGit(ctx.workspace),
+          release: made.release,
+          persisted: persistedDeps(io, env, ctx, inputs.githubToken, made.release),
+          now: () => now().getTime(),
+          sleep,
+          requests: () => made.reader.usage().total,
+        };
+        mode =
+          event.mode === "adopt"
+            ? await adopt(request, config, deps)
+            : await syncChangelog(request, config, deps);
         break;
       }
       case "publish": {

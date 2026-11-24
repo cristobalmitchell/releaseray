@@ -27,6 +27,7 @@
     "check:prompts": "tsx scripts/generate-prompts.ts --check",
     "build": "tsx scripts/build.ts",
     "test:injection": "vitest run test/injection",
+    "test:migration": "vitest run test/migration",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test:e2e:live": "tsx test/e2e/live.ts",
     "pin-examples": "tsx scripts/pin-examples.ts"

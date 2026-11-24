@@ -16,6 +16,12 @@
 /** Marker format version. */
 export const MARKER_VERSION = 1;
 
+/**
+ * The `gen` that `mode: adopt` writes. It matches any generation digest, so
+ * the next run leaves an adopted block alone until `force` (CONVERSION-PLAN §9.2).
+ */
+export const ADOPTED_GEN = "adopted";
+
 export interface MarkerFields {
   /** Release key: the tag, or a date window's explicit key */
   key: string;
@@ -38,8 +44,18 @@ export interface MarkedBlock {
 
 const VALUE = /^[^\s<>]+$/;
 
+/**
+ * Whether a value can appear in a marker comment without breaking it.
+ *
+ * @param value - A key, persona or digest
+ * @returns False for an empty value or one with spaces, `<`, `>` or `--`
+ */
+export function isMarkerValue(value: string): boolean {
+  return VALUE.test(value) && !value.includes("--");
+}
+
 function checkValue(name: string, value: string): void {
-  if (!VALUE.test(value) || value.includes("--")) {
+  if (!isMarkerValue(value)) {
     throw new Error(`Marker ${name} must be non-empty, without spaces, <, > or "--": ${value}`);
   }
 }

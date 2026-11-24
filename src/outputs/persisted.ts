@@ -162,3 +162,56 @@ export async function applyPersisted(
   }
   return outcome;
 }
+
+/**
+ * The key a multi-release CHANGELOG commit names in its subject and
+ * `ReleaseRay-Key` trailer.
+ *
+ * @param keys - Release keys, newest first
+ * @returns The keys, or a count and the newest and oldest beyond five
+ */
+export function changelogCommitKey(keys: readonly string[]): string {
+  if (keys.length <= 5) return keys.join(", ");
+  return `${keys.length} releases, ${keys[0]} to ${keys[keys.length - 1]}`;
+}
+
+/**
+ * Applies one edit to the workspace CHANGELOG and, with `push`, to the
+ * branch head through the push loop, as a single commit. Used by `adopt`
+ * and `sync-changelog`, which edit many entries at once.
+ *
+ * @param edit - Returns the new text for a given text; re-applied to the branch head on each push attempt
+ * @param keys - Release keys the edit covers, for the commit subject and trailer
+ * @param settings - `outputs.changelog`
+ * @param deps - Workspace and push credentials
+ * @returns Whether the workspace file changed and whether a commit was pushed
+ * @throws ReleaseRayError (exit 6) when the push is rejected
+ */
+export function applyChangelogEdit(
+  edit: (text: string) => string,
+  keys: readonly string[],
+  settings: PersistedSettings["changelog"],
+  deps: PersistedDeps
+): { changed: boolean; pushed: boolean } {
+  const file = resolve(deps.workspace, settings.path);
+  const current = existsSync(file) ? readFileSync(file, "utf8") : "";
+  const next = edit(current);
+  const changed = next !== current;
+  if (changed) {
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, next);
+  }
+  if (!settings.push || !deps.push || keys.length === 0) return { changed, pushed: false };
+  const key = changelogCommitKey(keys);
+  const pushed = pushChangelog({
+    ...deps.push,
+    workspace: deps.workspace,
+    branch: settings.branch ?? deps.push.branch,
+    path: settings.path,
+    message: settings.commitMessage.replace(/\{\{\s*key\s*\}\}/g, key),
+    key,
+    author: settings.author ?? GITHUB_ACTIONS_BOT,
+    apply: edit,
+  });
+  return { changed: changed || pushed.pushed, pushed: pushed.pushed };
+}

@@ -507,7 +507,12 @@ describe("release lookup", () => {
         ],
       },
     });
-    expect(await releases.get("v1.2.0")).toEqual({ id: 7, body: "Draft text", url: "https://x/7" });
+    expect(await releases.get("v1.2.0")).toEqual({
+      id: 7,
+      body: "Draft text",
+      url: "https://x/7",
+      draft: true,
+    });
     expect(await releases.get("v1.1.0")).toBeNull();
     expect(asked).toEqual([
       "GET /repos/acme/widgets/releases/tags/v1.2.0",
@@ -524,7 +529,12 @@ describe("release lookup", () => {
         body: { id: 8, tag_name: "v1.2.0", draft: false, body: "Hi", html_url: "https://x/8" },
       },
     });
-    expect(await releases.get("v1.2.0")).toEqual({ id: 8, body: "Hi", url: "https://x/8" });
+    expect(await releases.get("v1.2.0")).toEqual({
+      id: 8,
+      body: "Hi",
+      url: "https://x/8",
+      draft: false,
+    });
     expect(asked).toEqual(["GET /repos/acme/widgets/releases/tags/v1.2.0"]);
   });
 });
