@@ -45,6 +45,10 @@ outputs:
   summary: { personas: all } # internal personas are still withheld on public repositories
   githubRelease: { persona: engineer, mode: section, onHumanEdit: skip }
   changelog: { enabled: true, persona: engineer, push: true }
+  # Posted once, when the release changes. Pass the secret to the step:
+  #   env: { RELEASERAY_SLACK_WEBHOOK_URL: ${{ secrets.RELEASERAY_SLACK_WEBHOOK_URL }} }
+  notify:
+    - { type: slack, persona: sales, webhookUrlEnv: RELEASERAY_SLACK_WEBHOOK_URL }
 
 llm:
   provider: openai

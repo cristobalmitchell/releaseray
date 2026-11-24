@@ -187,13 +187,18 @@ export function findStoredText(
  * Whether a persona routed only to the summary, files or notifications is
  * generated in this run (CONVERSION-PLAN §9.3).
  *
- * @param state - Whether any persisted sink is enabled, whether the primary target changes, and `force`
+ * @param state - Whether any persisted sink is enabled, whether the primary
+ *   target changes, `force`, and whether one of its notifications posts on
+ *   every publishing run (`when: always`)
  * @returns True when it should be generated
  */
 export function generatesUnpersisted(state: {
   persistedEnabled: boolean;
   primaryChanged: boolean;
   force: boolean;
+  notifyAlways?: boolean;
 }): boolean {
-  return !state.persistedEnabled || state.primaryChanged || state.force;
+  return (
+    !state.persistedEnabled || state.primaryChanged || state.force || Boolean(state.notifyAlways)
+  );
 }

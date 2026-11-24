@@ -402,13 +402,110 @@ describe("cross-field rules", () => {
     ).toEqual(["llm.baseUrl: applies only to llm.provider openai"]);
   });
 
-  it("notifications wait for v1.1", () => {
+  it("notify entries name an enabled persona and an environment variable, with defaults", () => {
+    const notify = [
+      { type: "slack", persona: "engineer", webhookUrlEnv: "SLACK_URL" },
+      { type: "teams", persona: "internal", webhookUrlEnv: "TEAMS_URL", when: "always" },
+      { type: "intercom", persona: "customer", apiKeyEnv: "INTERCOM_TOKEN", collectionId: "42" },
+    ];
+    expect(problems({ ...base, outputs: { notify } })).toEqual([]);
+    expect(parseConfig({ ...base, outputs: { notify } }).outputs.notify).toEqual([
+      { type: "slack", persona: "engineer", webhookUrlEnv: "SLACK_URL", when: "primary-changed" },
+      { type: "teams", persona: "internal", webhookUrlEnv: "TEAMS_URL", when: "always" },
+      {
+        type: "intercom",
+        persona: "customer",
+        apiKeyEnv: "INTERCOM_TOKEN",
+        collectionId: "42",
+        state: "draft",
+        titleTemplate: "Release {{key}}",
+        when: "primary-changed",
+      },
+    ]);
     expect(
       problems({
         ...base,
-        outputs: { notify: [{ type: "slack", persona: "engineer", webhookUrlEnv: "SLACK_URL" }] },
+        personas: [{ slug: "customer", enabled: false }],
+        outputs: {
+          notify: [
+            { type: "slack", persona: "sales", webhookUrlEnv: "SLACK_URL" },
+            { type: "slack", persona: "customer", webhookUrlEnv: "SLACK_URL" },
+          ],
+        },
       })
-    ).toEqual(["outputs.notify: notifications arrive in v1.1"]);
+    ).toEqual([
+      'outputs.notify[0].persona: unknown persona "sales"',
+      'outputs.notify[1].persona: persona "customer" is disabled',
+    ]);
+  });
+
+  it("notify entries cannot name a variable that holds another credential", () => {
+    for (const name of [
+      "GITHUB_TOKEN",
+      "GH_TOKEN",
+      "INPUT_TOKEN",
+      "OPENAI_API_KEY",
+      "ANTHROPIC_API_KEY",
+      "AWS_SECRET_ACCESS_KEY",
+      "ACTIONS_RUNTIME_TOKEN",
+      "RUNNER_TEMP",
+    ]) {
+      expect(
+        problems({
+          ...base,
+          outputs: {
+            notify: [
+              { type: "intercom", persona: "customer", apiKeyEnv: name, collectionId: "42" },
+            ],
+          },
+        })
+      ).toEqual([
+        "outputs.notify[0].apiKeyEnv: names a variable that holds another credential or runner state; use a dedicated secret",
+      ]);
+    }
+    expect(
+      problems({
+        ...base,
+        outputs: {
+          notify: [{ type: "slack", persona: "engineer", webhookUrlEnv: "GITHUB_TOKEN" }],
+        },
+      })
+    ).toHaveLength(1);
+  });
+
+  it("notify entries reject credentials, lowercase variable names and unknown placeholders", () => {
+    const url = ["https://hooks.slack.com", "services", "T0", "B0", "x"].join("/");
+    const inline = problems({
+      ...base,
+      outputs: { notify: [{ type: "slack", persona: "engineer", webhookUrl: url }] },
+    });
+    expect(inline).toContain(
+      "outputs.notify[0].webhookUrl: credentials do not belong in the config; name an environment variable (for example webhookUrlEnv or apiKeyEnv)"
+    );
+    expect(
+      problems({
+        ...base,
+        outputs: { notify: [{ type: "teams", persona: "engineer", webhookUrlEnv: "teams_url" }] },
+      })
+    ).toEqual(["outputs.notify[0].webhookUrlEnv: must be an environment variable name"]);
+    expect(
+      problems({
+        ...base,
+        outputs: {
+          notify: [
+            {
+              type: "intercom",
+              persona: "customer",
+              apiKeyEnv: "INTERCOM_TOKEN",
+              collectionId: "42",
+              titleTemplate: "{{tag}} for {{ key }}",
+            },
+          ],
+        },
+      })
+    ).toEqual([
+      "outputs.notify[0].titleTemplate: unknown placeholder {{tag}}; only {{key}} is replaced",
+    ]);
   });
 
   it("credentials and secret-shaped values are rejected anywhere", () => {

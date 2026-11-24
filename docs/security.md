@@ -6,6 +6,7 @@ ReleaseRay runs in your workflow, on your runner, with your token and your model
 
 - **Sent to your LLM provider:** pull request and linked-issue titles and bodies (sanitized and truncated to `enrichment.maxBodyChars`), labels, author logins, commit subjects for commit-only ranges, and, only when `enrichment.comments` is on, comments from owners, members and collaborators.
 - **Sent to GitHub:** REST reads for those items, `GET /rate_limit`, the release lookup and write, and the CHANGELOG push.
+- **Sent to the notification services you configure, and only those:** one persona's published (already filtered) notes, the release key, the repository name and the release link. Slack webhook URLs must be `https` on `hooks.slack.com` or `hooks.slack-gov.com`, Teams URLs on `*.webhook.office.com` or `*.office365.com`, and Intercom calls go only to `api.intercom.io`; any other host is refused before a request is made.
 - **Sent nowhere else.** No telemetry, no analytics, no service run by the maintainer.
 - **Not sent to the model:** code diffs, file contents, secrets in the configuration (there are none: credentials are environment variables).
 
@@ -33,7 +34,7 @@ Separating data from instructions reduces injection; it does not eliminate it. A
 - **Inputs, not interpolation.** Every example passes values to the Action as inputs and to scripts through `env:`; none puts `${{ }}` inside a `run:` script.
 - **Least privilege.** Workflows grant nothing at the top level; each job asks for what it needs ([docs/tokens.md](tokens.md)).
 - **The hardened split.** On public repositories that merge outside contributions, use [`release-notes-hardened.yml`](../examples/workflows/release-notes-hardened.yml): the job holding the LLM key has a read-only token, and the job that writes never sees the key. `mode: publish` refuses a `notes.json` whose sha256 differs from the generate job's `notes-digest`.
-- **Credentials.** The token is masked in logs. The CHANGELOG push authenticates with an explicit header built from `github-token` and registered as a secret; it clears any header `actions/checkout` persisted, and git subprocesses do not receive the LLM or cloud credentials.
+- **Credentials.** The token is masked in logs, and so is each notification webhook URL and token: the Action reads only the variables that `outputs.notify` names, and never prints, logs or summarizes their values. The CHANGELOG push authenticates with an explicit header built from `github-token` and registered as a secret; it clears any header `actions/checkout` persisted, and git subprocesses do not receive the LLM or cloud credentials.
 
 ## Internal persona visibility
 
@@ -44,6 +45,7 @@ The built-in `internal` persona asks for customer-success talking points, compet
 | Job summary                                                        | Internal personas withheld, with a notice, unless `outputs.allowInternalOnPublicRepo: true` | Included           |
 | Workspace files and `notes.json` (and any artifact made from them) | Withheld unless `allowInternalOnPublicRepo: true`                                           | Included           |
 | GitHub Release, CHANGELOG                                          | Only with `outputs.allowInternalOutputs: true` (a config error otherwise)                   | Same               |
+| Slack, Teams, Intercom                                             | Allowed in a single-job run; never through the hardened split's artifact                    | Allowed            |
 
 Repository visibility comes from the event payload; when it is missing, the repository is treated as public. A persona with no eligible output is not generated, which also saves the model call.
 

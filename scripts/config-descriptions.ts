@@ -148,7 +148,20 @@ export const DESCRIPTIONS: Record<string, string> = {
   "outputs.changelog.commitMessage": "Commit subject; `{{key}}` is the release key.",
   "outputs.changelog.author.name": "Commit author name. Default: github-actions[bot].",
   "outputs.changelog.author.email": "Commit author email.",
-  "outputs.notify": "Slack, Teams and Intercom. Arrives in v1.1; rejected until then.",
+  "outputs.notify":
+    "Slack, Teams and Intercom, posted after the GitHub Release and CHANGELOG when `publish` is true. Each entry posts when the primary target (the GitHub Release, else the CHANGELOG) changed in this run, so a re-run that changes nothing sends nothing.",
+  "outputs.notify[].type": "`slack`, `teams` or `intercom`.",
+  "outputs.notify[].persona": "The persona whose notes are sent.",
+  "outputs.notify[].webhookUrlEnv":
+    "Slack and Teams: the environment variable holding the incoming webhook URL. Slack URLs must be on `hooks.slack.com` or `hooks.slack-gov.com`; Teams URLs on `*.webhook.office.com` or `*.office365.com`. The variable cannot be one that holds another credential or runner state: `GITHUB_*`, `GH_*`, `INPUT_*`, `ACTIONS_*`, `RUNNER_*`, `AWS_*`, `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`.",
+  "outputs.notify[].when":
+    "`primary-changed` posts only when the primary target changed in this run; `always` posts on every publishing run. The `notify` input overrides it for one run.",
+  "outputs.notify[].apiKeyEnv":
+    "Intercom: the environment variable holding the access token, under the same naming rule as `webhookUrlEnv`.",
+  "outputs.notify[].collectionId": "Intercom: the Help Center collection new articles go into.",
+  "outputs.notify[].state": "Intercom: the state of a created or updated article.",
+  "outputs.notify[].titleTemplate":
+    "Intercom: the article title; `{{key}}` is the release key. The article is found again by this title, so one renamed by hand is created anew.",
   "outputs.allowInternalOutputs": "Allow an internal persona on the GitHub Release or CHANGELOG.",
   "outputs.allowInternalOnPublicRepo":
     "Show internal personas in the summary and files of a public repository.",

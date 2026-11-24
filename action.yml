@@ -66,7 +66,7 @@ inputs:
     description: "For mode: migrate-personas, the hosted persona YAML to convert"
     default: .releaseray/personas.yml
   notify:
-    description: "primary-changed | always (blank: config; v1.1)"
+    description: "primary-changed | always: when outputs.notify entries post in this run (blank: each entry's when)"
     default: ""
 outputs:
   key:

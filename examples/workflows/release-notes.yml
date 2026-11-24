@@ -26,6 +26,11 @@ on:
         description: Regenerate even if nothing changed
         type: boolean
         default: false
+      notify:
+        description: "Notifications in outputs.notify: always resends them"
+        type: choice
+        options: [primary-changed, always]
+        default: primary-changed
 
 permissions: {} # nothing at workflow level; the job asks for what it needs
 
@@ -54,5 +59,8 @@ jobs:
           personas: ${{ inputs.personas }}
           publish: ${{ github.event_name == 'release' || inputs.publish }}
           force: ${{ inputs.force || false }}
+          notify: ${{ inputs.notify }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # For outputs.notify, one line per variable the config names:
+          # RELEASERAY_SLACK_WEBHOOK_URL: ${{ secrets.RELEASERAY_SLACK_WEBHOOK_URL }}

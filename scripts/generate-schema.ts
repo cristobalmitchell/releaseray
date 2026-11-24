@@ -66,7 +66,34 @@ export function schemaPaths(node: Node, path = ""): Leaf[] {
   if (node.type === "array" && node.items?.type === "object" && node.items.properties) {
     return [{ path, node }, ...schemaPaths({ ...node.items }, `${path}[]`)];
   }
+  if (node.type === "array" && node.items?.oneOf) {
+    return [{ path, node }, ...variantPaths(node.items.oneOf, `${path}[]`)];
+  }
   return [{ path, node }];
+}
+
+/**
+ * The fields of a discriminated union, such as `outputs.notify[]`, each once
+ * in first-seen order. A field that is a constant in every variant (the
+ * discriminator) is shown as the list of its values.
+ *
+ * @param variants - The union's object variants
+ * @param path - The union's path
+ * @returns Paths with their nodes
+ */
+function variantPaths(variants: Node[], path: string): Leaf[] {
+  const fields = new Map<string, Node[]>();
+  for (const variant of variants) {
+    for (const [key, child] of Object.entries(variant.properties ?? {})) {
+      fields.set(key, [...(fields.get(key) ?? []), child]);
+    }
+  }
+  return [...fields].map(([key, nodes]) => ({
+    path: `${path}.${key}`,
+    node: nodes.every((n) => n.const !== undefined)
+      ? { type: "string", enum: nodes.map((n) => n.const) }
+      : nodes[0],
+  }));
 }
 
 function describe(node: Node, path = ""): void {
@@ -79,6 +106,11 @@ function describe(node: Node, path = ""): void {
   }
   if (node.type === "array" && node.items?.properties) {
     for (const [key, child] of Object.entries(node.items.properties)) {
+      describe(child, `${path}[].${key}`);
+    }
+  }
+  for (const variant of node.type === "array" ? (node.items?.oneOf ?? []) : []) {
+    for (const [key, child] of Object.entries(variant.properties ?? {})) {
       describe(child, `${path}[].${key}`);
     }
   }

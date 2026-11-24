@@ -6,9 +6,17 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ResolvedConfig } from "../config/resolve";
+import { EXIT_CODES } from "../core/errors";
 import { run, type RunDeps, type RunRequest, type RunResult } from "../core/run";
 import { sha256 } from "../core/state/digest";
 import { keyDir, writeNotesFiles } from "../outputs/files";
+import { generateCompareUrl } from "../outputs/github-release/api";
+import {
+  applyNotify,
+  assertNotifyCredentials,
+  notifyReport,
+  type NotifySecrets,
+} from "../outputs/notify/sink";
 import { applyPersisted, type PersistedDeps, type PersistedPersona } from "../outputs/persisted";
 import { renderSummary } from "../outputs/summary";
 import { result, type ModeResult } from "./types";
@@ -58,15 +66,19 @@ export function runOutputs(
  *
  * @param request - Range, personas, flags and workspace
  * @param config - Resolved configuration
- * @param deps - Pipeline dependencies
+ * @param deps - Pipeline dependencies; `notifySecrets` holds notify credentials by variable name
  * @returns Summary, outputs and files; the run result for the publish layer
- * @throws ReleaseRayError from any pipeline stage
+ * @throws ReleaseRayError from any pipeline stage, or exit 2 before any work
+ *   when a publishing run's notify credential is missing
  */
 export async function generate(
   request: GenerateRequest,
   config: ResolvedConfig,
-  deps: RunDeps & { persisted?: PersistedDeps }
+  deps: RunDeps & { persisted?: PersistedDeps; notifySecrets?: NotifySecrets }
 ): Promise<ModeResult & { run: RunResult }> {
+  const notify = config.config.outputs.notify;
+  const secrets = deps.notifySecrets ?? {};
+  if (request.publish) assertNotifyCredentials(notify, request.personas ?? null, secrets);
   const ran = await run(request, config, deps);
   let published = {
     releaseChanged: false,
@@ -115,5 +127,35 @@ export async function generate(
     "changelog-changed": String(published.changelogChanged),
   };
   mode.warnings = [...out.warnings, ...publishWarnings];
+
+  // Notifications go last, after the GitHub targets (§6.4 step 11).
+  if (request.publish && notify.length > 0) {
+    const { owner, repo, serverUrl } = deps.repo;
+    const primaryChanged =
+      ran.primary === "githubRelease"
+        ? published.releaseChanged
+        : ran.primary === "changelog"
+          ? published.changelogChanged
+          : false;
+    const outcome = await applyNotify(
+      notify,
+      ran.personas.map((p) => ({ id: p.id, text: p.text })),
+      {
+        key: ran.key,
+        repoFullName: `${owner}/${repo}`,
+        primaryChanged,
+        override: request.notify ?? null,
+        ...(published.releaseUrl ? { releaseUrl: published.releaseUrl } : {}),
+        ...(ran.range.from
+          ? { compareUrl: generateCompareUrl(serverUrl, owner, repo, ran.range.from, ran.range.to) }
+          : {}),
+      },
+      secrets
+    );
+    const reported = notifyReport(outcome);
+    if (mode.summary) mode.summary += reported.summary;
+    mode.errors.push(...reported.errors);
+    if (reported.errors.length > 0) mode.exitCode = EXIT_CODES.partial;
+  }
   return { ...mode, run: out };
 }

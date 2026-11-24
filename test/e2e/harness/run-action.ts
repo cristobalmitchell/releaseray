@@ -7,7 +7,7 @@
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { tempDir } from "./git-fixture";
 import { parseAnnotations, parseOutputFile, type Annotations } from "./workflow-commands";
 
@@ -122,5 +122,38 @@ export async function runAction(step: ActionStep): Promise<ActionRun> {
     stdout,
     stderr,
     ...parseAnnotations(stdout),
+  };
+}
+
+/** A request the notify recorder answered. */
+export interface RecordedNotification {
+  method: string;
+  url: string;
+  body: string;
+}
+
+/**
+ * Records the bundle's Slack, Teams and Intercom requests without changing
+ * the bundle: `harness/notify-recorder.mjs` is preloaded with `--import` and
+ * answers those hosts itself. Pass `env` into a step's `env`.
+ *
+ * @returns The variables to set, and a reader for the requests so far
+ */
+export function notifyRecorder(): {
+  env: Record<string, string>;
+  requests: () => RecordedNotification[];
+} {
+  const log = join(tempDir("notify"), "requests.jsonl");
+  writeFileSync(log, "");
+  const preload = pathToFileURL(
+    join(dirname(fileURLToPath(import.meta.url)), "notify-recorder.mjs")
+  );
+  return {
+    env: { NODE_OPTIONS: `--import=${preload.href}`, RELEASERAY_E2E_NOTIFY_LOG: log },
+    requests: () =>
+      readFileSync(log, "utf8")
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line) as RecordedNotification),
   };
 }

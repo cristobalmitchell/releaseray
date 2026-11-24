@@ -1,8 +1,8 @@
 /**
  * `mode: publish`, the write job of the hardened split (CONVERSION-PLAN
  * §8.3): refuses a `notes.json` whose sha256 differs from `expected-digest`,
- * re-reads and re-plans the targets, and writes from the stored text. It
- * makes no LLM call and needs no git history.
+ * re-reads and re-plans the targets, writes from the stored text, then sends
+ * the notifications. It makes no LLM call and needs no git history.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -10,6 +10,13 @@ import type { ResolvedConfig } from "../config/resolve";
 import { EXIT_CODES, ReleaseRayError } from "../core/errors";
 import { sha256 } from "../core/state/digest";
 import { planSink, type PlanTarget } from "../core/state/planner";
+import { generateCompareUrl } from "../outputs/github-release/api";
+import {
+  applyNotify,
+  assertNotifyCredentials,
+  notifyReport,
+  type NotifySecrets,
+} from "../outputs/notify/sink";
 import { applyPersisted, type PersistedDeps, type PersistedPersona } from "../outputs/persisted";
 import { result, type ModeResult } from "./types";
 
@@ -19,11 +26,26 @@ export interface PublishRequest {
   /** Directory holding notes.json, relative to the workspace. */
   notesDir: string;
   expectedDigest: string;
+  /** The `notify` input: replaces every notify entry's `when` for this run. */
+  notify?: "primary-changed" | "always" | null;
+}
+
+/** What the notify sink needs in `publish`. */
+export interface PublishNotifyDeps {
+  repo: { owner: string; repo: string; serverUrl: string };
+  /** Credential values by environment variable name. */
+  secrets: NotifySecrets;
 }
 
 interface NotesJson {
   key: string;
-  range: { kind: string; date: string; touchesWorkflows: boolean };
+  range: {
+    kind: string;
+    from?: string | null;
+    to?: string;
+    date: string;
+    touchesWorkflows: boolean;
+  };
   personas: Array<{ id: string; gen: string; text: string | null }>;
 }
 
@@ -33,13 +55,16 @@ interface NotesJson {
  * @param request - Workspace, notes directory and expected digest
  * @param config - Resolved configuration from the checkout
  * @param deps - Release API, workspace and push credentials
+ * @param notifyDeps - Repository and notify credentials; without them no notification is sent
  * @returns Outputs for the release and CHANGELOG
- * @throws ReleaseRayError (exit 2) on a missing or mismatched notes.json, before any write
+ * @throws ReleaseRayError (exit 2) on a missing or mismatched notes.json, or a
+ *   missing notify credential, before any write
  */
 export async function publish(
   request: PublishRequest,
   config: ResolvedConfig,
-  deps: PersistedDeps
+  deps: PersistedDeps,
+  notifyDeps?: PublishNotifyDeps
 ): Promise<ModeResult> {
   if (!request.notesDir || !request.expectedDigest) {
     throw new ReleaseRayError(
@@ -67,6 +92,8 @@ export async function publish(
   }
   const notes = JSON.parse(raw) as NotesJson;
   const c = config.config;
+  const notify = notifyDeps ? c.outputs.notify : [];
+  assertNotifyCredentials(notify, null, notifyDeps?.secrets ?? {});
   const isTag = notes.range.kind === "tag";
 
   const release =
@@ -124,7 +151,7 @@ export async function publish(
     else entry.plans.changelog = plan;
   }
 
-  const outcome = await applyPersisted(
+  const written = await applyPersisted(
     personas,
     {
       key: notes.key,
@@ -135,22 +162,60 @@ export async function publish(
     { githubRelease: c.outputs.githubRelease, changelog: c.outputs.changelog },
     deps
   );
-  mode.warnings.push(...outcome.warnings);
+  mode.warnings.push(...written.warnings);
   mode.outputs = {
     key: notes.key,
     "notes-digest": digest,
-    "release-url": outcome.releaseUrl ?? "",
-    "release-changed": String(outcome.releaseChanged),
-    "changelog-changed": String(outcome.changelogChanged),
+    "release-url": written.releaseUrl ?? "",
+    "release-changed": String(written.releaseChanged),
+    "changelog-changed": String(written.changelogChanged),
     "llm-calls": "0",
     "llm-cost-usd": "0.0000",
   };
   mode.summary = [
     `# ReleaseRay publish: ${notes.key}`,
     "",
-    `- GitHub Release: ${outcome.releaseChanged ? `written (${outcome.releaseUrl})` : "unchanged"}`,
-    `- CHANGELOG: ${outcome.changelogChanged ? (outcome.pushed ? "written and pushed" : "written") : "unchanged"}`,
+    `- GitHub Release: ${written.releaseChanged ? `written (${written.releaseUrl})` : "unchanged"}`,
+    `- CHANGELOG: ${written.changelogChanged ? (written.pushed ? "written and pushed" : "written") : "unchanged"}`,
     "",
   ].join("\n");
+
+  if (notifyDeps && notify.length > 0) {
+    const { owner, repo, serverUrl } = notifyDeps.repo;
+    // The release target is listed first when there is one: it is the primary.
+    const primary = targets[0]?.sink ?? null;
+    const notified = await applyNotify(
+      notify,
+      notes.personas.map((p) => ({ id: p.id, text: p.text })),
+      {
+        key: notes.key,
+        repoFullName: `${owner}/${repo}`,
+        primaryChanged:
+          primary === "github-release"
+            ? written.releaseChanged
+            : primary === "changelog"
+              ? written.changelogChanged
+              : false,
+        override: request.notify ?? null,
+        ...(written.releaseUrl ? { releaseUrl: written.releaseUrl } : {}),
+        ...(notes.range.from && notes.range.to
+          ? {
+              compareUrl: generateCompareUrl(
+                serverUrl,
+                owner,
+                repo,
+                notes.range.from,
+                notes.range.to
+              ),
+            }
+          : {}),
+      },
+      notifyDeps.secrets
+    );
+    const reported = notifyReport(notified);
+    mode.summary += reported.summary;
+    mode.errors.push(...reported.errors);
+    if (reported.errors.length > 0) mode.exitCode = EXIT_CODES.partial;
+  }
   return mode;
 }
