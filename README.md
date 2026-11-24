@@ -40,7 +40,7 @@ A single release usually has several readers: engineers who need the API changes
 - **Your model, your key.** OpenAI (or any OpenAI-compatible endpoint), Anthropic, or AWS Bedrock. Nothing goes anywhere else, and there is no telemetry.
 - **Safe to publish.** Repository text reaches the model only as escaped data. Output is checked against what was fetched: invented references, off-allowlist links, live mentions, HTML and images are removed.
 - **Idempotent.** Marked blocks in the GitHub Release and `CHANGELOG.md` record what was generated. A re-run with nothing changed makes no LLM call and no write; a block someone edited by hand is left alone.
-- **Outputs.** Job summary, workspace files with `notes.json`, the GitHub Release, and `CHANGELOG.md` with an optional push.
+- **Outputs.** Job summary, workspace files with `notes.json`, the GitHub Release, and `CHANGELOG.md` with an optional push. Slack, Microsoft Teams and Intercom notifications go out once, when the release changes.
 
 ## Quickstart
 
@@ -141,40 +141,58 @@ Every example grants nothing at workflow level, pins third-party actions to a fu
 
 ## Modes, inputs and outputs
 
-| `mode`               | What it does                                                                                                        | LLM                                | Writes                                |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------- |
-| `generate` (default) | Range, fetch, generate per persona, then publish when `publish` is true                                             | Yes, unless stored text is current | Release and CHANGELOG when publishing |
-| `publish`            | Write job of the hardened split: writes from a `notes.json` whose digest matches                                    | No                                 | Release and CHANGELOG                 |
-| `preview`            | Range, PR count, approximate classification and budget estimate; with `preview-prompts`, the exact prompts as files | Never                              | Nothing                               |
-| `doctor`             | Checks configuration, checkout, tags, token, credentials and visibility                                             | Never                              | Nothing                               |
-| `validate-config`    | The run's config checks, with no secrets                                                                            | Never                              | Nothing                               |
-| `migrate-personas`   | Converts the hosted App's persona YAML into a config file in the workspace                                          | Never                              | Nothing on GitHub                     |
+| `mode`               | What it does                                                                                                        | LLM                                | Writes                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------------------------------- |
+| `generate` (default) | Range, fetch, generate per persona, then publish when `publish` is true                                             | Yes, unless stored text is current | Release, CHANGELOG and notifications when publishing |
+| `publish`            | Write job of the hardened split: writes from a `notes.json` whose digest matches                                    | No                                 | Release, CHANGELOG and notifications                 |
+| `preview`            | Range, PR count, approximate classification and budget estimate; with `preview-prompts`, the exact prompts as files | Never                              | Nothing                                              |
+| `doctor`             | Checks configuration, checkout, tags, token, credentials and visibility                                             | Never                              | Nothing                                              |
+| `validate-config`    | The run's config checks, with no secrets                                                                            | Never                              | Nothing                                              |
+| `migrate-personas`   | Converts the hosted App's persona YAML into a config file in the workspace                                          | Never                              | Nothing on GitHub                                    |
 
 **Inputs.** Blank values fall back to the defaults shown.
 
-| Input                          | Default                          | Meaning                                                                                     |
-| ------------------------------ | -------------------------------- | ------------------------------------------------------------------------------------------- |
-| `mode`                         | `generate`                       | See above                                                                                   |
-| `github-token`                 | `github.token`                   | `GITHUB_TOKEN`, a fine-grained PAT, or a GitHub App token; also used for the CHANGELOG push |
-| `config`                       | `.releaseray/config.yml`         | Config path (for `migrate-personas`, where to write)                                        |
-| `to`                           | the event's tag                  | End tag, or `HEAD` for unreleased changes                                                   |
-| `from`                         | highest-SemVer ancestor tag      | Start tag                                                                                   |
-| `since`, `until`, `key`        |                                  | Date window instead of tags; `key` names it                                                 |
-| `personas`                     | all enabled                      | Comma-separated slugs                                                                       |
-| `publish`                      | true on `release` and tag pushes | Write the GitHub targets                                                                    |
-| `create-release`               | `false`                          | Create the release when none exists                                                         |
-| `push`                         | `outputs.changelog.push`         | Push the CHANGELOG entry                                                                    |
-| `notes-dir`, `expected-digest` |                                  | For `publish`: the artifact path and the generate job's `notes-digest`                      |
-| `allow-non-ancestor`           | `false`                          | Allow an explicit `from` on another line of history                                         |
-| `force`                        | `false`                          | Regenerate even when stored text is current                                                 |
-| `allow-sparse`                 | `false`                          | Generate even when the input is thin                                                        |
-| `preview-prompts`              | `false`                          | For `preview`: fetch and write the exact prompts                                            |
-| `personas-file`                | `.releaseray/personas.yml`       | For `migrate-personas`                                                                      |
-| `all-tags`, `notify`           |                                  | Reserved for `adopt`, `sync-changelog` and notifications in v1.1                            |
+| Input                          | Default                          | Meaning                                                                                             |
+| ------------------------------ | -------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `mode`                         | `generate`                       | See above                                                                                           |
+| `github-token`                 | `github.token`                   | `GITHUB_TOKEN`, a fine-grained PAT, or a GitHub App token; also used for the CHANGELOG push         |
+| `config`                       | `.releaseray/config.yml`         | Config path (for `migrate-personas`, where to write)                                                |
+| `to`                           | the event's tag                  | End tag, or `HEAD` for unreleased changes                                                           |
+| `from`                         | highest-SemVer ancestor tag      | Start tag                                                                                           |
+| `since`, `until`, `key`        |                                  | Date window instead of tags; `key` names it                                                         |
+| `personas`                     | all enabled                      | Comma-separated slugs                                                                               |
+| `publish`                      | true on `release` and tag pushes | Write the GitHub targets                                                                            |
+| `create-release`               | `false`                          | Create the release when none exists                                                                 |
+| `push`                         | `outputs.changelog.push`         | Push the CHANGELOG entry                                                                            |
+| `notes-dir`, `expected-digest` |                                  | For `publish`: the artifact path and the generate job's `notes-digest`                              |
+| `allow-non-ancestor`           | `false`                          | Allow an explicit `from` on another line of history                                                 |
+| `force`                        | `false`                          | Regenerate even when stored text is current                                                         |
+| `allow-sparse`                 | `false`                          | Generate even when the input is thin                                                                |
+| `preview-prompts`              | `false`                          | For `preview`: fetch and write the exact prompts                                                    |
+| `personas-file`                | `.releaseray/personas.yml`       | For `migrate-personas`                                                                              |
+| `notify`                       | each entry's `when`              | `always` resends every `outputs.notify` entry in this run; `primary-changed` sends only on a change |
+| `all-tags`                     |                                  | Reserved for `adopt` and `sync-changelog` in v1.1                                                   |
 
 **Outputs:** `key`, `from`, `to`, `notes-dir`, `notes-digest`, `release-url`, `release-changed`, `changelog-changed`, `github-requests`, `llm-calls`, `llm-cost-usd` (`n/a` when the model's price is unknown), `exit-code` (set even when the step fails, for a later step to branch on).
 
-**Secrets** are environment variables, never inputs: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` (with `llm.provider: anthropic`), or the AWS credentials for Bedrock (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, for example from `aws-actions/configure-aws-credentials`).
+**Secrets** are environment variables, never inputs: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` (with `llm.provider: anthropic`), or the AWS credentials for Bedrock (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, for example from `aws-actions/configure-aws-credentials`). Notification webhook URLs and tokens use the variable names each `outputs.notify` entry gives in `webhookUrlEnv` or `apiKeyEnv`.
+
+**Notifications.** Each `outputs.notify` entry posts one persona's notes to a Slack or Teams incoming webhook, or creates or updates an Intercom Help Center article (a draft by default), after the GitHub Release and CHANGELOG are written. It posts only when the primary target (the release, else the CHANGELOG) changed in this run, so re-runs send nothing; dispatch with `notify: always` to resend. A run that would publish fails before writing anything when a named variable is not set.
+
+```yaml
+outputs:
+  notify:
+    - { type: slack, persona: engineer, webhookUrlEnv: RELEASERAY_SLACK_WEBHOOK_URL }
+    - { type: intercom, persona: customer, apiKeyEnv: INTERCOM_TOKEN, collectionId: "1234567" }
+```
+
+```yaml
+- uses: cristobalmitchell/releaseray@v1
+  env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    RELEASERAY_SLACK_WEBHOOK_URL: ${{ secrets.RELEASERAY_SLACK_WEBHOOK_URL }}
+    INTERCOM_TOKEN: ${{ secrets.INTERCOM_TOKEN }}
+```
 
 ## Troubleshooting
 
@@ -187,7 +205,7 @@ Start with the `doctor` mode from the tools workflow; its summary is what an iss
 | 4         | GitHub data could not be fetched completely                               | Check the token's permissions; re-run after a rate-limit reset                                        |
 | 5         | The model's output was invalid after retries, or the input was too thin   | Re-run, try another model, or set `allow-sparse`                                                      |
 | 6         | The CHANGELOG push was rejected                                           | Use the App-token recipe or the CHANGELOG pull request recipe                                         |
-| 7         | One output was written and another failed                                 | Re-run: written outputs are no-ops                                                                    |
+| 7         | One output was written and another failed, or a notification failed       | Re-run: written outputs are no-ops. A notification is not resent then; dispatch with `notify: always` |
 
 **No notes for a release.**
 
@@ -216,6 +234,7 @@ flowchart TD
   F --> P["Plan release and CHANGELOG: reuse stored text, generate, or skip"]
   P --> G["Classify once; per persona: prompt, LLM, validate, render"]
   G --> O["Summary, files, GitHub Release, CHANGELOG and push"]
+  O --> N["Slack, Teams, Intercom when the release changed"]
 ```
 
 ```text
@@ -235,7 +254,7 @@ src/
 │   ├── state/           # markers, digests, per-output planner
 │   ├── sanitize/        # input, publish and redaction sanitizers
 │   └── run.ts           # the pipeline
-└── outputs/             # files, summary, GitHub Release, CHANGELOG, push loop
+└── outputs/             # files, summary, GitHub Release, CHANGELOG, push loop, notify sinks
 schema/                  # JSON Schema for the config, generated
 examples/                # workflows, recipes, a complete config
 docs/                    # configuration, security, tokens, migration
@@ -259,6 +278,7 @@ Node.js 24 and pnpm 10 (pinned in `package.json`).
 pnpm install
 pnpm lint && pnpm typecheck && pnpm test
 pnpm test:injection   # the prompt-injection suite alone
+pnpm test:notify      # the Slack, Teams and Intercom sinks alone
 pnpm build            # dist/action.js and dist/licenses.txt
 pnpm schema           # schema/releaseray.schema.json and docs/configuration.md
 pnpm prompts          # src/core/prompt/bundled.ts from prompts/*.md
@@ -266,7 +286,7 @@ pnpm prompts          # src/core/prompt/bundled.ts from prompts/*.md
 
 CI runs lint, typecheck, the full test suite, gitleaks, actionlint, and guards that fail when the lockfile gains a hosted-product SDK, the core reaches the runner, a carried test goes missing, or `dist/`, the schema, the configuration reference or the bundled prompts are stale. Setting `RELEASERAY_LLM_FAKE=true` swaps in a deterministic fake model, for tests and the end-to-end harness only.
 
-The suite has close to 800 tests. 419 came over from the hosted product with the code they cover (46 of them edited where behavior changed on purpose), recorded in `test/carried/manifest.json` and checked by `pnpm check:carried`. Golden tests compare persona files and `notes.json` byte for byte; range tests build real repositories with diverging release lines; the push loop is tested against a local bare remote.
+The suite has more than 900 tests. 484 came over from the hosted product with the code they cover (46 of them edited where behavior changed on purpose), recorded in `test/carried/manifest.json` and checked by `pnpm check:carried`. Golden tests compare persona files and `notes.json` byte for byte; range tests build real repositories with diverging release lines; the push loop is tested against a local bare remote.
 
 Branches are `{type}/{issue}-{description}`, commits follow [Conventional Commits](https://www.conventionalcommits.org) with the issue number, and merges to `main` are squashed. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -280,7 +300,8 @@ Branches are `{type}/{issue}-{description}`, commits follow [Conventional Commit
 | Anthropic provider                                                                  | ✅ Built and tested |
 | End-to-end tests on sandbox repositories, `v1.0.0-beta.1`                           | 🚧 Next             |
 | `v1.0.0` and the Marketplace listing                                                | 🚧 After the beta   |
-| `v1.1.0`: Slack, Teams and Intercom, `adopt` and `sync-changelog`                   | Planned             |
+| Slack, Teams and Intercom notifications                                             | ✅ Built and tested |
+| `v1.1.0`: `adopt` and `sync-changelog`                                              | Planned             |
 
 ## Coming from the hosted ReleaseRay App
 

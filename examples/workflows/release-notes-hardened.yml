@@ -61,3 +61,6 @@ jobs:
           mode: publish
           notes-dir: releaseray-notes
           expected-digest: ${{ needs.generate.outputs.notes-digest }}
+        # Notifications (outputs.notify) are sent from this job, after the writes:
+        # env:
+        #   RELEASERAY_SLACK_WEBHOOK_URL: ${{ secrets.RELEASERAY_SLACK_WEBHOOK_URL }}
