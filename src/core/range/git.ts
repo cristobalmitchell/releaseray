@@ -122,6 +122,25 @@ export function mergedTags(git: Git, to: string): Array<{ name: string; sha: str
   });
 }
 
+/**
+ * Every tag in the repository with the commit it points at.
+ *
+ * @param git - Runner
+ * @returns Tag names and commit SHAs, in ref order
+ */
+export function listTags(git: Git): Array<{ name: string; sha: string }> {
+  const out = git.run([
+    "for-each-ref",
+    "--format=%(refname:strip=2)%00%(*objectname)%00%(objectname)",
+    "refs/tags",
+  ]);
+  if (!out) return [];
+  return out.split("\n").map((line) => {
+    const [name, peeled, object] = line.split("\0");
+    return { name, sha: peeled || object };
+  });
+}
+
 const FIELD = "\x1f";
 const RECORD = "\x1e";
 

@@ -12,12 +12,14 @@ import {
   isAncestor,
   isShallow,
   isTag,
+  listTags,
   logCommits,
   mergedTags,
   resolveCommit,
   type Commit,
   type Git,
 } from "./git";
+import { isMarkerValue } from "../state/marker";
 import { extractPRNumbers } from "./pr-numbers";
 
 /** What the run was asked to cover. */
@@ -318,4 +320,64 @@ export function assertSinksAllowed(
       "Set outputs.githubRelease.enabled: false for date-window runs",
     ]);
   }
+}
+
+/** Which tags `adopt` and `sync-changelog` act on. */
+export interface TagSelection {
+  /** One tag, from the `to` input. */
+  to: string;
+  /** Every tag matching `range.tagPattern` instead. */
+  allTags: boolean;
+}
+
+/**
+ * The tags a migration mode acts on: the `to` tag, or with `all-tags` every
+ * tag matching the pattern, newest SemVer first and tags without a version
+ * last, by name.
+ *
+ * @param git - Runner
+ * @param selection - `to` or `allTags`
+ * @param tagPattern - `range.tagPattern`
+ * @returns Tag names
+ * @throws ReleaseRayError (exit 2) when neither or both are given, the tag is unknown, or no tag matches
+ */
+export function selectTags(git: Git, selection: TagSelection, tagPattern: string): string[] {
+  const to = selection.to.trim();
+  if (selection.allTags && to) {
+    throw invalid("Pass either to or all-tags, not both", [
+      "Leave to blank with all-tags: true, or set all-tags: false to act on one tag",
+    ]);
+  }
+  if (!selection.allTags) {
+    if (!to || to === "HEAD") {
+      throw invalid("No tag to act on", [
+        "Set the to input to a tag, or all-tags: true for every tag matching range.tagPattern",
+      ]);
+    }
+    if (!isTag(git, to)) throw invalid(`Unknown tag: ${to}`, ["Check the name and fetch-depth: 0"]);
+    if (!isMarkerValue(to)) {
+      throw invalid(`${to} cannot be a release key`, [
+        'Tags with "--", "<" or ">" are not supported',
+      ]);
+    }
+    return [to];
+  }
+  const pattern = globToRegExp(tagPattern);
+  // A tag that cannot be a marker value (it holds "--", "<" or ">") cannot be a release key.
+  const names = listTags(git)
+    .map((t) => t.name)
+    .filter((name) => pattern.test(name) && isMarkerValue(name));
+  if (names.length === 0) {
+    throw invalid(`No tag matches range.tagPattern (${tagPattern})`, [
+      "Check range.tagPattern and fetch-depth: 0",
+    ]);
+  }
+  return names.sort((a, b) => {
+    const va = parseSemver(a);
+    const vb = parseSemver(b);
+    if (va && vb) return compareSemver(vb, va) || (a < b ? -1 : a > b ? 1 : 0);
+    if (va) return -1;
+    if (vb) return 1;
+    return a < b ? -1 : a > b ? 1 : 0;
+  });
 }

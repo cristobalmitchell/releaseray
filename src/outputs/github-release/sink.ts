@@ -7,7 +7,7 @@ import type { Octokit } from "@octokit/rest";
 import { EXIT_CODES, ReleaseRayError } from "../../core/errors";
 import { isHttpError } from "../../core/fetch/policy";
 import { outputDigest } from "../../core/state/digest";
-import { findMarkedBlocks, writeMarkedBlock } from "../../core/state/marker";
+import { ADOPTED_GEN, findMarkedBlocks, writeMarkedBlock } from "../../core/state/marker";
 import type { SinkPlan } from "../../core/state/planner";
 import { isSemverPrerelease, renderReleaseName } from "./api";
 
@@ -16,6 +16,8 @@ export interface ReleaseTarget {
   id: number;
   body: string;
   url: string;
+  /** True for an unpublished draft; absent when unknown. */
+  draft?: boolean;
 }
 
 /** Release reads and writes; tests replace it with a fake. */
@@ -46,10 +48,12 @@ export function createReleaseApi(
     id: number;
     body?: string | null;
     html_url: string;
+    draft?: boolean;
   }): ReleaseTarget => ({
     id: data.id,
     body: data.body ?? "",
     url: data.html_url,
+    draft: data.draft === true,
   });
   return {
     async get(tag) {
@@ -121,9 +125,17 @@ export function nextReleaseBody(
   return body.trim() ? `${body.replace(/\s+$/, "")}\n\n${block}` : block;
 }
 
-function writeError(
+/**
+ * Maps a failed release write to an actionable error.
+ *
+ * @param error - The API error
+ * @param write - The release key and whether its commit changes workflow files
+ * @param action - Whether the write created or updated the release
+ * @returns An error with exit 3 that names the missing permission or token rule
+ */
+export function releaseWriteError(
   error: unknown,
-  write: ReleaseWrite,
+  write: Pick<ReleaseWrite, "key" | "touchesWorkflows">,
   action: "create" | "update"
 ): ReleaseRayError {
   const status = isHttpError(error) ? error.status : 0;
@@ -189,7 +201,7 @@ export async function applyReleasePlan(
       });
       return { changed: true, url: created.url, target: created, warnings };
     } catch (error) {
-      throw writeError(error, write, "create");
+      throw releaseWriteError(error, write, "create");
     }
   }
   const body = nextReleaseBody(write.current.body, block, write);
@@ -200,6 +212,42 @@ export async function applyReleasePlan(
     const updated = await api.updateBody(write.current.id, body);
     return { changed: true, url: updated.url, target: updated, warnings };
   } catch (error) {
-    throw writeError(error, write, "update");
+    throw releaseWriteError(error, write, "update");
   }
+}
+
+/** What {@link adoptReleaseBody} found. */
+export type AdoptReleaseResult =
+  /** Write `body`: the old text wrapped in a block with `gen=adopted`. */
+  | { action: "adopt"; body: string }
+  /** A block for this key and persona exists; nothing to do. */
+  | { action: "marked" }
+  /** No text to adopt. */
+  | { action: "empty" }
+  /** Markers for another key or persona, or a broken marker: wrapping would nest them. */
+  | { action: "foreign-markers" };
+
+/**
+ * Plans `mode: adopt` for one release body (CONVERSION-PLAN §9.5, PD-9): an
+ * unmarked body is wrapped whole in a block for the release persona, with
+ * `gen=adopted` and the `out` of the text as written, so the next run is a
+ * no-op instead of appending a second copy.
+ *
+ * @param body - The release body
+ * @param key - Release key (the tag)
+ * @param persona - `outputs.githubRelease.persona`
+ * @returns The new body to write, or why there is nothing to write
+ */
+export function adoptReleaseBody(body: string, key: string, persona: string): AdoptReleaseResult {
+  const text = body.replace(/\r\n/g, "\n");
+  if (findMarkedBlocks(text).some((b) => b.fields.key === key && b.fields.persona === persona)) {
+    return { action: "marked" };
+  }
+  if (/<!-- releaseray:(?:begin|end) /.test(text)) return { action: "foreign-markers" };
+  const inner = text.replace(/^(?:[ \t]*\n)+/, "").replace(/\s+$/, "");
+  if (!inner) return { action: "empty" };
+  return {
+    action: "adopt",
+    body: writeMarkedBlock({ key, persona, gen: ADOPTED_GEN, out: outputDigest(inner) }, inner),
+  };
 }

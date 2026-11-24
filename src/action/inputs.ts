@@ -16,6 +16,8 @@ export const MODES = [
   "doctor",
   "validate-config",
   "migrate-personas",
+  "adopt",
+  "sync-changelog",
 ] as const;
 
 export type Mode = (typeof MODES)[number];
@@ -114,9 +116,6 @@ export function readInputs(io: Pick<ActionsIO, "getInput">): Inputs {
   const triState = (name: InputName): boolean | null => parseBoolean(name, io.getInput(name));
 
   const mode = raw("mode");
-  if (mode === "adopt" || mode === "sync-changelog") {
-    throw invalidInput("mode", `${mode} arrives in v1.1`);
-  }
   if (!(MODES as readonly string[]).includes(mode)) {
     throw invalidInput("mode", `expected one of ${MODES.join(", ")}, got "${mode}"`);
   }
