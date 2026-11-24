@@ -65,11 +65,13 @@ describe("example workflows and recipes", () => {
         for (const [, job] of jobs) expect(job.permissions, "job permissions").toBeDefined();
       });
 
-      it("runs on ubuntu-latest with a timeout of at most 20 minutes", () => {
-        for (const [, job] of jobs) {
+      it("runs on ubuntu-latest with a timeout of at most 20 minutes (60 for paced adopt)", () => {
+        for (const [name, job] of jobs) {
           expect(job["runs-on"]).toBe("ubuntu-latest");
           expect(job["timeout-minutes"]).toBeGreaterThan(0);
-          expect(job["timeout-minutes"]).toBeLessThanOrEqual(20);
+          // adopt paces up to 400 release writes 7.2 seconds apart (CONVERSION-PLAN §5.7).
+          const paced = file.endsWith("releaseray-tools.yml") && name === "migrate";
+          expect(job["timeout-minutes"], name).toBeLessThanOrEqual(paced ? 60 : 20);
         }
       });
 
