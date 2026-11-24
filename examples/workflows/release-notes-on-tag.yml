@@ -26,7 +26,7 @@ jobs:
           ref: ${{ github.event.repository.default_branch }} # CHANGELOG.md lives here
           fetch-depth: 0 # tags resolve from local refs, whatever is checked out
           persist-credentials: false # the push authenticates with github-token itself
-      - uses: cristobalmitchell/releaseray@v1 # pin to the full commit SHA of the release you use
+      - uses: cristobalmitchell/releaseray@71e9da4f08b347c4031b1cc5d1a17f8d67dea36e # v1.1.0
         with:
           to: ${{ github.ref_name }}
           create-release: "true"
