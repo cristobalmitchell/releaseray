@@ -13,9 +13,6 @@
 
 ---
 
-> [!IMPORTANT]
-> **Not released yet.** The Action, its modes and its outputs are built and tested, but there is no `v1.0.0` tag, so `uses: cristobalmitchell/releaseray@v1` does not resolve yet. The quickstart below is what you will run once `v1.0.0` is published; end-to-end tests on sandbox repositories come first ([project status](#project-status)).
-
 ## Table of contents
 
 - [What it does](#what-it-does)
@@ -82,7 +79,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: cristobalmitchell/releaseray@v1 # pin to the v1.0.0 commit SHA
+      - uses: cristobalmitchell/releaseray@71e9da4f08b347c4031b1cc5d1a17f8d67dea36e # v1.1.0
         with:
           to: ${{ github.event.release.tag_name || inputs.to }}
           publish: ${{ github.event_name == 'release' || inputs.publish }}
@@ -189,7 +186,7 @@ outputs:
 ```
 
 ```yaml
-- uses: cristobalmitchell/releaseray@v1
+- uses: cristobalmitchell/releaseray@71e9da4f08b347c4031b1cc5d1a17f8d67dea36e # v1.1.0
   env:
     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     RELEASERAY_SLACK_WEBHOOK_URL: ${{ secrets.RELEASERAY_SLACK_WEBHOOK_URL }}
@@ -301,12 +298,11 @@ Branches are `{type}/{issue}-{description}`, commits follow [Conventional Commit
 | `action.yml`, all eight modes, GitHub Release, CHANGELOG and push loop, bundle      | ✅ Built and tested |
 | Example workflows and recipes, provider contract tests, prompt-injection suite      | ✅ Built and tested |
 | Anthropic provider                                                                  | ✅ Built and tested |
-| Hermetic end-to-end tests, `v1.0.0-beta.1`                                          | ✅ Released         |
-| `v1.0.0`                                                                            | 🚧 Next             |
-| Marketplace listing                                                                 | Optional, later     |
+| Hermetic end-to-end tests                                                           | ✅ Built and tested |
 | Slack, Teams and Intercom notifications                                             | ✅ Built and tested |
 | `adopt` and `sync-changelog`                                                        | ✅ Built and tested |
-| `v1.1.0`                                                                            | Planned             |
+| `v1.0.0` and `v1.1.0`                                                               | ✅ Released         |
+| Marketplace listing                                                                 | Optional, later     |
 
 ## Coming from the hosted ReleaseRay App
 

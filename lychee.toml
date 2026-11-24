@@ -8,9 +8,6 @@ accept = ["200..=299", "429"]
 exclude_path = ["node_modules", "dist"]
 
 exclude = [
-  # Resolves only after v1.0.0 is published and the v1 tag exists (#50).
-  # Remove this entry in the v1.0.0 release PR.
-  '^https://raw\.githubusercontent\.com/cristobalmitchell/releaseray/v1/',
   # Opening a security advisory needs a signed-in session.
   '^https://github\.com/cristobalmitchell/releaseray/security/advisories/new$',
 ]
