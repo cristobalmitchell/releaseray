@@ -92,8 +92,12 @@ export class HttpResponse extends Response {
   }
 }
 
-/** Listeners for each intercepted request, before it is resolved. */
-type RequestListener = (event: { request: Request }) => void;
+/**
+ * Listeners for each intercepted request, before it is resolved. Unlike MSW,
+ * a returned promise is awaited, so a listener can read the body before the
+ * caller sees the response.
+ */
+type RequestListener = (event: { request: Request }) => void | Promise<void>;
 
 /** The server returned by {@link setupServer}. */
 export interface MockServer {
@@ -122,7 +126,7 @@ export function setupServer(...initial: RequestHandler[]): MockServer {
 
   const mocked = async (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
     const request = new Request(input, init);
-    for (const listener of listeners) listener({ request: request.clone() });
+    for (const listener of listeners) await listener({ request: request.clone() });
     const url = new URL(request.url);
     const target = `${url.origin}${url.pathname}`;
     for (const h of [...overrides, ...defaults]) {

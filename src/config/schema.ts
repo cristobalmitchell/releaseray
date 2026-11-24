@@ -96,7 +96,7 @@ const NotifySchema = z.discriminatedUnion("type", [
     apiKeyEnv: EnvName,
     collectionId: z.string().min(1),
     state: z.enum(["draft", "published"]).default("draft"),
-    titleTemplate: z.string().default("Release {{key}}"),
+    titleTemplate: z.string().min(1).default("Release {{key}}"),
     when: NotifyWhen.default("primary-changed"),
   }),
 ]);
@@ -187,7 +187,7 @@ const OutputsSchema = z.strictObject({
         .optional(),
     })
     .prefault({}),
-  /** Slack, Teams and Intercom, from v1.1. */
+  /** Slack, Teams and Intercom; posted when the primary target changes, or always. */
   notify: z.array(NotifySchema).max(10).default([]),
   /** Allow internal personas on the GitHub Release or CHANGELOG. */
   allowInternalOutputs: z.boolean().default(false),
@@ -446,10 +446,20 @@ export function crossFieldIssues(config: Config): Issue[] {
       });
     }
   }
-  outputs.notify.forEach((n, i) => requireEnabled(["outputs", "notify", i, "persona"], n.persona));
-  if (outputs.notify.length > 0) {
-    issues.push({ path: ["outputs", "notify"], message: "notifications arrive in v1.1" });
-  }
+  outputs.notify.forEach((n, i) => {
+    requireEnabled(["outputs", "notify", i, "persona"], n.persona);
+    if (n.type === "intercom") {
+      const unknown = [...n.titleTemplate.matchAll(/\{\{\s*([^}]*?)\s*\}\}/g)]
+        .map((m) => m[1])
+        .filter((name) => name !== "key");
+      if (unknown.length > 0) {
+        issues.push({
+          path: ["outputs", "notify", i, "titleTemplate"],
+          message: `unknown placeholder ${unknown.map((u) => `{{${u}}}`).join(", ")}; only {{key}} is replaced`,
+        });
+      }
+    }
+  });
 
   const { llm } = config;
   if (llm.provider === "bedrock" && !llm.region) {

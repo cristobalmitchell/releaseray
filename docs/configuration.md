@@ -122,7 +122,15 @@ Where the notes go. The job summary and workspace files are on by default; the G
 | `outputs.changelog.commitMessage` | string | `docs(changelog): {{key}}` | Commit subject; `{{key}}` is the release key. |
 | `outputs.changelog.author.name` | string |  | Commit author name. Default: github-actions[bot]. |
 | `outputs.changelog.author.email` | string |  | Commit author email. |
-| `outputs.notify` | list of object | `[]` | Slack, Teams and Intercom. Arrives in v1.1; rejected until then. |
+| `outputs.notify` | list of object | `[]` | Slack, Teams and Intercom, posted after the GitHub Release and CHANGELOG when `publish` is true. Each entry posts when the primary target (the GitHub Release, else the CHANGELOG) changed in this run, so a re-run that changes nothing sends nothing. |
+| `outputs.notify[].type` | `slack` \| `teams` \| `intercom` |  | `slack`, `teams` or `intercom`. |
+| `outputs.notify[].persona` | string |  | The persona whose notes are sent. |
+| `outputs.notify[].webhookUrlEnv` | string |  | Slack and Teams: the environment variable holding the incoming webhook URL. Slack URLs must be on `hooks.slack.com` or `hooks.slack-gov.com`; Teams URLs on `*.webhook.office.com` or `*.office365.com`. |
+| `outputs.notify[].when` | `primary-changed` \| `always` | `primary-changed` | `primary-changed` posts only when the primary target changed in this run; `always` posts on every publishing run. The `notify` input overrides it for one run. |
+| `outputs.notify[].apiKeyEnv` | string |  | Intercom: the environment variable holding the access token. |
+| `outputs.notify[].collectionId` | string |  | Intercom: the Help Center collection new articles go into. |
+| `outputs.notify[].state` | `draft` \| `published` | `draft` | Intercom: the state of a created or updated article. |
+| `outputs.notify[].titleTemplate` | string | `Release {{key}}` | Intercom: the article title; `{{key}}` is the release key. The article is found again by this title, so one renamed by hand is created anew. |
 | `outputs.allowInternalOutputs` | boolean | `false` | Allow an internal persona on the GitHub Release or CHANGELOG. |
 | `outputs.allowInternalOnPublicRepo` | boolean | `false` | Show internal personas in the summary and files of a public repository. |
 

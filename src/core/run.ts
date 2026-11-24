@@ -6,6 +6,7 @@
  * applied by the publish layer; this module returns the text for them.
  */
 import type { ResolvedConfig } from "../config/resolve";
+import type { Config } from "../config/schema";
 import { enhancedClassifyChanges } from "./classify/rules";
 import { classifyCommits } from "./classify/commits";
 import { fetchContent, type CompletenessState, type FetchResult } from "./fetch/content";
@@ -56,6 +57,8 @@ export interface RunRequest {
   force: boolean;
   /** Whether persisted sinks may write in this run. */
   publish: boolean;
+  /** The `notify` input: replaces every notify entry's `when` for this run. */
+  notify?: Config["outputs"]["notify"][number]["when"] | null;
 }
 
 /** The repository the run is for. */
@@ -100,6 +103,8 @@ export interface PersonaSinks {
   files: boolean;
   githubRelease: boolean;
   changelog: boolean;
+  /** Named by an `outputs.notify` entry, in a publishing run. */
+  notify: boolean;
 }
 
 /** One persona's outcome. */
@@ -153,6 +158,8 @@ export interface RunResult {
   touchesWorkflows: boolean;
   /** Whether the primary persisted target will change in this run. */
   primaryChanged: boolean;
+  /** The primary persisted target: the GitHub Release when routed, else the CHANGELOG. */
+  primary: "githubRelease" | "changelog" | null;
 }
 
 /** Applies `sanitizeForLLM` and a character cap. */
@@ -165,7 +172,8 @@ function eligibleSinks(
   persona: ResolvedPersona,
   config: ResolvedConfig["config"],
   repo: RepoContext,
-  persisted: { githubRelease: boolean; changelog: boolean }
+  persisted: { githubRelease: boolean; changelog: boolean },
+  publish: boolean
 ): { sinks: PersonaSinks; withheld: string[] } {
   const { outputs } = config;
   const withheld: string[] = [];
@@ -194,6 +202,9 @@ function eligibleSinks(
         persisted.changelog &&
         outputs.changelog.enabled &&
         outputs.changelog.persona === persona.id,
+      // Notifications are allowed for internal personas too (§10.5); only a
+      // publishing run sends them.
+      notify: publish && outputs.notify.some((n) => n.persona === persona.id),
     },
     withheld,
   };
@@ -284,7 +295,7 @@ export async function prepareRun(
   const persisted = range.persisted;
   const routed = personas.map((persona) => ({
     persona,
-    ...eligibleSinks(persona, c, deps.repo, persisted),
+    ...eligibleSinks(persona, c, deps.repo, persisted, request.publish),
   }));
   const releaseEligible = routed.some((r) => r.sinks.githubRelease);
   // Lookup by tag, the draft fallback when there is no published release, and the write.
@@ -406,7 +417,12 @@ export async function prepareRun(
   const promptFor = (persona: ResolvedPersona, shape: InputShape) =>
     buildPersonaPrompt(persona, deps.templates.persona, buildInput(persona, shape));
   const active = routed.filter(
-    (r) => r.sinks.summary || r.sinks.files || r.sinks.githubRelease || r.sinks.changelog
+    (r) =>
+      r.sinks.summary ||
+      r.sinks.files ||
+      r.sinks.githubRelease ||
+      r.sinks.changelog ||
+      r.sinks.notify
   );
   const fitted = fitInput(
     (shape) =>
@@ -547,13 +563,22 @@ export async function run(
       if (plan?.notice) notices.push(plan.notice);
     }
   }
-  const primary = releaseRouted && deps.release ? "githubRelease" : "changelog";
+  const primary =
+    releaseRouted && deps.release ? "githubRelease" : changelogRouted ? "changelog" : null;
   const primaryChanged =
     request.publish &&
+    primary !== null &&
     [...planned.values()].some((p) => {
       const plan = p[primary];
       return plan?.action === "create" || plan?.action === "update";
     });
+  // A persona whose notification is sent on every publishing run needs text
+  // even when nothing else changes.
+  const notifiesAlways = (r: RoutedPersona) =>
+    r.sinks.notify &&
+    c.outputs.notify.some(
+      (n) => n.persona === r.persona.id && (request.notify ?? n.when) === "always"
+    );
   const persistedEnabled = request.publish && targets.length > 0;
 
   const generateText = async (r: RoutedPersona) => {
@@ -632,7 +657,14 @@ export async function run(
         return { ...base, status: "stored", text: stored.text, out: outputDigest(stored.text) };
       }
       if (!needsText) return { ...base, status: "unchanged" };
-    } else if (!generatesUnpersisted({ persistedEnabled, primaryChanged, force: request.force })) {
+    } else if (
+      !generatesUnpersisted({
+        persistedEnabled,
+        primaryChanged,
+        force: request.force,
+        notifyAlways: notifiesAlways(r),
+      })
+    ) {
       if (stored)
         return { ...base, status: "stored", text: stored.text, out: outputDigest(stored.text) };
       return { ...base, status: "unchanged" };
@@ -677,5 +709,6 @@ export async function run(
     date: commitDate(deps.git, range.toSha),
     touchesWorkflows: range.kind === "tag" ? touchesWorkflows(deps.git, range.toSha) : false,
     primaryChanged,
+    primary,
   };
 }

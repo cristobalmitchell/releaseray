@@ -22,7 +22,13 @@ export interface DoctorRequest {
   workspace: string;
   configPath?: string;
   /** Which credentials are present in the environment; never their values. */
-  credentials: { openai: boolean; anthropic: boolean; aws: boolean };
+  credentials: {
+    openai: boolean;
+    anthropic: boolean;
+    aws: boolean;
+    /** Each variable named by an `outputs.notify` entry, and whether it is set. */
+    notify?: Record<string, boolean>;
+  };
   visibility: "public" | "private" | "unknown";
   /** `process.versions.node`. */
   nodeVersion: string;
@@ -122,6 +128,21 @@ export async function doctor(
   });
   if (loaded) {
     checks.push({ name: "Model", status: "ok", detail: `${provider} / ${loaded.model}` });
+  }
+
+  const notify = loaded?.config.outputs.notify ?? [];
+  if (notify.length > 0) {
+    const present = request.credentials.notify ?? {};
+    const missing = Object.keys(present).filter((name) => !present[name]);
+    const kinds = [...new Set(notify.map((n) => n.type))].join(", ");
+    checks.push({
+      name: "Notifications",
+      status: missing.length > 0 ? "warn" : "ok",
+      detail:
+        missing.length > 0
+          ? `${notify.length} configured (${kinds}); ${missing.join(", ")} not set, so a publishing run fails before writing`
+          : `${notify.length} configured (${kinds}); every webhook URL and token variable is set`,
+    });
   }
 
   const internal = loaded?.personas.filter((p) => p.visibility === "internal") ?? [];

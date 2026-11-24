@@ -73,7 +73,12 @@ export interface Inputs {
   previewPrompts: boolean;
   allTags: boolean;
   personasFile: string;
+  /** Replaces every notify entry's `when` for this run; null when blank. */
+  notify: "primary-changed" | "always" | null;
 }
+
+/** Values of the `notify` input. */
+export const NOTIFY_VALUES = ["primary-changed", "always"] as const;
 
 const TRUE = ["true", "True", "TRUE"];
 const FALSE = ["false", "False", "FALSE"];
@@ -121,6 +126,10 @@ export function readInputs(io: Pick<ActionsIO, "getInput">): Inputs {
     throw invalidInput("mode", `expected one of ${MODES.join(", ")}, got "${mode}"`);
   }
   const personas = raw("personas");
+  const notify = raw("notify");
+  if (notify && !(NOTIFY_VALUES as readonly string[]).includes(notify)) {
+    throw invalidInput("notify", `expected ${NOTIFY_VALUES.join(" or ")}, got "${notify}"`);
+  }
   return {
     mode: mode as Mode,
     githubToken: raw("github-token"),
@@ -147,5 +156,6 @@ export function readInputs(io: Pick<ActionsIO, "getInput">): Inputs {
     previewPrompts: bool("preview-prompts"),
     allTags: bool("all-tags"),
     personasFile: raw("personas-file"),
+    notify: notify ? (notify as Inputs["notify"]) : null,
   };
 }

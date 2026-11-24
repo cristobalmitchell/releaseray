@@ -26,6 +26,7 @@ import { readInputs, type Inputs } from "./inputs";
 import type { ActionsIO } from "./io";
 import { createActionsLogSink } from "./logger-sink";
 import { createReleaseApi, type ReleaseApi } from "../outputs/github-release/sink";
+import { credentialEnv, type NotifySecrets } from "../outputs/notify/sink";
 import type { PersistedDeps } from "../outputs/persisted";
 import { GENERATED_BY_TRAILER } from "../outputs/push";
 
@@ -178,6 +179,31 @@ function defaultProvider(env: Env, io: ActionsIO): NonNullable<MainDeps["provide
   };
 }
 
+/**
+ * Reads the webhook URLs and tokens the config's notify entries name, and
+ * masks each value in the log. Only the named variables are read.
+ *
+ * @param config - The loaded config
+ * @param env - The process environment
+ * @param io - Runner I/O, for `setSecret`
+ * @returns Values by variable name; unset variables are left out
+ */
+export function readNotifySecrets(
+  config: LoadedConfig,
+  env: Env,
+  io: Pick<ActionsIO, "setSecret">
+): NotifySecrets {
+  const secrets: Record<string, string> = {};
+  for (const entry of config.config.outputs.notify) {
+    const name = credentialEnv(entry);
+    const { [name]: value } = env;
+    if (!value) continue;
+    io.setSecret(value);
+    secrets[name] = value;
+  }
+  return secrets;
+}
+
 function loadTemplates(workspace: string) {
   const { templates, overridden } = templatesWithOverrides(
     join(workspace, ".releaseray", "prompts")
@@ -254,6 +280,12 @@ async function runOnce(deps: MainDeps): Promise<number> {
               openai: Boolean(env.OPENAI_API_KEY),
               anthropic: Boolean(env.ANTHROPIC_API_KEY),
               aws: Boolean(env.AWS_ACCESS_KEY_ID),
+              notify: Object.fromEntries(
+                (loaded?.config.outputs.notify ?? []).map((n) => [
+                  credentialEnv(n),
+                  Boolean(env[credentialEnv(n)]),
+                ])
+              ),
             },
             visibility: ctx.visibility,
             nodeVersion: process.versions.node,
@@ -300,7 +332,7 @@ async function runOnce(deps: MainDeps): Promise<number> {
         } else {
           const provider = await (deps.provider ?? defaultProvider(env, io))(config);
           mode = await generate(
-            { ...request, force: inputs.force, publish: event.publish },
+            { ...request, force: inputs.force, publish: event.publish, notify: inputs.notify },
             config,
             {
               ...base,
@@ -312,6 +344,7 @@ async function runOnce(deps: MainDeps): Promise<number> {
                 return existsSync(file) ? readFileSync(file, "utf8") : "";
               },
               persisted: persistedDeps(io, env, ctx, inputs.githubToken, made.release),
+              notifySecrets: event.publish ? readNotifySecrets(config, env, io) : {},
             }
           );
         }
@@ -329,9 +362,14 @@ async function runOnce(deps: MainDeps): Promise<number> {
             workspace: ctx.workspace,
             notesDir: inputs.notesDir,
             expectedDigest: inputs.expectedDigest,
+            notify: inputs.notify,
           },
           config,
-          persistedDeps(io, env, ctx, inputs.githubToken, made.release)
+          persistedDeps(io, env, ctx, inputs.githubToken, made.release),
+          {
+            repo: { owner: ctx.owner, repo: ctx.repo, serverUrl: ctx.serverUrl },
+            secrets: readNotifySecrets(config, env, io),
+          }
         );
         break;
       }

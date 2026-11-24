@@ -568,15 +568,18 @@
                 "properties": {
                   "type": {
                     "type": "string",
-                    "const": "slack"
+                    "const": "slack",
+                    "description": "`slack`, `teams` or `intercom`."
                   },
                   "persona": {
                     "type": "string",
-                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+                    "description": "The persona whose notes are sent."
                   },
                   "webhookUrlEnv": {
                     "type": "string",
-                    "pattern": "^[A-Z_][A-Z0-9_]*$"
+                    "pattern": "^[A-Z_][A-Z0-9_]*$",
+                    "description": "Slack and Teams: the environment variable holding the incoming webhook URL. Slack URLs must be on `hooks.slack.com` or `hooks.slack-gov.com`; Teams URLs on `*.webhook.office.com` or `*.office365.com`."
                   },
                   "when": {
                     "default": "primary-changed",
@@ -584,7 +587,8 @@
                     "enum": [
                       "primary-changed",
                       "always"
-                    ]
+                    ],
+                    "description": "`primary-changed` posts only when the primary target changed in this run; `always` posts on every publishing run. The `notify` input overrides it for one run."
                   }
                 },
                 "required": [
@@ -599,15 +603,18 @@
                 "properties": {
                   "type": {
                     "type": "string",
-                    "const": "teams"
+                    "const": "teams",
+                    "description": "`slack`, `teams` or `intercom`."
                   },
                   "persona": {
                     "type": "string",
-                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+                    "description": "The persona whose notes are sent."
                   },
                   "webhookUrlEnv": {
                     "type": "string",
-                    "pattern": "^[A-Z_][A-Z0-9_]*$"
+                    "pattern": "^[A-Z_][A-Z0-9_]*$",
+                    "description": "Slack and Teams: the environment variable holding the incoming webhook URL. Slack URLs must be on `hooks.slack.com` or `hooks.slack-gov.com`; Teams URLs on `*.webhook.office.com` or `*.office365.com`."
                   },
                   "when": {
                     "default": "primary-changed",
@@ -615,7 +622,8 @@
                     "enum": [
                       "primary-changed",
                       "always"
-                    ]
+                    ],
+                    "description": "`primary-changed` posts only when the primary target changed in this run; `always` posts on every publishing run. The `notify` input overrides it for one run."
                   }
                 },
                 "required": [
@@ -630,19 +638,23 @@
                 "properties": {
                   "type": {
                     "type": "string",
-                    "const": "intercom"
+                    "const": "intercom",
+                    "description": "`slack`, `teams` or `intercom`."
                   },
                   "persona": {
                     "type": "string",
-                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+                    "description": "The persona whose notes are sent."
                   },
                   "apiKeyEnv": {
                     "type": "string",
-                    "pattern": "^[A-Z_][A-Z0-9_]*$"
+                    "pattern": "^[A-Z_][A-Z0-9_]*$",
+                    "description": "Intercom: the environment variable holding the access token."
                   },
                   "collectionId": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "description": "Intercom: the Help Center collection new articles go into."
                   },
                   "state": {
                     "default": "draft",
@@ -650,11 +662,14 @@
                     "enum": [
                       "draft",
                       "published"
-                    ]
+                    ],
+                    "description": "Intercom: the state of a created or updated article."
                   },
                   "titleTemplate": {
                     "default": "Release {{key}}",
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Intercom: the article title; `{{key}}` is the release key. The article is found again by this title, so one renamed by hand is created anew."
                   },
                   "when": {
                     "default": "primary-changed",
@@ -662,7 +677,8 @@
                     "enum": [
                       "primary-changed",
                       "always"
-                    ]
+                    ],
+                    "description": "`primary-changed` posts only when the primary target changed in this run; `always` posts on every publishing run. The `notify` input overrides it for one run."
                   }
                 },
                 "required": [
@@ -675,7 +691,7 @@
               }
             ]
           },
-          "description": "Slack, Teams and Intercom. Arrives in v1.1; rejected until then."
+          "description": "Slack, Teams and Intercom, posted after the GitHub Release and CHANGELOG when `publish` is true. Each entry posts when the primary target (the GitHub Release, else the CHANGELOG) changed in this run, so a re-run that changes nothing sends nothing."
         },
         "allowInternalOutputs": {
           "default": false,
