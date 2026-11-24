@@ -153,10 +153,11 @@ export const DESCRIPTIONS: Record<string, string> = {
   "outputs.notify[].type": "`slack`, `teams` or `intercom`.",
   "outputs.notify[].persona": "The persona whose notes are sent.",
   "outputs.notify[].webhookUrlEnv":
-    "Slack and Teams: the environment variable holding the incoming webhook URL. Slack URLs must be on `hooks.slack.com` or `hooks.slack-gov.com`; Teams URLs on `*.webhook.office.com` or `*.office365.com`.",
+    "Slack and Teams: the environment variable holding the incoming webhook URL. Slack URLs must be on `hooks.slack.com` or `hooks.slack-gov.com`; Teams URLs on `*.webhook.office.com` or `*.office365.com`. The variable cannot be one that holds another credential or runner state: `GITHUB_*`, `GH_*`, `INPUT_*`, `ACTIONS_*`, `RUNNER_*`, `AWS_*`, `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`.",
   "outputs.notify[].when":
     "`primary-changed` posts only when the primary target changed in this run; `always` posts on every publishing run. The `notify` input overrides it for one run.",
-  "outputs.notify[].apiKeyEnv": "Intercom: the environment variable holding the access token.",
+  "outputs.notify[].apiKeyEnv":
+    "Intercom: the environment variable holding the access token, under the same naming rule as `webhookUrlEnv`.",
   "outputs.notify[].collectionId": "Intercom: the Help Center collection new articles go into.",
   "outputs.notify[].state": "Intercom: the state of a created or updated article.",
   "outputs.notify[].titleTemplate":

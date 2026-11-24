@@ -20,6 +20,17 @@ const Slug = z
   .regex(/^[a-z0-9][a-z0-9-]{0,39}$/, "must be lowercase letters, digits and hyphens");
 const Pct = z.number().int().min(0).max(100);
 const EnvName = z.string().regex(/^[A-Z_][A-Z0-9_]*$/, "must be an environment variable name");
+/**
+ * Variables that hold another credential or the runner's own state. A notify
+ * entry sends its variable's value to Slack, Teams or Intercom, so naming one
+ * of these would send that value to a third party.
+ */
+const RESERVED_ENV =
+  /^(GITHUB_|GH_|INPUT_|ACTIONS_|RUNNER_|AWS_)|^(OPENAI_API_KEY|ANTHROPIC_API_KEY)$/;
+const NotifyEnvName = EnvName.refine(
+  (name) => !RESERVED_ENV.test(name),
+  "names a variable that holds another credential or runner state; use a dedicated secret"
+);
 const RegexSource = z.string().min(1);
 
 const CategorySchema = z.strictObject({
@@ -81,19 +92,19 @@ const NotifySchema = z.discriminatedUnion("type", [
   z.strictObject({
     type: z.literal("slack"),
     persona: Slug,
-    webhookUrlEnv: EnvName,
+    webhookUrlEnv: NotifyEnvName,
     when: NotifyWhen.default("primary-changed"),
   }),
   z.strictObject({
     type: z.literal("teams"),
     persona: Slug,
-    webhookUrlEnv: EnvName,
+    webhookUrlEnv: NotifyEnvName,
     when: NotifyWhen.default("primary-changed"),
   }),
   z.strictObject({
     type: z.literal("intercom"),
     persona: Slug,
-    apiKeyEnv: EnvName,
+    apiKeyEnv: NotifyEnvName,
     collectionId: z.string().min(1),
     state: z.enum(["draft", "published"]).default("draft"),
     titleTemplate: z.string().min(1).default("Release {{key}}"),

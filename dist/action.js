@@ -137839,6 +137839,11 @@ function buildLabelRules(categories) {
 var Slug = external_exports.string().regex(/^[a-z0-9][a-z0-9-]{0,39}$/, "must be lowercase letters, digits and hyphens");
 var Pct = external_exports.number().int().min(0).max(100);
 var EnvName = external_exports.string().regex(/^[A-Z_][A-Z0-9_]*$/, "must be an environment variable name");
+var RESERVED_ENV = /^(GITHUB_|GH_|INPUT_|ACTIONS_|RUNNER_|AWS_)|^(OPENAI_API_KEY|ANTHROPIC_API_KEY)$/;
+var NotifyEnvName = EnvName.refine(
+  (name) => !RESERVED_ENV.test(name),
+  "names a variable that holds another credential or runner state; use a dedicated secret"
+);
 var RegexSource = external_exports.string().min(1);
 var CategorySchema = external_exports.strictObject({
   /** A built-in id overrides that category; fields left out keep the built-in values. */
@@ -137890,19 +137895,19 @@ var NotifySchema = external_exports.discriminatedUnion("type", [
   external_exports.strictObject({
     type: external_exports.literal("slack"),
     persona: Slug,
-    webhookUrlEnv: EnvName,
+    webhookUrlEnv: NotifyEnvName,
     when: NotifyWhen.default("primary-changed")
   }),
   external_exports.strictObject({
     type: external_exports.literal("teams"),
     persona: Slug,
-    webhookUrlEnv: EnvName,
+    webhookUrlEnv: NotifyEnvName,
     when: NotifyWhen.default("primary-changed")
   }),
   external_exports.strictObject({
     type: external_exports.literal("intercom"),
     persona: Slug,
-    apiKeyEnv: EnvName,
+    apiKeyEnv: NotifyEnvName,
     collectionId: external_exports.string().min(1),
     state: external_exports.enum(["draft", "published"]).default("draft"),
     titleTemplate: external_exports.string().min(1).default("Release {{key}}"),

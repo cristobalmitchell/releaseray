@@ -439,6 +439,40 @@ describe("cross-field rules", () => {
     ]);
   });
 
+  it("notify entries cannot name a variable that holds another credential", () => {
+    for (const name of [
+      "GITHUB_TOKEN",
+      "GH_TOKEN",
+      "INPUT_TOKEN",
+      "OPENAI_API_KEY",
+      "ANTHROPIC_API_KEY",
+      "AWS_SECRET_ACCESS_KEY",
+      "ACTIONS_RUNTIME_TOKEN",
+      "RUNNER_TEMP",
+    ]) {
+      expect(
+        problems({
+          ...base,
+          outputs: {
+            notify: [
+              { type: "intercom", persona: "customer", apiKeyEnv: name, collectionId: "42" },
+            ],
+          },
+        })
+      ).toEqual([
+        "outputs.notify[0].apiKeyEnv: names a variable that holds another credential or runner state; use a dedicated secret",
+      ]);
+    }
+    expect(
+      problems({
+        ...base,
+        outputs: {
+          notify: [{ type: "slack", persona: "engineer", webhookUrlEnv: "GITHUB_TOKEN" }],
+        },
+      })
+    ).toHaveLength(1);
+  });
+
   it("notify entries reject credentials, lowercase variable names and unknown placeholders", () => {
     const url = ["https://hooks.slack.com", "services", "T0", "B0", "x"].join("/");
     const inline = problems({

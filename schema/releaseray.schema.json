@@ -579,7 +579,7 @@
                   "webhookUrlEnv": {
                     "type": "string",
                     "pattern": "^[A-Z_][A-Z0-9_]*$",
-                    "description": "Slack and Teams: the environment variable holding the incoming webhook URL. Slack URLs must be on `hooks.slack.com` or `hooks.slack-gov.com`; Teams URLs on `*.webhook.office.com` or `*.office365.com`."
+                    "description": "Slack and Teams: the environment variable holding the incoming webhook URL. Slack URLs must be on `hooks.slack.com` or `hooks.slack-gov.com`; Teams URLs on `*.webhook.office.com` or `*.office365.com`. The variable cannot be one that holds another credential or runner state: `GITHUB_*`, `GH_*`, `INPUT_*`, `ACTIONS_*`, `RUNNER_*`, `AWS_*`, `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`."
                   },
                   "when": {
                     "default": "primary-changed",
@@ -614,7 +614,7 @@
                   "webhookUrlEnv": {
                     "type": "string",
                     "pattern": "^[A-Z_][A-Z0-9_]*$",
-                    "description": "Slack and Teams: the environment variable holding the incoming webhook URL. Slack URLs must be on `hooks.slack.com` or `hooks.slack-gov.com`; Teams URLs on `*.webhook.office.com` or `*.office365.com`."
+                    "description": "Slack and Teams: the environment variable holding the incoming webhook URL. Slack URLs must be on `hooks.slack.com` or `hooks.slack-gov.com`; Teams URLs on `*.webhook.office.com` or `*.office365.com`. The variable cannot be one that holds another credential or runner state: `GITHUB_*`, `GH_*`, `INPUT_*`, `ACTIONS_*`, `RUNNER_*`, `AWS_*`, `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`."
                   },
                   "when": {
                     "default": "primary-changed",
@@ -649,7 +649,7 @@
                   "apiKeyEnv": {
                     "type": "string",
                     "pattern": "^[A-Z_][A-Z0-9_]*$",
-                    "description": "Intercom: the environment variable holding the access token."
+                    "description": "Intercom: the environment variable holding the access token, under the same naming rule as `webhookUrlEnv`."
                   },
                   "collectionId": {
                     "type": "string",
