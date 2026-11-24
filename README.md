@@ -133,7 +133,7 @@ Every key is documented in the [configuration reference](docs/configuration.md);
 | [`in-release-job.yml`](examples/workflows/in-release-job.yml)                   | Inside an existing release job whose tags are pushed with `GITHUB_TOKEN`                                                            |
 | [`in-release-job-dispatch.yml`](examples/workflows/in-release-job-dispatch.yml) | Release jobs on `workflow_run`, which dispatch the quickstart workflow                                                              |
 | [`release-notes-preview.yml`](examples/workflows/release-notes-preview.yml)     | A weekly draft of unreleased changes; never publishes                                                                               |
-| [`releaseray-tools.yml`](examples/workflows/releaseray-tools.yml)               | `preview`, `doctor`, `validate-config` and `migrate-personas` on demand                                                             |
+| [`releaseray-tools.yml`](examples/workflows/releaseray-tools.yml)               | `preview`, `doctor`, `validate-config` and `migrate-personas` on demand; `adopt` and `sync-changelog` in a job that can write       |
 
 Recipes: [CHANGELOG as a pull request](examples/recipes/changelog-pr.yml), [GitHub App token](examples/recipes/app-token.yml), [notes as an artifact](examples/recipes/artifact.yml).
 
@@ -149,6 +149,8 @@ Every example grants nothing at workflow level, pins third-party actions to a fu
 | `doctor`             | Checks configuration, checkout, tags, token, credentials and visibility                                             | Never                              | Nothing                                              |
 | `validate-config`    | The run's config checks, with no secrets                                                                            | Never                              | Nothing                                              |
 | `migrate-personas`   | Converts the hosted App's persona YAML into a config file in the workspace                                          | Never                              | Nothing on GitHub                                    |
+| `adopt`              | Wraps release bodies and CHANGELOG entries written by something else, such as the hosted App, in markers            | Never                              | Release markers; CHANGELOG with `push`               |
+| `sync-changelog`     | Copies each release's block into `CHANGELOG.md` with headings shifted, to backfill history or mirror hand edits     | Never                              | CHANGELOG with `push`                                |
 
 **Inputs.** Blank values fall back to the defaults shown.
 
@@ -170,8 +172,8 @@ Every example grants nothing at workflow level, pins third-party actions to a fu
 | `allow-sparse`                 | `false`                          | Generate even when the input is thin                                                                |
 | `preview-prompts`              | `false`                          | For `preview`: fetch and write the exact prompts                                                    |
 | `personas-file`                | `.releaseray/personas.yml`       | For `migrate-personas`                                                                              |
+| `all-tags`                     | `false`                          | For `adopt` and `sync-changelog`: every tag matching `range.tagPattern` instead of `to`             |
 | `notify`                       | each entry's `when`              | `always` resends every `outputs.notify` entry in this run; `primary-changed` sends only on a change |
-| `all-tags`                     |                                  | Reserved for `adopt` and `sync-changelog` in v1.1                                                   |
 
 **Outputs:** `key`, `from`, `to`, `notes-dir`, `notes-digest`, `release-url`, `release-changed`, `changelog-changed`, `github-requests`, `llm-calls`, `llm-cost-usd` (`n/a` when the model's price is unknown), `exit-code` (set even when the step fails, for a later step to branch on).
 
@@ -242,7 +244,7 @@ action.yml               # inputs, outputs, node24, dist/action.js
 dist/                    # committed single-file bundle and bundled licenses
 src/
 ├── action/              # the only code that touches the runner (@actions/core, process.env)
-├── modes/               # generate, publish, preview, doctor, validate-config, migrate-personas
+├── modes/               # generate, publish, preview, doctor, validate-config, migrate-personas, adopt, sync-changelog
 ├── config/              # schema, loader, resolution, built-in personas and categories
 ├── core/
 │   ├── range/           # tags, ancestry, windows, PR numbers
@@ -279,6 +281,7 @@ pnpm install
 pnpm lint && pnpm typecheck && pnpm test
 pnpm test:injection   # the prompt-injection suite alone
 pnpm test:notify      # the Slack, Teams and Intercom sinks alone
+pnpm test:migration   # adopt and sync-changelog, including adopt's write pacing
 pnpm build            # dist/action.js and dist/licenses.txt
 pnpm schema           # schema/releaseray.schema.json and docs/configuration.md
 pnpm prompts          # src/core/prompt/bundled.ts from prompts/*.md
@@ -295,17 +298,19 @@ Branches are `{type}/{issue}-{description}`, commits follow [Conventional Commit
 | Area                                                                                | Status              |
 | ----------------------------------------------------------------------------------- | ------------------- |
 | Generation core, configuration, range, budget, fetch, validation, planner, pipeline | ✅ Built and tested |
-| `action.yml`, all six modes, GitHub Release, CHANGELOG and push loop, bundle        | ✅ Built and tested |
+| `action.yml`, all eight modes, GitHub Release, CHANGELOG and push loop, bundle      | ✅ Built and tested |
 | Example workflows and recipes, provider contract tests, prompt-injection suite      | ✅ Built and tested |
 | Anthropic provider                                                                  | ✅ Built and tested |
-| End-to-end tests on sandbox repositories, `v1.0.0-beta.1`                           | 🚧 Next             |
-| `v1.0.0` and the Marketplace listing                                                | 🚧 After the beta   |
+| Hermetic end-to-end tests, `v1.0.0-beta.1`                                          | ✅ Released         |
+| `v1.0.0`                                                                            | 🚧 Next             |
+| Marketplace listing                                                                 | Optional, later     |
 | Slack, Teams and Intercom notifications                                             | ✅ Built and tested |
-| `v1.1.0`: `adopt` and `sync-changelog`                                              | Planned             |
+| `adopt` and `sync-changelog`                                                        | ✅ Built and tested |
+| `v1.1.0`                                                                            | Planned             |
 
 ## Coming from the hosted ReleaseRay App
 
-The hosted App is being retired in favor of this Action. [docs/migrating-from-hosted.md](docs/migrating-from-hosted.md) maps every hosted setting to a config key. `mode: migrate-personas` converts the persona YAML downloaded from the hosted dashboard today; `adopt` and `sync-changelog`, which take over releases the App already published, arrive in `v1.1.0`. The App's users will hear about the timeline directly before anything changes.
+The hosted App is being retired in favor of this Action. [docs/migrating-from-hosted.md](docs/migrating-from-hosted.md) maps every hosted setting to a config key. `mode: migrate-personas` converts the persona YAML downloaded from the hosted dashboard; `mode: adopt` takes over releases and CHANGELOG entries the App already published, so nothing is written twice, and `mode: sync-changelog` backfills `CHANGELOG.md` from the releases. The App's users will hear about the timeline directly before anything changes.
 
 ## License
 

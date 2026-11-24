@@ -1,7 +1,7 @@
 /**
  * The acceptance criteria the hermetic e2e suite covers, and the test file
  * for each (CONVERSION-PLAN §12.2: Phase 3, Phase 4 criteria 4 and 8, and
- * Phase 5 criterion 2).
+ * Phase 5 criteria 2, 3 and 4).
  *
  * Out of scope: Phase 3 #13, #15, #17 and the real `release: published`
  * trigger part of #9 need real GitHub, so they are not covered here.
@@ -27,6 +27,8 @@ export const COVERED = {
   "4.4": { title: "Quickstart through the real openai adapter", file: "quickstart.e2e.ts" },
   "4.8": { title: "Starter config passes validate-config", file: "quickstart.e2e.ts" },
   "5.2": { title: "Notify once", file: "notify.e2e.ts" },
+  "5.3": { title: "Adopt", file: "migration.e2e.ts" },
+  "5.4": { title: "Sync CHANGELOG", file: "migration.e2e.ts" },
 } as const;
 
 export type CriterionId = keyof typeof COVERED;

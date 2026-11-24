@@ -17,7 +17,13 @@
  * push loop replaces them in Phase 3.
  */
 import { createLogger } from "../core/logger";
-import { parseMarkerLine, writeMarkedBlock, type MarkerFields } from "../core/state/marker";
+import { outputDigest } from "../core/state/digest";
+import {
+  ADOPTED_GEN,
+  parseMarkerLine,
+  writeMarkedBlock,
+  type MarkerFields,
+} from "../core/state/marker";
 import { compareSemver, parseSemver } from "../core/util/semver";
 
 const logger = createLogger("changelog-publisher");
@@ -298,6 +304,40 @@ export function upsertChangelogEntry(
     at = trailingLinkStart(lines, spans[spans.length - 1].start + 1);
   }
   return { content: spliceAt(lines, at, block), action: "created" };
+}
+
+/** What {@link adoptChangelogEntry} did. */
+export type AdoptEntryAction = "adopted" | "marked" | "missing";
+
+/**
+ * Wrap an unmarked `## [<key>]` entry in markers with `gen=adopted` and the
+ * `out` of its text, so the next run treats it as current (CONVERSION-PLAN
+ * §9.5). The entry's text is kept; a trailing block of link references at
+ * the end of the file stays outside the markers.
+ *
+ * @param existingContent - Current CHANGELOG.md content
+ * @param key - Release key, the entry's version
+ * @param persona - The CHANGELOG persona
+ * @returns The new content, and `adopted`, `marked` (already has markers) or `missing` (no entry)
+ */
+export function adoptChangelogEntry(
+  existingContent: string,
+  key: string,
+  persona: string
+): { content: string; action: AdoptEntryAction } {
+  const lines = existingContent.split("\n");
+  const spans = findEntrySpans(lines);
+  const span = spans.find((s) => s.version === key);
+  if (!span) return { content: existingContent, action: "missing" };
+  if (span.marker) return { content: existingContent, action: "marked" };
+  const end =
+    span === spans[spans.length - 1] ? trailingLinkStart(lines, span.start + 1) : span.end;
+  const inner = lines.slice(span.start, end).join("\n").replace(/\s+$/, "");
+  const block = writeMarkedBlock(
+    { key, persona, gen: ADOPTED_GEN, out: outputDigest(inner) },
+    inner
+  );
+  return { content: spliceAt(lines, span.start, block, end), action: "adopted" };
 }
 
 /**

@@ -130,13 +130,18 @@ describe("inputs", () => {
     ).toEqual(['force: expected true or false, got "yes"']);
   });
 
-  it("rejects unknown and v1.1 modes", () => {
+  it("accepts adopt and sync-changelog with all-tags, and rejects unknown modes", () => {
+    for (const mode of ["adopt", "sync-changelog"]) {
+      const inputs = readInputs({
+        getInput: (n) => ({ mode, "all-tags": "true" })[n] ?? "",
+      });
+      expect(inputs).toMatchObject({ mode, allTags: true });
+    }
     expect(
-      failure(() => readInputs({ getInput: (n) => (n === "mode" ? "adopt" : "") })).details
-    ).toEqual(["mode: adopt arrives in v1.1"]);
-    expect(() => readInputs({ getInput: (n) => (n === "mode" ? "run" : "") })).toThrow(
-      ReleaseRayError
-    );
+      failure(() => readInputs({ getInput: (n) => (n === "mode" ? "run" : "") })).details
+    ).toEqual([
+      'mode: expected one of generate, publish, preview, doctor, validate-config, migrate-personas, adopt, sync-changelog, got "run"',
+    ]);
   });
 
   it("splits personas", () => {

@@ -1,5 +1,7 @@
-# Diagnostics and migration on demand. These modes make no LLM call and no
-# GitHub write, so the job has read permissions and no LLM key.
+# Diagnostics and migration on demand, with no LLM key. preview, doctor,
+# validate-config and migrate-personas make no GitHub write, so their job has
+# read permissions. adopt and sync-changelog write release markers and
+# CHANGELOG entries, so they run in a separate job with contents: write.
 name: ReleaseRay tools
 on:
   workflow_dispatch:
@@ -12,13 +14,23 @@ on:
           - doctor
           - validate-config
           - migrate-personas
+          - adopt
+          - sync-changelog
         default: preview
       to:
-        description: "Tag (blank: HEAD for preview)"
+        description: "Tag (blank: HEAD for preview; use all_tags for adopt and sync-changelog)"
         type: string
         required: false
       preview_prompts:
         description: "preview: also write each persona's exact prompts"
+        type: boolean
+        default: false
+      all_tags:
+        description: "adopt and sync-changelog: every tag matching range.tagPattern"
+        type: boolean
+        default: false
+      push:
+        description: "adopt and sync-changelog: push the CHANGELOG edit"
         type: boolean
         default: false
 
@@ -30,6 +42,7 @@ concurrency:
 
 jobs:
   read-only:
+    if: inputs.mode != 'adopt' && inputs.mode != 'sync-changelog'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -59,3 +72,24 @@ jobs:
             .releaseray/notes/
           if-no-files-found: ignore
           retention-days: 7
+
+  migrate:
+    if: inputs.mode == 'adopt' || inputs.mode == 'sync-changelog'
+    runs-on: ubuntu-latest
+    # adopt spaces bulk release writes 7.2 seconds apart and stops after 400, about 48 minutes.
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # CHANGELOG.md is read from, and pushed to, the default branch.
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: cristobalmitchell/releaseray@v1 # pin to the full commit SHA of the release you use
+        with:
+          mode: ${{ inputs.mode }}
+          to: ${{ inputs.to }}
+          all-tags: ${{ inputs.all_tags }}
+          push: ${{ inputs.push }}

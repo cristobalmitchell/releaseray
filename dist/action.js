@@ -116501,7 +116501,7 @@ var HttpResponseRetryCodes = [
 import { EOL as EOL3 } from "os";
 import { constants, promises } from "fs";
 var __awaiter = function(thisArg, _arguments, P2, generator) {
-  function adopt(value) {
+  function adopt2(value) {
     return value instanceof P2 ? value : new P2(function(resolve8) {
       resolve8(value);
     });
@@ -116522,7 +116522,7 @@ var __awaiter = function(thisArg, _arguments, P2, generator) {
       }
     }
     function step(result2) {
-      result2.done ? resolve8(result2.value) : adopt(result2.value).then(fulfilled, rejected);
+      result2.done ? resolve8(result2.value) : adopt2(result2.value).then(fulfilled, rejected);
     }
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
@@ -143112,6 +143112,18 @@ function mergedTags(git2, to) {
     return { name, sha: peeled || object2 };
   });
 }
+function listTags(git2) {
+  const out = git2.run([
+    "for-each-ref",
+    "--format=%(refname:strip=2)%00%(*objectname)%00%(objectname)",
+    "refs/tags"
+  ]);
+  if (!out) return [];
+  return out.split("\n").map((line) => {
+    const [name, peeled, object2] = line.split("\0");
+    return { name, sha: peeled || object2 };
+  });
+}
 var FIELD = "";
 var RECORD = "";
 function logCommits(git2, args) {
@@ -143180,6 +143192,70 @@ function compareSemver(a7, b5) {
     if (diff !== 0) return diff;
   }
   return 0;
+}
+
+// src/core/state/marker.ts
+var MARKER_VERSION2 = 1;
+var ADOPTED_GEN = "adopted";
+var VALUE = /^[^\s<>]+$/;
+function isMarkerValue(value) {
+  return VALUE.test(value) && !value.includes("--");
+}
+function checkValue(name, value) {
+  if (!isMarkerValue(value)) {
+    throw new Error(`Marker ${name} must be non-empty, without spaces, <, > or "--": ${value}`);
+  }
+}
+function writeBeginMarker(fields) {
+  for (const name of ["key", "persona", "gen", "out"]) checkValue(name, fields[name]);
+  return `<!-- releaseray:begin v=${MARKER_VERSION2} key=${fields.key} persona=${fields.persona} gen=${fields.gen} out=${fields.out} -->`;
+}
+function writeEndMarker(fields) {
+  checkValue("key", fields.key);
+  checkValue("persona", fields.persona);
+  return `<!-- releaseray:end key=${fields.key} persona=${fields.persona} -->`;
+}
+var BEGIN = /<!-- releaseray:begin v=(\d+) key=(\S+) persona=(\S+) gen=(\S+) out=(\S+) -->/g;
+var END = /<!-- releaseray:end key=(\S+) persona=(\S+) -->/g;
+function parseMarkerLine(line) {
+  const trimmed = line.trim();
+  const begin = new RegExp(`^${BEGIN.source}$`).exec(trimmed);
+  if (begin) {
+    return {
+      type: "begin",
+      version: Number(begin[1]),
+      fields: { key: begin[2], persona: begin[3], gen: begin[4], out: begin[5] }
+    };
+  }
+  const end2 = new RegExp(`^${END.source}$`).exec(trimmed);
+  if (end2) return { type: "end", key: end2[1], persona: end2[2] };
+  return null;
+}
+function writeMarkedBlock(fields, inner) {
+  return `${writeBeginMarker(fields)}
+
+${inner}
+
+${writeEndMarker(fields)}`;
+}
+function findMarkedBlocks(text) {
+  const blocks = [];
+  for (const begin of text.matchAll(BEGIN)) {
+    const fields = { key: begin[2], persona: begin[3], gen: begin[4], out: begin[5] };
+    const from = (begin.index ?? 0) + begin[0].length;
+    const endText = writeEndMarker(fields);
+    const endAt = text.indexOf(endText, from);
+    if (endAt === -1) continue;
+    const nextBegin = text.slice(from, endAt).search(/<!-- releaseray:begin /);
+    if (nextBegin !== -1) continue;
+    blocks.push({
+      fields,
+      inner: text.slice(from, endAt).replace(/^\n+/, "").replace(/\n+$/, ""),
+      start: begin.index ?? 0,
+      end: endAt + endText.length
+    });
+  }
+  return blocks;
 }
 
 // src/core/range/pr-numbers.ts
@@ -143382,10 +143458,1027 @@ function assertSinksAllowed(range2, outputs) {
     ]);
   }
 }
+function selectTags(git2, selection, tagPattern) {
+  const to = selection.to.trim();
+  if (selection.allTags && to) {
+    throw invalid("Pass either to or all-tags, not both", [
+      "Leave to blank with all-tags: true, or set all-tags: false to act on one tag"
+    ]);
+  }
+  if (!selection.allTags) {
+    if (!to || to === "HEAD") {
+      throw invalid("No tag to act on", [
+        "Set the to input to a tag, or all-tags: true for every tag matching range.tagPattern"
+      ]);
+    }
+    if (!isTag(git2, to)) throw invalid(`Unknown tag: ${to}`, ["Check the name and fetch-depth: 0"]);
+    if (!isMarkerValue(to)) {
+      throw invalid(`${to} cannot be a release key`, [
+        'Tags with "--", "<" or ">" are not supported'
+      ]);
+    }
+    return [to];
+  }
+  const pattern = globToRegExp(tagPattern);
+  const names = listTags(git2).map((t) => t.name).filter((name) => pattern.test(name) && isMarkerValue(name));
+  if (names.length === 0) {
+    throw invalid(`No tag matches range.tagPattern (${tagPattern})`, [
+      "Check range.tagPattern and fetch-depth: 0"
+    ]);
+  }
+  return names.sort((a7, b5) => {
+    const va = parseSemver(a7);
+    const vb = parseSemver(b5);
+    if (va && vb) return compareSemver(vb, va) || (a7 < b5 ? -1 : a7 > b5 ? 1 : 0);
+    if (va) return -1;
+    if (vb) return 1;
+    return a7 < b5 ? -1 : a7 > b5 ? 1 : 0;
+  });
+}
+
+// src/outputs/changelog.ts
+init_logger();
+
+// src/core/state/digest.ts
+import { createHash as createHash5 } from "node:crypto";
+var ACTION_MAJOR = "1";
+function canonicalJson(value) {
+  if (value === null || typeof value !== "object") return JSON.stringify(value) ?? "null";
+  if (Array.isArray(value)) return `[${value.map((v) => canonicalJson(v ?? null)).join(",")}]`;
+  const entries = Object.entries(value).filter(([, v]) => v !== void 0).sort(([a7], [b5]) => a7 < b5 ? -1 : a7 > b5 ? 1 : 0);
+  return `{${entries.map(([k5, v]) => `${JSON.stringify(k5)}:${canonicalJson(v)}`).join(",")}}`;
+}
+function sha256(text) {
+  return createHash5("sha256").update(text, "utf8").digest("hex");
+}
+function comments(list2) {
+  return list2.map((c6) => ({
+    author: c6.author,
+    association: c6.association,
+    kind: c6.kind,
+    body: sanitizeCommentForLLM(c6.body)
+  }));
+}
+function inputDigest(source) {
+  const snapshot = {
+    range: {
+      from: source.range.from,
+      to: source.range.to,
+      commits: source.range.commits.map((c6) => c6.sha)
+    },
+    pulls: source.pulls.map((p3) => ({
+      number: p3.number,
+      kind: "pull",
+      title: sanitizeTitleForLLM(p3.title),
+      body: sanitizeForLLM(p3.body),
+      labels: [...p3.labels].sort(),
+      author: p3.author,
+      mergedAt: p3.mergedAt,
+      comments: source.comments ? comments(p3.comments) : void 0
+    })),
+    issues: source.issues.map((i5) => ({
+      number: i5.number,
+      kind: "issue",
+      title: sanitizeTitleForLLM(i5.title),
+      body: sanitizeForLLM(i5.body),
+      labels: [...i5.labels].sort(),
+      author: i5.author,
+      comments: source.comments ? comments(i5.comments) : void 0
+    }))
+  };
+  return sha256(canonicalJson(snapshot));
+}
+function generationDigest(parts) {
+  return sha256(canonicalJson({ ...parts, actionMajor: parts.actionMajor ?? ACTION_MAJOR })).slice(
+    0,
+    16
+  );
+}
+function outputDigest(inner) {
+  return sha256(inner.replace(/\r\n/g, "\n")).slice(0, 16);
+}
+
+// src/outputs/changelog.ts
+var logger4 = createLogger("changelog-publisher");
+function formatAsChangelog(entry) {
+  let changelog = `## [${entry.version}] - ${entry.date}
+
+`;
+  changelog += entry.content;
+  if (entry.compareUrl) {
+    changelog += `
+
+[${entry.version}]: ${entry.compareUrl}
+`;
+  }
+  return changelog;
+}
+var VERSION_HEADING = /^##\s+\[([^\]]+)\](?:\s+-\s+(.+))?/;
+function findEntrySpans(lines) {
+  const spans = [];
+  let pendingMarker = null;
+  for (let i5 = 0; i5 < lines.length; i5++) {
+    const marker = parseMarkerLine(lines[i5]);
+    if (marker?.type === "begin") {
+      pendingMarker = { line: i5, fields: marker.fields };
+      continue;
+    }
+    const heading = VERSION_HEADING.exec(lines[i5]);
+    if (heading) {
+      const start = pendingMarker ? pendingMarker.line : i5;
+      if (spans.length > 0) spans[spans.length - 1].end = start;
+      spans.push({
+        version: heading[1],
+        start,
+        end: lines.length,
+        marker: pendingMarker?.fields ?? null
+      });
+      pendingMarker = null;
+    } else if (lines[i5].trim() !== "") {
+      pendingMarker = null;
+    }
+  }
+  return spans;
+}
+function isUnreleased(version2) {
+  return version2.toLowerCase() === "unreleased";
+}
+function insertionLine(spans, version2, lineCount) {
+  const newVersion = parseSemver(version2);
+  for (const span of spans) {
+    if (isUnreleased(span.version)) continue;
+    if (!newVersion) return span.start;
+    const existing = parseSemver(span.version);
+    if (existing && compareSemver(existing, newVersion) < 0) return span.start;
+  }
+  if (spans.length === 0) return lineCount;
+  return spans[spans.length - 1].end;
+}
+function trailingLinkStart(lines, from) {
+  let i5 = lines.length;
+  while (i5 > from && (lines[i5 - 1].trim() === "" || /^\[[^\]]+\]:\s/.test(lines[i5 - 1]))) i5--;
+  while (i5 < lines.length && lines[i5].trim() === "") i5++;
+  return i5;
+}
+function spliceAt(lines, at2, block, removeUntil = at2) {
+  const before = lines.slice(0, at2).join("\n").replace(/\n*$/, "");
+  const after = lines.slice(removeUntil).join("\n").replace(/^\n*/, "").replace(/\n*$/, "");
+  const parts = [before, block.replace(/\n*$/, ""), after].filter((p3) => p3.length > 0);
+  return parts.join("\n\n") + "\n";
+}
+function upsertChangelogEntry(existingContent, entry, marker, options = {}) {
+  const block = writeMarkedBlock(marker, formatAsChangelog(entry).replace(/\n+$/, ""));
+  const lines = existingContent.split("\n");
+  const spans = findEntrySpans(lines);
+  const same = spans.find((s2) => s2.version === entry.version);
+  if (same && !same.marker && options.onHumanEdit !== "overwrite") {
+    const warning3 = `CHANGELOG.md already has an entry for ${entry.version} that ReleaseRay did not write; it was left unchanged. Run mode: adopt to let ReleaseRay manage it.`;
+    logger4.warn(warning3, { version: entry.version });
+    return { content: existingContent, action: "skipped-unmarked", warning: warning3 };
+  }
+  if (same) {
+    return { content: spliceAt(lines, same.start, block, same.end), action: "replaced" };
+  }
+  let at2 = insertionLine(spans, entry.version, lines.length);
+  if (spans.length > 0 && at2 === spans[spans.length - 1].end) {
+    at2 = trailingLinkStart(lines, spans[spans.length - 1].start + 1);
+  }
+  return { content: spliceAt(lines, at2, block), action: "created" };
+}
+function adoptChangelogEntry(existingContent, key, persona) {
+  const lines = existingContent.split("\n");
+  const spans = findEntrySpans(lines);
+  const span = spans.find((s2) => s2.version === key);
+  if (!span) return { content: existingContent, action: "missing" };
+  if (span.marker) return { content: existingContent, action: "marked" };
+  const end2 = span === spans[spans.length - 1] ? trailingLinkStart(lines, span.start + 1) : span.end;
+  const inner = lines.slice(span.start, end2).join("\n").replace(/\s+$/, "");
+  const block = writeMarkedBlock(
+    { key, persona, gen: ADOPTED_GEN, out: outputDigest(inner) },
+    inner
+  );
+  return { content: spliceAt(lines, span.start, block, end2), action: "adopted" };
+}
+
+// src/outputs/github-release/api.ts
+function renderReleaseName(template, tag) {
+  return template.replace(/\{\{\s*([^{}\s]*)\s*\}\}/g, (_match, name) => {
+    if (name !== "tag") throw new Error(`Unknown placeholder {{${name}}} in nameTemplate`);
+    return tag;
+  });
+}
+function isSemverPrerelease(tag) {
+  return (parseSemver(tag)?.prerelease.length ?? 0) > 0;
+}
+function generateCompareUrl(serverUrl, owner, repo, fromTag, toTag) {
+  return `${serverUrl.replace(/\/+$/, "")}/${owner}/${repo}/compare/${fromTag}...${toTag}`;
+}
+
+// src/outputs/github-release/sink.ts
+function createReleaseApi(octokit, repo) {
+  const toTarget = (data) => ({
+    id: data.id,
+    body: data.body ?? "",
+    url: data.html_url,
+    draft: data.draft === true
+  });
+  return {
+    async get(tag) {
+      try {
+        const { data: data2 } = await octokit.rest.repos.getReleaseByTag({ ...repo, tag });
+        return toTarget(data2);
+      } catch (error64) {
+        if (!(isHttpError(error64) && error64.status === 404)) throw error64;
+      }
+      const { data } = await octokit.rest.repos.listReleases({ ...repo, per_page: 100 });
+      const draft = data.find((r5) => r5.draft && r5.tag_name === tag);
+      return draft ? toTarget(draft) : null;
+    },
+    async updateBody(id, body2) {
+      const { data } = await octokit.rest.repos.updateRelease({ ...repo, release_id: id, body: body2 });
+      return toTarget(data);
+    },
+    async create(input2) {
+      const { data } = await octokit.rest.repos.createRelease({
+        ...repo,
+        tag_name: input2.tag,
+        name: input2.name,
+        body: input2.body,
+        draft: false,
+        prerelease: input2.prerelease
+      });
+      return toTarget(data);
+    }
+  };
+}
+function nextReleaseBody(body2, block, write) {
+  const existing = findMarkedBlocks(body2).find(
+    (b5) => b5.fields.key === write.key && b5.fields.persona === write.persona
+  );
+  if (existing) return `${body2.slice(0, existing.start)}${block}${body2.slice(existing.end)}`;
+  if (write.mode === "replace") return block;
+  return body2.trim() ? `${body2.replace(/\s+$/, "")}
+
+${block}` : block;
+}
+function releaseWriteError(error64, write, action) {
+  const status = isHttpError(error64) ? error64.status : 0;
+  const message = isHttpError(error64) ? error64.message ?? "" : String(error64);
+  const details = [];
+  if (/Resource not accessible by integration/i.test(message)) {
+    details.push("The token lacks contents: write; add it to the job's permissions");
+  }
+  if ((status === 404 || status === 403) && action === "create") {
+    details.push(
+      write.touchesWorkflows ? `The tag's commit changes .github/workflows/, and GITHUB_TOKEN cannot create a release for it. Pass a PAT or GitHub App token with workflows write as github-token (see the app-token recipe)` : "Check that the token can write releases (contents: write)"
+    );
+  }
+  return new ReleaseRayError(
+    `Could not ${action} the GitHub Release for ${write.key} (HTTP ${status || "error"})`,
+    EXIT_CODES.budget,
+    details,
+    { cause: error64 }
+  );
+}
+async function applyReleasePlan(api, write) {
+  const warnings = [];
+  const { plan } = write;
+  if (plan.action !== "create" && plan.action !== "update") {
+    return { changed: false, url: write.current?.url ?? null, target: write.current, warnings };
+  }
+  const block = writeMarkedBlock(
+    { key: write.key, persona: write.persona, gen: write.gen, out: outputDigest(write.text) },
+    write.text
+  );
+  if (!write.current) {
+    if (write.touchesWorkflows) {
+      warnings.push(
+        `The commit for ${write.key} changes .github/workflows/; GITHUB_TOKEN cannot create its release. Use a PAT or GitHub App token (the app-token recipe)`
+      );
+    }
+    try {
+      const created = await api.create({
+        tag: write.key,
+        name: renderReleaseName(write.nameTemplate, write.key),
+        body: block,
+        prerelease: write.prerelease === "auto" ? isSemverPrerelease(write.key) : write.prerelease
+      });
+      return { changed: true, url: created.url, target: created, warnings };
+    } catch (error64) {
+      throw releaseWriteError(error64, write, "create");
+    }
+  }
+  const body2 = nextReleaseBody(write.current.body, block, write);
+  if (body2 === write.current.body) {
+    return { changed: false, url: write.current.url, target: write.current, warnings };
+  }
+  try {
+    const updated = await api.updateBody(write.current.id, body2);
+    return { changed: true, url: updated.url, target: updated, warnings };
+  } catch (error64) {
+    throw releaseWriteError(error64, write, "update");
+  }
+}
+function adoptReleaseBody(body2, key, persona) {
+  const text = body2.replace(/\r\n/g, "\n");
+  if (findMarkedBlocks(text).some((b5) => b5.fields.key === key && b5.fields.persona === persona)) {
+    return { action: "marked" };
+  }
+  if (/<!-- releaseray:(?:begin|end) /.test(text)) return { action: "foreign-markers" };
+  const inner = text.replace(/^(?:[ \t]*\n)+/, "").replace(/\s+$/, "");
+  if (!inner) return { action: "empty" };
+  return {
+    action: "adopt",
+    body: writeMarkedBlock({ key, persona, gen: ADOPTED_GEN, out: outputDigest(inner) }, inner)
+  };
+}
+
+// src/outputs/persisted.ts
+import { existsSync as existsSync4, mkdirSync, readFileSync as readFileSync3, writeFileSync } from "node:fs";
+import { dirname as dirname2, resolve as resolve3 } from "node:path";
+
+// src/core/render/markdown.ts
+var SECTION_EMOJI_MAP = {
+  feature: "\u{1F680}",
+  "what's new": "\u{1F680}",
+  enhancement: "\u2728",
+  improvement: "\u2728",
+  bug: "\u{1F41B}",
+  fix: "\u{1F41B}",
+  breaking: "\u26A0\uFE0F",
+  performance: "\u26A1",
+  security: "\u{1F512}",
+  deprecat: "\u{1F4E6}",
+  document: "\u{1F4DA}",
+  doc: "\u{1F4DA}",
+  internal: "\u{1F527}",
+  refactor: "\u{1F527}",
+  "customer impact": "\u{1F4A1}",
+  "talking point": "\u{1F4AC}",
+  competitive: "\u{1F3C6}"
+};
+function getSectionEmoji(title) {
+  const lower = title.toLowerCase();
+  for (const [keyword, emoji3] of Object.entries(SECTION_EMOJI_MAP)) {
+    if (lower.includes(keyword)) return emoji3;
+  }
+  return "\u{1F4CB}";
+}
+function orderSections(sections, sectionOrder) {
+  const normalizedOrder = sectionOrder.map((s2) => s2.toLowerCase());
+  const ordered = [];
+  const remaining = [...sections];
+  for (const name of normalizedOrder) {
+    const idx = remaining.findIndex((s2) => s2.title.toLowerCase() === name);
+    if (idx !== -1) {
+      const [section] = remaining.splice(idx, 1);
+      if (section) ordered.push(section);
+    }
+  }
+  return [...ordered, ...remaining];
+}
+function renderToMarkdown(draft, options = {}) {
+  const {
+    title,
+    repoFullName,
+    fromTag,
+    toTag,
+    serverUrl = "https://github.com",
+    includeHeader = true,
+    titleHeadingLevel = 1,
+    sectionHeadingLevel = 2,
+    includeEmojis = true,
+    showHighlights = true,
+    showUpgradeInstructions = true,
+    showContributors = true,
+    includeCompareLink = false,
+    includeFooter = false,
+    sectionOrder
+  } = options;
+  const h5 = (level) => "#".repeat(level);
+  const parts = [];
+  if (includeHeader) {
+    const heading = title || toTag || "Release";
+    parts.push(`${h5(titleHeadingLevel)} ${heading}
+`);
+    if (repoFullName) {
+      parts.push(`**Repository:** ${repoFullName}`);
+    }
+    if (fromTag && toTag) {
+      parts.push(`**Range:** ${fromTag} \u2192 ${toTag}`);
+    }
+    parts.push("");
+  }
+  if (showHighlights && draft.highlights && draft.highlights.length > 0) {
+    const emoji3 = includeEmojis ? "\u{1F31F} " : "";
+    parts.push(`${h5(sectionHeadingLevel)} ${emoji3}Highlights
+`);
+    for (const highlight of draft.highlights) {
+      parts.push(`- ${highlight}`);
+    }
+    parts.push("");
+  }
+  const sections = sectionOrder ? orderSections(draft.sections, sectionOrder) : draft.sections;
+  for (const section of sections) {
+    const emoji3 = includeEmojis ? `${getSectionEmoji(section.title)} ` : "";
+    parts.push(`${h5(sectionHeadingLevel)} ${emoji3}${section.title}
+`);
+    for (const item of section.items) {
+      let line = `- **${item.title}**`;
+      if (item.ref) {
+        line += ` (${item.ref})`;
+      }
+      if (item.description) {
+        line += ` \u2014 ${item.description}`;
+      }
+      parts.push(line);
+    }
+    parts.push("");
+  }
+  if (showUpgradeInstructions && draft.upgradeInstructions && draft.upgradeInstructions.length > 0) {
+    const emoji3 = includeEmojis ? "\u{1F527} " : "";
+    parts.push(`${h5(sectionHeadingLevel)} ${emoji3}Upgrade Instructions
+`);
+    for (let i5 = 0; i5 < draft.upgradeInstructions.length; i5++) {
+      parts.push(`${i5 + 1}. ${draft.upgradeInstructions[i5]}`);
+    }
+    parts.push("");
+  }
+  if (showContributors && draft.contributors && draft.contributors.length > 0) {
+    const emoji3 = includeEmojis ? "\u{1F44F} " : "";
+    parts.push(`${h5(sectionHeadingLevel)} ${emoji3}Contributors
+`);
+    const mentions = draft.contributors.map((c6) => `@${c6.replace(/^@/, "")}`).join(", ");
+    parts.push(`Thank you to ${mentions} for contributing to this release!`);
+    parts.push("");
+  }
+  if (includeFooter) {
+    parts.push("---\n");
+  }
+  if (includeCompareLink && repoFullName && fromTag && toTag) {
+    parts.push(
+      `**Full Changelog**: [${fromTag}...${toTag}](${serverUrl.replace(/\/+$/, "")}/${repoFullName}/compare/${fromTag}...${toTag})`
+    );
+    parts.push("");
+  }
+  return parts.join("\n");
+}
+var CANONICAL_RENDER_OPTIONS = {
+  includeHeader: false,
+  sectionHeadingLevel: 2,
+  includeEmojis: true,
+  includeCompareLink: true,
+  includeFooter: false
+};
+function shiftHeadings(markdown2, levels) {
+  let fence = null;
+  return markdown2.split("\n").map((line) => {
+    const fenceMatch = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+    if (fenceMatch) {
+      const marker = fenceMatch[1];
+      if (fence === null) fence = marker;
+      else if (marker[0] === fence[0] && marker.length >= fence.length) fence = null;
+      return line;
+    }
+    if (fence !== null) return line;
+    const heading = /^( {0,3})(#{1,6})(?=\s|$)/.exec(line);
+    if (!heading) return line;
+    const depth = Math.min(6, Math.max(1, heading[2].length + levels));
+    return `${heading[1]}${"#".repeat(depth)}${line.slice(heading[0].length)}`;
+  }).join("\n");
+}
+
+// src/core/state/planner.ts
+function isHumanEdited(block) {
+  return outputDigest(block.inner) !== block.fields.out;
+}
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function hasUnmarkedEntry(text, key) {
+  const blocks = findMarkedBlocks(text);
+  const heading = new RegExp(`^## \\[${escapeRegExp(key)}\\]`, "gm");
+  for (const match of text.matchAll(heading)) {
+    const at2 = match.index ?? 0;
+    if (!blocks.some((b5) => at2 >= b5.start && at2 < b5.end)) return true;
+  }
+  return false;
+}
+function planSink(target, request2) {
+  const write = (action, extra = {}) => ({
+    action,
+    needsText: true,
+    ...extra
+  });
+  if (target.sink === "github-release" && !target.exists) {
+    return target.createIfMissing ? write("create") : {
+      action: "skip",
+      needsText: false,
+      notice: `No GitHub Release for ${request2.key}; set outputs.githubRelease.createIfMissing: true to create one`
+    };
+  }
+  const blocks = findMarkedBlocks(target.text);
+  const block = blocks.find(
+    (b5) => b5.fields.key === request2.key && b5.fields.persona === request2.persona
+  );
+  if (!block) {
+    if (target.sink === "changelog" && hasUnmarkedEntry(target.text, request2.key)) {
+      return target.onHumanEdit === "overwrite" ? write("update") : {
+        action: "skip-human",
+        needsText: false,
+        warning: `CHANGELOG already has an unmarked entry for ${request2.key}; left as is (onHumanEdit: skip)`
+      };
+    }
+    if (target.sink === "github-release" && target.mode === "replace") return write("update");
+    const unmarked = target.text.trim().length > 0 && blocks.length === 0;
+    return write(
+      "create",
+      unmarked && target.sink === "github-release" ? {
+        warning: `The release body for ${request2.key} has text without ReleaseRay markers; the notes are appended below it. Run mode: adopt to take it over`
+      } : {}
+    );
+  }
+  const edited = isHumanEdited(block);
+  const matches = block.fields.gen === request2.gen || block.fields.gen === ADOPTED_GEN;
+  if (edited && target.onHumanEdit === "skip" && (request2.force || !matches)) {
+    return {
+      action: "skip-human",
+      needsText: false,
+      block,
+      warning: `The ${request2.persona} block for ${request2.key} in ${target.sink === "changelog" ? "CHANGELOG" : "the GitHub Release"} was edited by hand; left as is (onHumanEdit: skip)`
+    };
+  }
+  if (request2.force) return write("update", { block });
+  if (matches) return { action: "noop", needsText: false, block };
+  return write("update", { block });
+}
+function findStoredText(targets, request2) {
+  if (request2.force) return null;
+  for (const target of targets) {
+    const block = findMarkedBlocks(target.text).find(
+      (b5) => b5.fields.key === request2.key && b5.fields.persona === request2.persona && b5.fields.gen === request2.gen && !isHumanEdited(b5)
+    );
+    if (!block) continue;
+    const text = target.sink === "changelog" ? shiftHeadings(block.inner.replace(/^## \[[^\]]*\][^\n]*\n+/, ""), -1) : block.inner;
+    return { text, from: target.sink };
+  }
+  return null;
+}
+function generatesUnpersisted(state3) {
+  return !state3.persistedEnabled || state3.primaryChanged || state3.force || Boolean(state3.notifyAlways);
+}
+
+// src/outputs/changelog-sink.ts
+var NEW_CHANGELOG_HEADER = "# Changelog\n\nAll notable changes to this project are documented in this file.\n";
+function changelogInner(write) {
+  return formatAsChangelog({
+    version: write.key,
+    date: write.date,
+    content: shiftHeadings(write.text, 1)
+  }).replace(/\n+$/, "");
+}
+function applyChangelogEntry(current, write) {
+  const base = current.trim() ? current : NEW_CHANGELOG_HEADER;
+  const inner = changelogInner(write);
+  return upsertChangelogEntry(
+    base,
+    { version: write.key, date: write.date, content: shiftHeadings(write.text, 1) },
+    { key: write.key, persona: write.persona, gen: write.gen, out: outputDigest(inner) },
+    { onHumanEdit: write.onHumanEdit }
+  );
+}
+function syncChangelogEntry(current, write) {
+  const sameKey = findMarkedBlocks(current).filter((b5) => b5.fields.key === write.key);
+  const block = sameKey.find((b5) => b5.fields.persona === write.persona);
+  if (!block && sameKey.length > 0) {
+    return {
+      content: current,
+      action: "skipped-human",
+      warning: `CHANGELOG has a ${sameKey[0].fields.persona} entry for ${write.key}, not ${write.persona}; it was left unchanged`
+    };
+  }
+  if (block) {
+    const edited = isHumanEdited(block);
+    if (!edited && block.fields.gen === write.gen && block.inner === changelogInner(write)) {
+      return { content: current, action: "unchanged" };
+    }
+    if (edited && write.onHumanEdit === "skip") {
+      return {
+        content: current,
+        action: "skipped-human",
+        warning: `The CHANGELOG entry for ${write.key} was edited by hand; left as is (onHumanEdit: skip)`
+      };
+    }
+  }
+  const applied = applyChangelogEntry(current, write);
+  if (applied.action === "skipped-unmarked") {
+    return { content: current, action: "skipped-human", warning: applied.warning };
+  }
+  if (applied.content === current) return { content: current, action: "unchanged" };
+  return { content: applied.content, action: applied.action === "created" ? "created" : "updated" };
+}
+
+// src/outputs/push.ts
+import { execFileSync as execFileSync2 } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join as join8 } from "node:path";
+var GENERATED_BY_TRAILER = "Generated-by: ReleaseRay";
+var GITHUB_ACTIONS_BOT = {
+  name: "github-actions[bot]",
+  email: "41898282+github-actions[bot]@users.noreply.github.com"
+};
+var GitFailure = class extends Error {
+  constructor(message, stderr) {
+    super(message);
+    this.stderr = stderr;
+  }
+  stderr;
+};
+function git(options, args, extra = {}) {
+  const auth2 = extra.auth ? [
+    "-c",
+    `http.${options.serverUrl}/.extraheader=`,
+    "-c",
+    `http.${options.serverUrl}/.extraheader=AUTHORIZATION: basic ${Buffer.from(`x-access-token:${options.token}`).toString("base64")}`
+  ] : [];
+  try {
+    return execFileSync2("git", [...auth2, ...args], {
+      cwd: options.workspace,
+      encoding: "utf8",
+      input: extra.input,
+      env: { ...options.env, GIT_TERMINAL_PROMPT: "0", ...extra.env },
+      stdio: ["pipe", "pipe", "pipe"],
+      maxBuffer: 64 * 1024 * 1024
+    }).replace(/\n$/, "");
+  } catch (error64) {
+    const stderr = String(error64.stderr ?? "");
+    throw new GitFailure(`git ${args[0]} failed`, stderr);
+  }
+}
+function ruleGuidance(stderr) {
+  if (/signature/i.test(stderr)) {
+    return [
+      "The branch requires signed commits. The push loop's commits are unsigned; use the changelog-pr recipe instead"
+    ];
+  }
+  if (/pull request|GH006|GH013|protected branch|ruleset|rule violation/i.test(stderr)) {
+    return [
+      "Branch protection or a ruleset rejected the push",
+      "Required pull requests: add the token's actor to the bypass list, or use the changelog-pr recipe",
+      "Push restrictions: pass a PAT whose user, or a GitHub App you registered, may push (the app-token recipe)"
+    ];
+  }
+  return null;
+}
+function pushChangelog(options) {
+  const remote = options.remote ?? "origin";
+  const max = options.maxAttempts ?? 3;
+  const header2 = Buffer.from(`x-access-token:${options.token}`).toString("base64");
+  options.setSecret(header2);
+  const identity = {
+    GIT_AUTHOR_NAME: options.author.name,
+    GIT_AUTHOR_EMAIL: options.author.email,
+    GIT_COMMITTER_NAME: options.author.name,
+    GIT_COMMITTER_EMAIL: options.author.email
+  };
+  const message = `${options.message}
+
+${GENERATED_BY_TRAILER}
+ReleaseRay-Key: ${options.key}
+`;
+  for (let attempt = 1; attempt <= max; attempt++) {
+    let head;
+    try {
+      git(options, ["fetch", "--no-tags", "--quiet", remote, options.branch], { auth: true });
+      head = git(options, ["rev-parse", "FETCH_HEAD^{commit}"]);
+    } catch (error64) {
+      throw new ReleaseRayError(
+        `Could not fetch ${options.branch} to push CHANGELOG`,
+        EXIT_CODES.push,
+        [
+          error64 instanceof GitFailure ? error64.stderr.trim().split("\n").pop() ?? "" : String(error64)
+        ]
+      );
+    }
+    let current = "";
+    try {
+      current = git(options, ["show", `${head}:${options.path}`]) + "\n";
+    } catch {
+    }
+    const next = options.apply(current);
+    if (next === null || next === current) return { pushed: false, attempts: attempt };
+    const indexDir = mkdtempSync(join8(tmpdir(), "releaseray-index-"));
+    let commit;
+    try {
+      const env2 = { GIT_INDEX_FILE: join8(indexDir, "index") };
+      const blob = git(options, ["hash-object", "-w", "--stdin"], { input: next });
+      git(options, ["read-tree", head], { env: env2 });
+      git(options, ["update-index", "--add", "--cacheinfo", `100644,${blob},${options.path}`], {
+        env: env2
+      });
+      const tree = git(options, ["write-tree"], { env: env2 });
+      commit = git(options, ["commit-tree", tree, "-p", head, "-F", "-"], {
+        input: message,
+        env: identity
+      });
+    } finally {
+      rmSync(indexDir, { recursive: true, force: true });
+    }
+    options.beforePush?.(attempt);
+    try {
+      git(options, ["push", "--quiet", remote, `${commit}:refs/heads/${options.branch}`], {
+        auth: true
+      });
+      return { pushed: true, commit, attempts: attempt };
+    } catch (error64) {
+      const stderr = error64 instanceof GitFailure ? error64.stderr : String(error64);
+      const rule = ruleGuidance(stderr);
+      if (rule) {
+        throw new ReleaseRayError(
+          `The CHANGELOG push to ${options.branch} was rejected`,
+          EXIT_CODES.push,
+          rule
+        );
+      }
+      if (!/non-fast-forward|fetch first|stale info|cannot lock ref/i.test(stderr)) {
+        throw new ReleaseRayError(
+          `The CHANGELOG push to ${options.branch} failed`,
+          EXIT_CODES.push,
+          [stderr.trim().split("\n").pop() ?? ""]
+        );
+      }
+    }
+  }
+  throw new ReleaseRayError(
+    `The CHANGELOG push to ${options.branch} was rejected ${max} times`,
+    EXIT_CODES.push,
+    ["Other pushes kept moving the branch; re-run the workflow, which reuses the stored text"]
+  );
+}
+
+// src/outputs/persisted.ts
+async function applyPersisted(personas, context2, settings, deps) {
+  const outcome = {
+    releaseChanged: false,
+    releaseUrl: context2.release?.url ?? null,
+    changelogChanged: false,
+    pushed: false,
+    warnings: []
+  };
+  let release2 = context2.release;
+  const wrote = () => outcome.releaseChanged || outcome.changelogChanged;
+  try {
+    for (const p3 of personas) {
+      const plan = p3.plans.githubRelease;
+      if (!plan || !deps.release) continue;
+      const result2 = await applyReleasePlan(deps.release, {
+        key: context2.key,
+        persona: p3.id,
+        gen: p3.gen,
+        text: p3.text,
+        plan,
+        current: release2,
+        mode: settings.githubRelease.mode,
+        nameTemplate: settings.githubRelease.nameTemplate,
+        prerelease: settings.githubRelease.prerelease,
+        touchesWorkflows: context2.touchesWorkflows
+      });
+      outcome.warnings.push(...result2.warnings);
+      if (result2.changed) {
+        outcome.releaseChanged = true;
+        outcome.releaseUrl = result2.url;
+        release2 = result2.target;
+      }
+    }
+    for (const p3 of personas) {
+      const plan = p3.plans.changelog;
+      if (!plan || plan.action !== "create" && plan.action !== "update") continue;
+      const write = {
+        key: context2.key,
+        persona: p3.id,
+        gen: p3.gen,
+        text: p3.text,
+        date: context2.date,
+        onHumanEdit: settings.changelog.onHumanEdit
+      };
+      const file2 = resolve3(deps.workspace, settings.changelog.path);
+      const current = existsSync4(file2) ? readFileSync3(file2, "utf8") : "";
+      const applied = applyChangelogEntry(current, write);
+      if (applied.warning) outcome.warnings.push(applied.warning);
+      if (applied.content !== current) {
+        mkdirSync(dirname2(file2), { recursive: true });
+        writeFileSync(file2, applied.content);
+        outcome.changelogChanged = true;
+      }
+      if (settings.changelog.push && deps.push) {
+        const pushed = pushChangelog({
+          ...deps.push,
+          workspace: deps.workspace,
+          branch: settings.changelog.branch ?? deps.push.branch,
+          path: settings.changelog.path,
+          message: settings.changelog.commitMessage.replace(/\{\{\s*key\s*\}\}/g, context2.key),
+          key: context2.key,
+          author: settings.changelog.author ?? GITHUB_ACTIONS_BOT,
+          apply: (text) => {
+            const next = applyChangelogEntry(text, write);
+            return next.action === "skipped-unmarked" ? null : next.content;
+          }
+        });
+        outcome.pushed = pushed.pushed;
+        if (pushed.pushed) outcome.changelogChanged = true;
+      }
+    }
+  } catch (error64) {
+    if (error64 instanceof ReleaseRayError && wrote() && error64.exitCode !== EXIT_CODES.push) {
+      throw new ReleaseRayError(
+        `Partial publish: ${error64.message}`,
+        EXIT_CODES.partial,
+        error64.details,
+        {
+          cause: error64
+        }
+      );
+    }
+    throw error64;
+  }
+  return outcome;
+}
+function changelogCommitKey(keys) {
+  if (keys.length <= 5) return keys.join(", ");
+  return `${keys.length} releases, ${keys[0]} to ${keys[keys.length - 1]}`;
+}
+function applyChangelogEdit(edit, keys, settings, deps) {
+  const file2 = resolve3(deps.workspace, settings.path);
+  const current = existsSync4(file2) ? readFileSync3(file2, "utf8") : "";
+  const next = edit(current);
+  const changed = next !== current;
+  if (changed) {
+    mkdirSync(dirname2(file2), { recursive: true });
+    writeFileSync(file2, next);
+  }
+  if (!settings.push || !deps.push || keys.length === 0) return { changed, pushed: false };
+  const key = changelogCommitKey(keys);
+  const pushed = pushChangelog({
+    ...deps.push,
+    workspace: deps.workspace,
+    branch: settings.branch ?? deps.push.branch,
+    path: settings.path,
+    message: settings.commitMessage.replace(/\{\{\s*key\s*\}\}/g, key),
+    key,
+    author: settings.author ?? GITHUB_ACTIONS_BOT,
+    apply: edit
+  });
+  return { changed: changed || pushed.pushed, pushed: pushed.pushed };
+}
 
 // src/modes/types.ts
 function result(summary2 = "") {
   return { summary: summary2, outputs: {}, files: [], warnings: [], errors: [] };
+}
+function tagTable(rows, columns) {
+  const cell2 = (text) => text.replace(/\|/g, "\\|");
+  return [
+    `| Tag | ${columns.join(" | ")} |`,
+    `| --- | ${columns.map(() => "---").join(" | ")} |`,
+    ...[...rows].map(([tag, cells]) => `| \`${cell2(tag)}\` | ${cells.map(cell2).join(" | ")} |`)
+  ];
+}
+
+// src/modes/adopt.ts
+var ADOPT_PACING = {
+  /** A run planning at most this many writes stays under 80 a minute at 1 second apart. */
+  burstWrites: 80,
+  burstSpacingMs: 1e3,
+  /** 3,600 seconds over 500 writes: no 60-minute span exceeds 500. */
+  spacingMs: 7200,
+  /** Writes per run, leaving headroom under 500 an hour (an assumption, §5.7). */
+  maxWrites: 400,
+  /** The content-creation window. */
+  windowMs: 60 * 60 * 1e3
+};
+function formatTime(ms) {
+  return new Date(ms).toISOString().replace(/\.\d{3}Z$/, "Z");
+}
+async function adopt(request2, config2, deps) {
+  assertFullHistory(deps.git);
+  const c6 = config2.config;
+  const tags = selectTags(deps.git, request2, c6.range.tagPattern);
+  const mode = result();
+  const notices = [];
+  const rows = new Map(tags.map((t) => [t, { release: "-", changelog: "-" }]));
+  const releasePersona = c6.outputs.githubRelease.persona;
+  const planned = [];
+  if (!c6.outputs.githubRelease.enabled) {
+    notices.push("outputs.githubRelease.enabled is false: release bodies were not read");
+  } else if (deps.release) {
+    for (const tag of tags) {
+      const row = rows.get(tag);
+      const current = await deps.release.get(tag);
+      if (!current) {
+        row.release = "no release";
+        continue;
+      }
+      const plan = adoptReleaseBody(current.body, tag, releasePersona);
+      if (plan.action === "adopt") {
+        planned.push({ tag, id: current.id, body: plan.body });
+        row.release = "planned";
+      } else if (plan.action === "marked") {
+        row.release = "already marked";
+      } else if (plan.action === "empty") {
+        row.release = "empty body";
+      } else {
+        row.release = "skipped";
+        mode.warnings.push(
+          `The release body for ${tag} has ReleaseRay markers for another key or persona, or a broken marker; it was left unchanged`
+        );
+      }
+    }
+  }
+  const spacing = planned.length <= ADOPT_PACING.burstWrites ? ADOPT_PACING.burstSpacingMs : ADOPT_PACING.spacingMs;
+  const batch = planned.slice(0, ADOPT_PACING.maxWrites);
+  let first = null;
+  let last = 0;
+  let written = 0;
+  for (const write of batch) {
+    if (first !== null) {
+      const wait = last + spacing - deps.now();
+      if (wait > 0) await deps.sleep(wait);
+    }
+    const at2 = deps.now();
+    try {
+      await deps.release.updateBody(write.id, write.body);
+    } catch (error64) {
+      const failure2 = releaseWriteError(
+        error64,
+        { key: write.tag, touchesWorkflows: false },
+        "update"
+      );
+      if (written === 0) throw failure2;
+      throw new ReleaseRayError(
+        `Partial adopt: ${written} release${written === 1 ? "" : "s"} adopted before ${write.tag} failed`,
+        EXIT_CODES.partial,
+        [failure2.message, ...failure2.details, "Re-run adopt: adopted releases are skipped"],
+        { cause: failure2 }
+      );
+    }
+    first ??= at2;
+    last = at2;
+    written++;
+    rows.get(write.tag).release = "adopted";
+  }
+  const nextStart = first === null ? null : first + ADOPT_PACING.windowMs;
+  const pending = planned.slice(batch.length);
+  for (const p3 of pending) rows.get(p3.tag).release = "pending (write cap)";
+  if (pending.length > 0) {
+    mode.warnings.push(
+      `Stopped after ${ADOPT_PACING.maxWrites} release writes, the cap for one run; ${pending.length} release${pending.length === 1 ? "" : "s"} still need adopting, starting with ${pending[0].tag}. Next safe start: ${formatTime(nextStart)}, one hour after this run's first write (GitHub allows 500 content-creating requests an hour, and writes by other workflows count too). Releases already adopted are skipped`
+    );
+  }
+  let changelog = { changed: false, pushed: false };
+  if (!c6.outputs.changelog.enabled) {
+    notices.push("outputs.changelog.enabled is false: CHANGELOG was not read");
+  } else {
+    const persona = c6.outputs.changelog.persona;
+    const labels = { adopted: "adopted", marked: "already marked", missing: "no entry" };
+    let recorded = false;
+    const edit = (text) => {
+      let acc = text;
+      for (const tag of tags) {
+        const done = adoptChangelogEntry(acc, tag, persona);
+        acc = done.content;
+        if (!recorded) rows.get(tag).changelog = labels[done.action];
+      }
+      recorded = true;
+      return acc;
+    };
+    changelog = applyChangelogEdit(edit, tags, c6.outputs.changelog, deps.persisted);
+    if (changelog.changed && !changelog.pushed) mode.files.push(c6.outputs.changelog.path);
+  }
+  const adoptedCount = [...rows.values()].filter((r5) => r5.changelog === "adopted").length;
+  mode.outputs = {
+    ...tags.length === 1 ? { key: tags[0] } : {},
+    "release-changed": String(written > 0),
+    "changelog-changed": String(changelog.changed),
+    "github-requests": String(deps.requests?.() ?? 0),
+    "llm-calls": "0",
+    "llm-cost-usd": "0.0000"
+  };
+  mode.summary = [
+    `# ReleaseRay adopt: ${tags.length === 1 ? tags[0] : `${tags.length} tags`}`,
+    "",
+    `- GitHub Release (\`${releasePersona}\`): ${written} adopted${pending.length > 0 ? `, ${pending.length} pending` : ""}`,
+    `- CHANGELOG (\`${c6.outputs.changelog.persona}\`): ${adoptedCount} adopted${changelog.pushed ? " and pushed" : ""}`,
+    ...nextStart !== null ? [`- Next safe start for another bulk adopt: ${formatTime(nextStart)}`] : [],
+    ...notices.map((n3) => `- ${n3}`),
+    "",
+    ...tagTable(new Map([...rows].map(([tag, r5]) => [tag, [r5.release, r5.changelog]])), [
+      "GitHub Release",
+      "CHANGELOG"
+    ]),
+    ""
+  ].join("\n");
+  return mode;
 }
 
 // src/modes/doctor.ts
@@ -143495,7 +144588,7 @@ import { join as join10 } from "node:path";
 
 // src/core/classify/commits.ts
 init_logger();
-var logger4 = createLogger("classify-commits");
+var logger5 = createLogger("classify-commits");
 async function classifyCommits(commits, options) {
   const commitItems = commits.map((commit) => {
     const lines = commit.message.split("\n");
@@ -143513,7 +144606,7 @@ async function classifyCommits(commits, options) {
   try {
     return await enhancedClassifyChanges(commitItems, [], options);
   } catch (error64) {
-    logger4.warn("Commit classification failed, using fallback", {
+    logger5.warn("Commit classification failed, using fallback", {
       error: error64 instanceof Error ? error64.message : String(error64)
     });
     return enhancedFallbackClassification(commitItems, options);
@@ -144158,7 +145251,7 @@ async function retryLLMCall(fn, options = {}) {
 // src/core/llm/call.ts
 init_logger();
 init_provider2();
-var logger5 = createLogger("llm");
+var logger6 = createLogger("llm");
 function stripCodeFences2(text) {
   const trimmed = text.trim();
   const fenceMatch = trimmed.match(/^`{3,}\w*\s*\n?([\s\S]+?)\n?\s*`{3,}\s*$/);
@@ -144201,7 +145294,7 @@ async function callLLMWithSchema(systemPrompt, userPrompt, schema, options) {
         return validated;
       } catch (error64) {
         if (error64 instanceof Error) {
-          logger5.error("LLM call failed", { error: error64.message });
+          logger6.error("LLM call failed", { error: error64.message });
           throw new Error(`LLM processing failed: ${error64.message}`, { cause: error64 });
         }
         throw error64;
@@ -144210,7 +145303,7 @@ async function callLLMWithSchema(systemPrompt, userPrompt, schema, options) {
     {
       maxAttempts: maxRetries,
       onRetry: (error64, attempt) => {
-        logger5.warn("LLM call failed, retrying", {
+        logger6.warn("LLM call failed, retrying", {
           attempt,
           maxRetries,
           error: error64.message
@@ -144264,356 +145357,6 @@ async function generateDraft(provider, system, user, options) {
     [lastError instanceof Error ? lastError.message : String(lastError)],
     { cause: lastError }
   );
-}
-
-// src/core/render/markdown.ts
-var SECTION_EMOJI_MAP = {
-  feature: "\u{1F680}",
-  "what's new": "\u{1F680}",
-  enhancement: "\u2728",
-  improvement: "\u2728",
-  bug: "\u{1F41B}",
-  fix: "\u{1F41B}",
-  breaking: "\u26A0\uFE0F",
-  performance: "\u26A1",
-  security: "\u{1F512}",
-  deprecat: "\u{1F4E6}",
-  document: "\u{1F4DA}",
-  doc: "\u{1F4DA}",
-  internal: "\u{1F527}",
-  refactor: "\u{1F527}",
-  "customer impact": "\u{1F4A1}",
-  "talking point": "\u{1F4AC}",
-  competitive: "\u{1F3C6}"
-};
-function getSectionEmoji(title) {
-  const lower = title.toLowerCase();
-  for (const [keyword, emoji3] of Object.entries(SECTION_EMOJI_MAP)) {
-    if (lower.includes(keyword)) return emoji3;
-  }
-  return "\u{1F4CB}";
-}
-function orderSections(sections, sectionOrder) {
-  const normalizedOrder = sectionOrder.map((s2) => s2.toLowerCase());
-  const ordered = [];
-  const remaining = [...sections];
-  for (const name of normalizedOrder) {
-    const idx = remaining.findIndex((s2) => s2.title.toLowerCase() === name);
-    if (idx !== -1) {
-      const [section] = remaining.splice(idx, 1);
-      if (section) ordered.push(section);
-    }
-  }
-  return [...ordered, ...remaining];
-}
-function renderToMarkdown(draft, options = {}) {
-  const {
-    title,
-    repoFullName,
-    fromTag,
-    toTag,
-    serverUrl = "https://github.com",
-    includeHeader = true,
-    titleHeadingLevel = 1,
-    sectionHeadingLevel = 2,
-    includeEmojis = true,
-    showHighlights = true,
-    showUpgradeInstructions = true,
-    showContributors = true,
-    includeCompareLink = false,
-    includeFooter = false,
-    sectionOrder
-  } = options;
-  const h5 = (level) => "#".repeat(level);
-  const parts = [];
-  if (includeHeader) {
-    const heading = title || toTag || "Release";
-    parts.push(`${h5(titleHeadingLevel)} ${heading}
-`);
-    if (repoFullName) {
-      parts.push(`**Repository:** ${repoFullName}`);
-    }
-    if (fromTag && toTag) {
-      parts.push(`**Range:** ${fromTag} \u2192 ${toTag}`);
-    }
-    parts.push("");
-  }
-  if (showHighlights && draft.highlights && draft.highlights.length > 0) {
-    const emoji3 = includeEmojis ? "\u{1F31F} " : "";
-    parts.push(`${h5(sectionHeadingLevel)} ${emoji3}Highlights
-`);
-    for (const highlight of draft.highlights) {
-      parts.push(`- ${highlight}`);
-    }
-    parts.push("");
-  }
-  const sections = sectionOrder ? orderSections(draft.sections, sectionOrder) : draft.sections;
-  for (const section of sections) {
-    const emoji3 = includeEmojis ? `${getSectionEmoji(section.title)} ` : "";
-    parts.push(`${h5(sectionHeadingLevel)} ${emoji3}${section.title}
-`);
-    for (const item of section.items) {
-      let line = `- **${item.title}**`;
-      if (item.ref) {
-        line += ` (${item.ref})`;
-      }
-      if (item.description) {
-        line += ` \u2014 ${item.description}`;
-      }
-      parts.push(line);
-    }
-    parts.push("");
-  }
-  if (showUpgradeInstructions && draft.upgradeInstructions && draft.upgradeInstructions.length > 0) {
-    const emoji3 = includeEmojis ? "\u{1F527} " : "";
-    parts.push(`${h5(sectionHeadingLevel)} ${emoji3}Upgrade Instructions
-`);
-    for (let i5 = 0; i5 < draft.upgradeInstructions.length; i5++) {
-      parts.push(`${i5 + 1}. ${draft.upgradeInstructions[i5]}`);
-    }
-    parts.push("");
-  }
-  if (showContributors && draft.contributors && draft.contributors.length > 0) {
-    const emoji3 = includeEmojis ? "\u{1F44F} " : "";
-    parts.push(`${h5(sectionHeadingLevel)} ${emoji3}Contributors
-`);
-    const mentions = draft.contributors.map((c6) => `@${c6.replace(/^@/, "")}`).join(", ");
-    parts.push(`Thank you to ${mentions} for contributing to this release!`);
-    parts.push("");
-  }
-  if (includeFooter) {
-    parts.push("---\n");
-  }
-  if (includeCompareLink && repoFullName && fromTag && toTag) {
-    parts.push(
-      `**Full Changelog**: [${fromTag}...${toTag}](${serverUrl.replace(/\/+$/, "")}/${repoFullName}/compare/${fromTag}...${toTag})`
-    );
-    parts.push("");
-  }
-  return parts.join("\n");
-}
-var CANONICAL_RENDER_OPTIONS = {
-  includeHeader: false,
-  sectionHeadingLevel: 2,
-  includeEmojis: true,
-  includeCompareLink: true,
-  includeFooter: false
-};
-function shiftHeadings(markdown2, levels) {
-  let fence = null;
-  return markdown2.split("\n").map((line) => {
-    const fenceMatch = /^ {0,3}(`{3,}|~{3,})/.exec(line);
-    if (fenceMatch) {
-      const marker = fenceMatch[1];
-      if (fence === null) fence = marker;
-      else if (marker[0] === fence[0] && marker.length >= fence.length) fence = null;
-      return line;
-    }
-    if (fence !== null) return line;
-    const heading = /^( {0,3})(#{1,6})(?=\s|$)/.exec(line);
-    if (!heading) return line;
-    const depth = Math.min(6, Math.max(1, heading[2].length + levels));
-    return `${heading[1]}${"#".repeat(depth)}${line.slice(heading[0].length)}`;
-  }).join("\n");
-}
-
-// src/core/state/digest.ts
-import { createHash as createHash5 } from "node:crypto";
-var ACTION_MAJOR = "1";
-function canonicalJson(value) {
-  if (value === null || typeof value !== "object") return JSON.stringify(value) ?? "null";
-  if (Array.isArray(value)) return `[${value.map((v) => canonicalJson(v ?? null)).join(",")}]`;
-  const entries = Object.entries(value).filter(([, v]) => v !== void 0).sort(([a7], [b5]) => a7 < b5 ? -1 : a7 > b5 ? 1 : 0);
-  return `{${entries.map(([k5, v]) => `${JSON.stringify(k5)}:${canonicalJson(v)}`).join(",")}}`;
-}
-function sha256(text) {
-  return createHash5("sha256").update(text, "utf8").digest("hex");
-}
-function comments(list2) {
-  return list2.map((c6) => ({
-    author: c6.author,
-    association: c6.association,
-    kind: c6.kind,
-    body: sanitizeCommentForLLM(c6.body)
-  }));
-}
-function inputDigest(source) {
-  const snapshot = {
-    range: {
-      from: source.range.from,
-      to: source.range.to,
-      commits: source.range.commits.map((c6) => c6.sha)
-    },
-    pulls: source.pulls.map((p3) => ({
-      number: p3.number,
-      kind: "pull",
-      title: sanitizeTitleForLLM(p3.title),
-      body: sanitizeForLLM(p3.body),
-      labels: [...p3.labels].sort(),
-      author: p3.author,
-      mergedAt: p3.mergedAt,
-      comments: source.comments ? comments(p3.comments) : void 0
-    })),
-    issues: source.issues.map((i5) => ({
-      number: i5.number,
-      kind: "issue",
-      title: sanitizeTitleForLLM(i5.title),
-      body: sanitizeForLLM(i5.body),
-      labels: [...i5.labels].sort(),
-      author: i5.author,
-      comments: source.comments ? comments(i5.comments) : void 0
-    }))
-  };
-  return sha256(canonicalJson(snapshot));
-}
-function generationDigest(parts) {
-  return sha256(canonicalJson({ ...parts, actionMajor: parts.actionMajor ?? ACTION_MAJOR })).slice(
-    0,
-    16
-  );
-}
-function outputDigest(inner) {
-  return sha256(inner.replace(/\r\n/g, "\n")).slice(0, 16);
-}
-
-// src/core/state/marker.ts
-var MARKER_VERSION2 = 1;
-var VALUE = /^[^\s<>]+$/;
-function checkValue(name, value) {
-  if (!VALUE.test(value) || value.includes("--")) {
-    throw new Error(`Marker ${name} must be non-empty, without spaces, <, > or "--": ${value}`);
-  }
-}
-function writeBeginMarker(fields) {
-  for (const name of ["key", "persona", "gen", "out"]) checkValue(name, fields[name]);
-  return `<!-- releaseray:begin v=${MARKER_VERSION2} key=${fields.key} persona=${fields.persona} gen=${fields.gen} out=${fields.out} -->`;
-}
-function writeEndMarker(fields) {
-  checkValue("key", fields.key);
-  checkValue("persona", fields.persona);
-  return `<!-- releaseray:end key=${fields.key} persona=${fields.persona} -->`;
-}
-var BEGIN = /<!-- releaseray:begin v=(\d+) key=(\S+) persona=(\S+) gen=(\S+) out=(\S+) -->/g;
-var END = /<!-- releaseray:end key=(\S+) persona=(\S+) -->/g;
-function parseMarkerLine(line) {
-  const trimmed = line.trim();
-  const begin = new RegExp(`^${BEGIN.source}$`).exec(trimmed);
-  if (begin) {
-    return {
-      type: "begin",
-      version: Number(begin[1]),
-      fields: { key: begin[2], persona: begin[3], gen: begin[4], out: begin[5] }
-    };
-  }
-  const end2 = new RegExp(`^${END.source}$`).exec(trimmed);
-  if (end2) return { type: "end", key: end2[1], persona: end2[2] };
-  return null;
-}
-function writeMarkedBlock(fields, inner) {
-  return `${writeBeginMarker(fields)}
-
-${inner}
-
-${writeEndMarker(fields)}`;
-}
-function findMarkedBlocks(text) {
-  const blocks = [];
-  for (const begin of text.matchAll(BEGIN)) {
-    const fields = { key: begin[2], persona: begin[3], gen: begin[4], out: begin[5] };
-    const from = (begin.index ?? 0) + begin[0].length;
-    const endText = writeEndMarker(fields);
-    const endAt = text.indexOf(endText, from);
-    if (endAt === -1) continue;
-    const nextBegin = text.slice(from, endAt).search(/<!-- releaseray:begin /);
-    if (nextBegin !== -1) continue;
-    blocks.push({
-      fields,
-      inner: text.slice(from, endAt).replace(/^\n+/, "").replace(/\n+$/, ""),
-      start: begin.index ?? 0,
-      end: endAt + endText.length
-    });
-  }
-  return blocks;
-}
-
-// src/core/state/planner.ts
-function isHumanEdited(block) {
-  return outputDigest(block.inner) !== block.fields.out;
-}
-function escapeRegExp(text) {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-function hasUnmarkedEntry(text, key) {
-  const blocks = findMarkedBlocks(text);
-  const heading = new RegExp(`^## \\[${escapeRegExp(key)}\\]`, "gm");
-  for (const match of text.matchAll(heading)) {
-    const at2 = match.index ?? 0;
-    if (!blocks.some((b5) => at2 >= b5.start && at2 < b5.end)) return true;
-  }
-  return false;
-}
-function planSink(target, request2) {
-  const write = (action, extra = {}) => ({
-    action,
-    needsText: true,
-    ...extra
-  });
-  if (target.sink === "github-release" && !target.exists) {
-    return target.createIfMissing ? write("create") : {
-      action: "skip",
-      needsText: false,
-      notice: `No GitHub Release for ${request2.key}; set outputs.githubRelease.createIfMissing: true to create one`
-    };
-  }
-  const blocks = findMarkedBlocks(target.text);
-  const block = blocks.find(
-    (b5) => b5.fields.key === request2.key && b5.fields.persona === request2.persona
-  );
-  if (!block) {
-    if (target.sink === "changelog" && hasUnmarkedEntry(target.text, request2.key)) {
-      return target.onHumanEdit === "overwrite" ? write("update") : {
-        action: "skip-human",
-        needsText: false,
-        warning: `CHANGELOG already has an unmarked entry for ${request2.key}; left as is (onHumanEdit: skip)`
-      };
-    }
-    if (target.sink === "github-release" && target.mode === "replace") return write("update");
-    const unmarked = target.text.trim().length > 0 && blocks.length === 0;
-    return write(
-      "create",
-      unmarked && target.sink === "github-release" ? {
-        warning: `The release body for ${request2.key} has text without ReleaseRay markers; the notes are appended below it. Run mode: adopt (v1.1) to take it over`
-      } : {}
-    );
-  }
-  const edited = isHumanEdited(block);
-  const matches = block.fields.gen === request2.gen || block.fields.gen === "adopted";
-  if (edited && target.onHumanEdit === "skip" && (request2.force || !matches)) {
-    return {
-      action: "skip-human",
-      needsText: false,
-      block,
-      warning: `The ${request2.persona} block for ${request2.key} in ${target.sink === "changelog" ? "CHANGELOG" : "the GitHub Release"} was edited by hand; left as is (onHumanEdit: skip)`
-    };
-  }
-  if (request2.force) return write("update", { block });
-  if (matches) return { action: "noop", needsText: false, block };
-  return write("update", { block });
-}
-function findStoredText(targets, request2) {
-  if (request2.force) return null;
-  for (const target of targets) {
-    const block = findMarkedBlocks(target.text).find(
-      (b5) => b5.fields.key === request2.key && b5.fields.persona === request2.persona && b5.fields.gen === request2.gen && !isHumanEdited(b5)
-    );
-    if (!block) continue;
-    const text = target.sink === "changelog" ? shiftHeadings(block.inner.replace(/^## \[[^\]]*\][^\n]*\n+/, ""), -1) : block.inner;
-    return { text, from: target.sink };
-  }
-  return null;
-}
-function generatesUnpersisted(state3) {
-  return !state3.persistedEnabled || state3.primaryChanged || state3.force || Boolean(state3.notifyAlways);
 }
 
 // src/core/util/limit.ts
@@ -145088,8 +145831,8 @@ async function run(request2, config2, deps) {
 }
 
 // src/outputs/files.ts
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join as join8, resolve as resolve3 } from "node:path";
+import { mkdirSync as mkdirSync2, writeFileSync as writeFileSync2 } from "node:fs";
+import { join as join9, resolve as resolve4 } from "node:path";
 var NOTES_VERSION = 1;
 function keyDir(key) {
   return key.replace(/[^A-Za-z0-9._-]/g, "_");
@@ -145146,40 +145889,26 @@ function buildNotesJson(result2) {
   };
 }
 function writeNotesFiles(result2, workspace, dir) {
-  const relDir = join8(dir, keyDir(result2.key));
-  const absDir = resolve3(workspace, relDir);
-  mkdirSync(absDir, { recursive: true });
+  const relDir = join9(dir, keyDir(result2.key));
+  const absDir = resolve4(workspace, relDir);
+  mkdirSync2(absDir, { recursive: true });
   const written = [];
   for (const persona of result2.personas) {
     if (!persona.sinks.files || persona.text === void 0 || persona.out === void 0) continue;
-    const file2 = join8(relDir, `${persona.id}.md`);
+    const file2 = join9(relDir, `${persona.id}.md`);
     const block = writeMarkedBlock(
       { key: result2.key, persona: persona.id, gen: persona.gen, out: persona.out },
       persona.text
     );
-    writeFileSync(resolve3(workspace, file2), `${block}
+    writeFileSync2(resolve4(workspace, file2), `${block}
 `);
     written.push(file2);
   }
-  const notes = join8(relDir, "notes.json");
-  writeFileSync(resolve3(workspace, notes), `${JSON.stringify(buildNotesJson(result2), null, 2)}
+  const notes = join9(relDir, "notes.json");
+  writeFileSync2(resolve4(workspace, notes), `${JSON.stringify(buildNotesJson(result2), null, 2)}
 `);
   written.push(notes);
   return written;
-}
-
-// src/outputs/github-release/api.ts
-function renderReleaseName(template, tag) {
-  return template.replace(/\{\{\s*([^{}\s]*)\s*\}\}/g, (_match, name) => {
-    if (name !== "tag") throw new Error(`Unknown placeholder {{${name}}} in nameTemplate`);
-    return tag;
-  });
-}
-function isSemverPrerelease(tag) {
-  return (parseSemver(tag)?.prerelease.length ?? 0) > 0;
-}
-function generateCompareUrl(serverUrl, owner, repo, fromTag, toTag) {
-  return `${serverUrl.replace(/\/+$/, "")}/${owner}/${repo}/compare/${fromTag}...${toTag}`;
 }
 
 // node_modules/.pnpm/marked@18.1.3/node_modules/marked/lib/marked.esm.js
@@ -146592,7 +147321,7 @@ var En = O.lex;
 
 // src/outputs/notify/intercom.ts
 init_logger();
-var logger6 = createLogger("intercom-publisher");
+var logger7 = createLogger("intercom-publisher");
 var INTERCOM_API_VERSION = "2.14";
 var INTERCOM_API_BASE = "https://api.intercom.io";
 async function publishToIntercom(options) {
@@ -146607,7 +147336,7 @@ async function publishToIntercom(options) {
     authorId,
     description
   } = options;
-  logger6.info("Publishing to Intercom", { title, version: version2, repoFullName });
+  logger7.info("Publishing to Intercom", { title, version: version2, repoFullName });
   try {
     const htmlBody = await markdownToHtml(body2);
     const existingArticle = await findArticleByTitle(title, apiKey);
@@ -146633,7 +147362,7 @@ async function publishToIntercom(options) {
       }
       const data = await response.json();
       const articleUrl = data.url || `https://intercom.help/articles/${data.id}`;
-      logger6.info("Updated Intercom article", {
+      logger7.info("Updated Intercom article", {
         articleId: data.id,
         url: articleUrl
       });
@@ -146672,7 +147401,7 @@ async function publishToIntercom(options) {
       }
       const data = await response.json();
       const articleUrl = data.url || `https://intercom.help/articles/${data.id}`;
-      logger6.info("Created Intercom article", {
+      logger7.info("Created Intercom article", {
         articleId: data.id,
         url: articleUrl
       });
@@ -146683,7 +147412,7 @@ async function publishToIntercom(options) {
       };
     }
   } catch (error64) {
-    logger6.error("Intercom publish failed", {
+    logger7.error("Intercom publish failed", {
       title,
       version: version2,
       repoFullName,
@@ -146706,14 +147435,14 @@ async function findArticleByTitle(title, apiKey) {
       }
     });
     if (!response.ok) {
-      logger6.warn("Failed to search articles", { status: response.status });
+      logger7.warn("Failed to search articles", { status: response.status });
       return null;
     }
     const data = await response.json();
     const article = data.data?.find((a7) => a7.title === title);
     return article ? { id: article.id } : null;
   } catch (error64) {
-    logger6.error("Failed to search articles", {
+    logger7.error("Failed to search articles", {
       error: error64 instanceof Error ? error64.message : "Unknown error"
     });
     return null;
@@ -146724,13 +147453,13 @@ async function markdownToHtml(text) {
   try {
     const html = await markdown.parse(text);
     const cleanHtml = html.replace(/\s+/g, " ").trim().replace(/<\/p>\s*<p>/g, "</p>\n<p>").replace(/<\/ul>\s*<p>/g, "</ul>\n\n<p>").replace(/<\/ol>\s*<p>/g, "</ol>\n\n<p>");
-    logger6.info("Converted markdown to HTML", {
+    logger7.info("Converted markdown to HTML", {
       markdownLength: text.length,
       htmlLength: cleanHtml.length
     });
     return cleanHtml;
   } catch (error64) {
-    logger6.error("Markdown to HTML conversion failed", {
+    logger7.error("Markdown to HTML conversion failed", {
       error: error64 instanceof Error ? error64.message : "Unknown error"
     });
     return `<p>${text.replace(/\n\n/g, "</p><p>")}</p>`;
@@ -146739,7 +147468,7 @@ async function markdownToHtml(text) {
 
 // src/outputs/notify/slack.ts
 init_logger();
-var logger7 = createLogger("slack-publisher");
+var logger8 = createLogger("slack-publisher");
 function formatForSlack(params) {
   const { version: version2, repoFullName, content, persona, urls } = params;
   const lines = content.split("\n").filter((l3) => l3.trim());
@@ -146851,7 +147580,7 @@ async function sendToSlack(webhookUrl, message) {
     }
     return { success: true };
   } catch (error64) {
-    logger7.error("Failed to send Slack message", {
+    logger8.error("Failed to send Slack message", {
       error: error64 instanceof Error ? error64.message : String(error64)
     });
     return {
@@ -146865,14 +147594,14 @@ async function publishToSlack(params) {
   const message = formatForSlack(messageParams);
   const result2 = await sendToSlack(webhookUrl, message);
   if (result2.success) {
-    logger7.info("Published to Slack", { version: messageParams.version });
+    logger8.info("Published to Slack", { version: messageParams.version });
   }
   return result2;
 }
 
 // src/outputs/notify/teams.ts
 init_logger();
-var logger8 = createLogger("teams-publisher");
+var logger9 = createLogger("teams-publisher");
 function formatBodyForTeams(markdown2) {
   const maxLength = 1e4;
   if (markdown2.length > maxLength) {
@@ -146929,7 +147658,7 @@ function createMessageCard(options) {
 }
 async function publishToTeams(options) {
   const { title, version: version2, repoName, webhookUrl } = options;
-  logger8.info("Publishing to Microsoft Teams", { repoName, version: version2 });
+  logger9.info("Publishing to Microsoft Teams", { repoName, version: version2 });
   try {
     if (!webhookUrl) {
       throw new Error(
@@ -146964,7 +147693,7 @@ async function publishToTeams(options) {
     if (responseText !== "1") {
       throw new Error(`Unexpected Teams response: ${responseText}`);
     }
-    logger8.info("Published to Teams successfully", {
+    logger9.info("Published to Teams successfully", {
       repoName,
       version: version2
     });
@@ -146974,7 +147703,7 @@ async function publishToTeams(options) {
       // Generic Teams protocol URL (can't get specific message link)
     };
   } catch (error64) {
-    logger8.error("Teams publish failed", {
+    logger9.error("Teams publish failed", {
       title,
       version: version2,
       repoName,
@@ -147094,451 +147823,6 @@ function notifyReport(outcome) {
     summary: ["", "## Notifications", "", ...notifyLines(outcome), ""].join("\n"),
     errors: notifyErrors(outcome)
   };
-}
-
-// src/outputs/persisted.ts
-import { existsSync as existsSync4, mkdirSync as mkdirSync2, readFileSync as readFileSync3, writeFileSync as writeFileSync2 } from "node:fs";
-import { dirname as dirname2, resolve as resolve4 } from "node:path";
-
-// src/outputs/changelog.ts
-init_logger();
-var logger9 = createLogger("changelog-publisher");
-function formatAsChangelog(entry) {
-  let changelog = `## [${entry.version}] - ${entry.date}
-
-`;
-  changelog += entry.content;
-  if (entry.compareUrl) {
-    changelog += `
-
-[${entry.version}]: ${entry.compareUrl}
-`;
-  }
-  return changelog;
-}
-var VERSION_HEADING = /^##\s+\[([^\]]+)\](?:\s+-\s+(.+))?/;
-function findEntrySpans(lines) {
-  const spans = [];
-  let pendingMarker = null;
-  for (let i5 = 0; i5 < lines.length; i5++) {
-    const marker = parseMarkerLine(lines[i5]);
-    if (marker?.type === "begin") {
-      pendingMarker = { line: i5, fields: marker.fields };
-      continue;
-    }
-    const heading = VERSION_HEADING.exec(lines[i5]);
-    if (heading) {
-      const start = pendingMarker ? pendingMarker.line : i5;
-      if (spans.length > 0) spans[spans.length - 1].end = start;
-      spans.push({
-        version: heading[1],
-        start,
-        end: lines.length,
-        marker: pendingMarker?.fields ?? null
-      });
-      pendingMarker = null;
-    } else if (lines[i5].trim() !== "") {
-      pendingMarker = null;
-    }
-  }
-  return spans;
-}
-function isUnreleased(version2) {
-  return version2.toLowerCase() === "unreleased";
-}
-function insertionLine(spans, version2, lineCount) {
-  const newVersion = parseSemver(version2);
-  for (const span of spans) {
-    if (isUnreleased(span.version)) continue;
-    if (!newVersion) return span.start;
-    const existing = parseSemver(span.version);
-    if (existing && compareSemver(existing, newVersion) < 0) return span.start;
-  }
-  if (spans.length === 0) return lineCount;
-  return spans[spans.length - 1].end;
-}
-function trailingLinkStart(lines, from) {
-  let i5 = lines.length;
-  while (i5 > from && (lines[i5 - 1].trim() === "" || /^\[[^\]]+\]:\s/.test(lines[i5 - 1]))) i5--;
-  while (i5 < lines.length && lines[i5].trim() === "") i5++;
-  return i5;
-}
-function spliceAt(lines, at2, block, removeUntil = at2) {
-  const before = lines.slice(0, at2).join("\n").replace(/\n*$/, "");
-  const after = lines.slice(removeUntil).join("\n").replace(/^\n*/, "").replace(/\n*$/, "");
-  const parts = [before, block.replace(/\n*$/, ""), after].filter((p3) => p3.length > 0);
-  return parts.join("\n\n") + "\n";
-}
-function upsertChangelogEntry(existingContent, entry, marker, options = {}) {
-  const block = writeMarkedBlock(marker, formatAsChangelog(entry).replace(/\n+$/, ""));
-  const lines = existingContent.split("\n");
-  const spans = findEntrySpans(lines);
-  const same = spans.find((s2) => s2.version === entry.version);
-  if (same && !same.marker && options.onHumanEdit !== "overwrite") {
-    const warning3 = `CHANGELOG.md already has an entry for ${entry.version} that ReleaseRay did not write; it was left unchanged. Run mode: adopt to let ReleaseRay manage it.`;
-    logger9.warn(warning3, { version: entry.version });
-    return { content: existingContent, action: "skipped-unmarked", warning: warning3 };
-  }
-  if (same) {
-    return { content: spliceAt(lines, same.start, block, same.end), action: "replaced" };
-  }
-  let at2 = insertionLine(spans, entry.version, lines.length);
-  if (spans.length > 0 && at2 === spans[spans.length - 1].end) {
-    at2 = trailingLinkStart(lines, spans[spans.length - 1].start + 1);
-  }
-  return { content: spliceAt(lines, at2, block), action: "created" };
-}
-
-// src/outputs/changelog-sink.ts
-var NEW_CHANGELOG_HEADER = "# Changelog\n\nAll notable changes to this project are documented in this file.\n";
-function changelogInner(write) {
-  return formatAsChangelog({
-    version: write.key,
-    date: write.date,
-    content: shiftHeadings(write.text, 1)
-  }).replace(/\n+$/, "");
-}
-function applyChangelogEntry(current, write) {
-  const base = current.trim() ? current : NEW_CHANGELOG_HEADER;
-  const inner = changelogInner(write);
-  return upsertChangelogEntry(
-    base,
-    { version: write.key, date: write.date, content: shiftHeadings(write.text, 1) },
-    { key: write.key, persona: write.persona, gen: write.gen, out: outputDigest(inner) },
-    { onHumanEdit: write.onHumanEdit }
-  );
-}
-
-// src/outputs/github-release/sink.ts
-function createReleaseApi(octokit, repo) {
-  const toTarget = (data) => ({
-    id: data.id,
-    body: data.body ?? "",
-    url: data.html_url
-  });
-  return {
-    async get(tag) {
-      try {
-        const { data: data2 } = await octokit.rest.repos.getReleaseByTag({ ...repo, tag });
-        return toTarget(data2);
-      } catch (error64) {
-        if (!(isHttpError(error64) && error64.status === 404)) throw error64;
-      }
-      const { data } = await octokit.rest.repos.listReleases({ ...repo, per_page: 100 });
-      const draft = data.find((r5) => r5.draft && r5.tag_name === tag);
-      return draft ? toTarget(draft) : null;
-    },
-    async updateBody(id, body2) {
-      const { data } = await octokit.rest.repos.updateRelease({ ...repo, release_id: id, body: body2 });
-      return toTarget(data);
-    },
-    async create(input2) {
-      const { data } = await octokit.rest.repos.createRelease({
-        ...repo,
-        tag_name: input2.tag,
-        name: input2.name,
-        body: input2.body,
-        draft: false,
-        prerelease: input2.prerelease
-      });
-      return toTarget(data);
-    }
-  };
-}
-function nextReleaseBody(body2, block, write) {
-  const existing = findMarkedBlocks(body2).find(
-    (b5) => b5.fields.key === write.key && b5.fields.persona === write.persona
-  );
-  if (existing) return `${body2.slice(0, existing.start)}${block}${body2.slice(existing.end)}`;
-  if (write.mode === "replace") return block;
-  return body2.trim() ? `${body2.replace(/\s+$/, "")}
-
-${block}` : block;
-}
-function writeError(error64, write, action) {
-  const status = isHttpError(error64) ? error64.status : 0;
-  const message = isHttpError(error64) ? error64.message ?? "" : String(error64);
-  const details = [];
-  if (/Resource not accessible by integration/i.test(message)) {
-    details.push("The token lacks contents: write; add it to the job's permissions");
-  }
-  if ((status === 404 || status === 403) && action === "create") {
-    details.push(
-      write.touchesWorkflows ? `The tag's commit changes .github/workflows/, and GITHUB_TOKEN cannot create a release for it. Pass a PAT or GitHub App token with workflows write as github-token (see the app-token recipe)` : "Check that the token can write releases (contents: write)"
-    );
-  }
-  return new ReleaseRayError(
-    `Could not ${action} the GitHub Release for ${write.key} (HTTP ${status || "error"})`,
-    EXIT_CODES.budget,
-    details,
-    { cause: error64 }
-  );
-}
-async function applyReleasePlan(api, write) {
-  const warnings = [];
-  const { plan } = write;
-  if (plan.action !== "create" && plan.action !== "update") {
-    return { changed: false, url: write.current?.url ?? null, target: write.current, warnings };
-  }
-  const block = writeMarkedBlock(
-    { key: write.key, persona: write.persona, gen: write.gen, out: outputDigest(write.text) },
-    write.text
-  );
-  if (!write.current) {
-    if (write.touchesWorkflows) {
-      warnings.push(
-        `The commit for ${write.key} changes .github/workflows/; GITHUB_TOKEN cannot create its release. Use a PAT or GitHub App token (the app-token recipe)`
-      );
-    }
-    try {
-      const created = await api.create({
-        tag: write.key,
-        name: renderReleaseName(write.nameTemplate, write.key),
-        body: block,
-        prerelease: write.prerelease === "auto" ? isSemverPrerelease(write.key) : write.prerelease
-      });
-      return { changed: true, url: created.url, target: created, warnings };
-    } catch (error64) {
-      throw writeError(error64, write, "create");
-    }
-  }
-  const body2 = nextReleaseBody(write.current.body, block, write);
-  if (body2 === write.current.body) {
-    return { changed: false, url: write.current.url, target: write.current, warnings };
-  }
-  try {
-    const updated = await api.updateBody(write.current.id, body2);
-    return { changed: true, url: updated.url, target: updated, warnings };
-  } catch (error64) {
-    throw writeError(error64, write, "update");
-  }
-}
-
-// src/outputs/push.ts
-import { execFileSync as execFileSync2 } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join as join9 } from "node:path";
-var GENERATED_BY_TRAILER = "Generated-by: ReleaseRay";
-var GITHUB_ACTIONS_BOT = {
-  name: "github-actions[bot]",
-  email: "41898282+github-actions[bot]@users.noreply.github.com"
-};
-var GitFailure = class extends Error {
-  constructor(message, stderr) {
-    super(message);
-    this.stderr = stderr;
-  }
-  stderr;
-};
-function git(options, args, extra = {}) {
-  const auth2 = extra.auth ? [
-    "-c",
-    `http.${options.serverUrl}/.extraheader=`,
-    "-c",
-    `http.${options.serverUrl}/.extraheader=AUTHORIZATION: basic ${Buffer.from(`x-access-token:${options.token}`).toString("base64")}`
-  ] : [];
-  try {
-    return execFileSync2("git", [...auth2, ...args], {
-      cwd: options.workspace,
-      encoding: "utf8",
-      input: extra.input,
-      env: { ...options.env, GIT_TERMINAL_PROMPT: "0", ...extra.env },
-      stdio: ["pipe", "pipe", "pipe"],
-      maxBuffer: 64 * 1024 * 1024
-    }).replace(/\n$/, "");
-  } catch (error64) {
-    const stderr = String(error64.stderr ?? "");
-    throw new GitFailure(`git ${args[0]} failed`, stderr);
-  }
-}
-function ruleGuidance(stderr) {
-  if (/signature/i.test(stderr)) {
-    return [
-      "The branch requires signed commits. The push loop's commits are unsigned; use the changelog-pr recipe instead"
-    ];
-  }
-  if (/pull request|GH006|GH013|protected branch|ruleset|rule violation/i.test(stderr)) {
-    return [
-      "Branch protection or a ruleset rejected the push",
-      "Required pull requests: add the token's actor to the bypass list, or use the changelog-pr recipe",
-      "Push restrictions: pass a PAT whose user, or a GitHub App you registered, may push (the app-token recipe)"
-    ];
-  }
-  return null;
-}
-function pushChangelog(options) {
-  const remote = options.remote ?? "origin";
-  const max = options.maxAttempts ?? 3;
-  const header2 = Buffer.from(`x-access-token:${options.token}`).toString("base64");
-  options.setSecret(header2);
-  const identity = {
-    GIT_AUTHOR_NAME: options.author.name,
-    GIT_AUTHOR_EMAIL: options.author.email,
-    GIT_COMMITTER_NAME: options.author.name,
-    GIT_COMMITTER_EMAIL: options.author.email
-  };
-  const message = `${options.message}
-
-${GENERATED_BY_TRAILER}
-ReleaseRay-Key: ${options.key}
-`;
-  for (let attempt = 1; attempt <= max; attempt++) {
-    let head;
-    try {
-      git(options, ["fetch", "--no-tags", "--quiet", remote, options.branch], { auth: true });
-      head = git(options, ["rev-parse", "FETCH_HEAD^{commit}"]);
-    } catch (error64) {
-      throw new ReleaseRayError(
-        `Could not fetch ${options.branch} to push CHANGELOG`,
-        EXIT_CODES.push,
-        [
-          error64 instanceof GitFailure ? error64.stderr.trim().split("\n").pop() ?? "" : String(error64)
-        ]
-      );
-    }
-    let current = "";
-    try {
-      current = git(options, ["show", `${head}:${options.path}`]) + "\n";
-    } catch {
-    }
-    const next = options.apply(current);
-    if (next === null || next === current) return { pushed: false, attempts: attempt };
-    const indexDir = mkdtempSync(join9(tmpdir(), "releaseray-index-"));
-    let commit;
-    try {
-      const env2 = { GIT_INDEX_FILE: join9(indexDir, "index") };
-      const blob = git(options, ["hash-object", "-w", "--stdin"], { input: next });
-      git(options, ["read-tree", head], { env: env2 });
-      git(options, ["update-index", "--add", "--cacheinfo", `100644,${blob},${options.path}`], {
-        env: env2
-      });
-      const tree = git(options, ["write-tree"], { env: env2 });
-      commit = git(options, ["commit-tree", tree, "-p", head, "-F", "-"], {
-        input: message,
-        env: identity
-      });
-    } finally {
-      rmSync(indexDir, { recursive: true, force: true });
-    }
-    options.beforePush?.(attempt);
-    try {
-      git(options, ["push", "--quiet", remote, `${commit}:refs/heads/${options.branch}`], {
-        auth: true
-      });
-      return { pushed: true, commit, attempts: attempt };
-    } catch (error64) {
-      const stderr = error64 instanceof GitFailure ? error64.stderr : String(error64);
-      const rule = ruleGuidance(stderr);
-      if (rule) {
-        throw new ReleaseRayError(
-          `The CHANGELOG push to ${options.branch} was rejected`,
-          EXIT_CODES.push,
-          rule
-        );
-      }
-      if (!/non-fast-forward|fetch first|stale info|cannot lock ref/i.test(stderr)) {
-        throw new ReleaseRayError(
-          `The CHANGELOG push to ${options.branch} failed`,
-          EXIT_CODES.push,
-          [stderr.trim().split("\n").pop() ?? ""]
-        );
-      }
-    }
-  }
-  throw new ReleaseRayError(
-    `The CHANGELOG push to ${options.branch} was rejected ${max} times`,
-    EXIT_CODES.push,
-    ["Other pushes kept moving the branch; re-run the workflow, which reuses the stored text"]
-  );
-}
-
-// src/outputs/persisted.ts
-async function applyPersisted(personas, context2, settings, deps) {
-  const outcome = {
-    releaseChanged: false,
-    releaseUrl: context2.release?.url ?? null,
-    changelogChanged: false,
-    pushed: false,
-    warnings: []
-  };
-  let release2 = context2.release;
-  const wrote = () => outcome.releaseChanged || outcome.changelogChanged;
-  try {
-    for (const p3 of personas) {
-      const plan = p3.plans.githubRelease;
-      if (!plan || !deps.release) continue;
-      const result2 = await applyReleasePlan(deps.release, {
-        key: context2.key,
-        persona: p3.id,
-        gen: p3.gen,
-        text: p3.text,
-        plan,
-        current: release2,
-        mode: settings.githubRelease.mode,
-        nameTemplate: settings.githubRelease.nameTemplate,
-        prerelease: settings.githubRelease.prerelease,
-        touchesWorkflows: context2.touchesWorkflows
-      });
-      outcome.warnings.push(...result2.warnings);
-      if (result2.changed) {
-        outcome.releaseChanged = true;
-        outcome.releaseUrl = result2.url;
-        release2 = result2.target;
-      }
-    }
-    for (const p3 of personas) {
-      const plan = p3.plans.changelog;
-      if (!plan || plan.action !== "create" && plan.action !== "update") continue;
-      const write = {
-        key: context2.key,
-        persona: p3.id,
-        gen: p3.gen,
-        text: p3.text,
-        date: context2.date,
-        onHumanEdit: settings.changelog.onHumanEdit
-      };
-      const file2 = resolve4(deps.workspace, settings.changelog.path);
-      const current = existsSync4(file2) ? readFileSync3(file2, "utf8") : "";
-      const applied = applyChangelogEntry(current, write);
-      if (applied.warning) outcome.warnings.push(applied.warning);
-      if (applied.content !== current) {
-        mkdirSync2(dirname2(file2), { recursive: true });
-        writeFileSync2(file2, applied.content);
-        outcome.changelogChanged = true;
-      }
-      if (settings.changelog.push && deps.push) {
-        const pushed = pushChangelog({
-          ...deps.push,
-          workspace: deps.workspace,
-          branch: settings.changelog.branch ?? deps.push.branch,
-          path: settings.changelog.path,
-          message: settings.changelog.commitMessage.replace(/\{\{\s*key\s*\}\}/g, context2.key),
-          key: context2.key,
-          author: settings.changelog.author ?? GITHUB_ACTIONS_BOT,
-          apply: (text) => {
-            const next = applyChangelogEntry(text, write);
-            return next.action === "skipped-unmarked" ? null : next.content;
-          }
-        });
-        outcome.pushed = pushed.pushed;
-        if (pushed.pushed) outcome.changelogChanged = true;
-      }
-    }
-  } catch (error64) {
-    if (error64 instanceof ReleaseRayError && wrote() && error64.exitCode !== EXIT_CODES.push) {
-      throw new ReleaseRayError(
-        `Partial publish: ${error64.message}`,
-        EXIT_CODES.partial,
-        error64.details,
-        {
-          cause: error64
-        }
-      );
-    }
-    throw error64;
-  }
-  return outcome;
 }
 
 // src/outputs/summary.ts
@@ -148101,6 +148385,86 @@ async function preview(request2, config2, deps) {
   return mode;
 }
 
+// src/modes/sync-changelog.ts
+async function syncChangelog(request2, config2, deps) {
+  assertFullHistory(deps.git);
+  const c6 = config2.config;
+  const settings = c6.outputs.changelog;
+  const tags = selectTags(deps.git, request2, c6.range.tagPattern);
+  if (!deps.release) {
+    throw new ReleaseRayError("sync-changelog needs the GitHub Release API", EXIT_CODES.invalid);
+  }
+  const mode = result();
+  const rows = new Map(tags.map((t) => [t, ["-"]]));
+  const writes = [];
+  for (const tag of tags) {
+    const row = rows.get(tag);
+    const release2 = await deps.release.get(tag);
+    if (!release2) {
+      row[0] = "no release";
+      continue;
+    }
+    if (release2.draft) {
+      row[0] = "draft, skipped";
+      continue;
+    }
+    const block = findMarkedBlocks(release2.body.replace(/\r\n/g, "\n")).find(
+      (b5) => b5.fields.key === tag && b5.fields.persona === settings.persona
+    );
+    if (!block) {
+      row[0] = `no ${settings.persona} block`;
+      continue;
+    }
+    writes.push({
+      key: tag,
+      persona: settings.persona,
+      gen: block.fields.gen,
+      text: block.inner,
+      date: commitDate(deps.git, tag),
+      onHumanEdit: settings.onHumanEdit
+    });
+  }
+  let recorded = false;
+  const edit = (text) => {
+    let acc = text;
+    for (const write of writes) {
+      const done = syncChangelogEntry(acc, write);
+      acc = done.content;
+      if (!recorded) {
+        rows.get(write.key)[0] = done.action === "skipped-human" ? "skipped (hand-written or edited)" : done.action;
+        if (done.warning) mode.warnings.push(done.warning);
+      }
+    }
+    recorded = true;
+    return acc;
+  };
+  const changelog = writes.length > 0 ? applyChangelogEdit(
+    edit,
+    writes.map((w2) => w2.key),
+    settings,
+    deps.persisted
+  ) : { changed: false, pushed: false };
+  if (changelog.changed && !changelog.pushed) mode.files.push(settings.path);
+  const count2 = (action) => [...rows.values()].filter((r5) => r5[0] === action).length;
+  mode.outputs = {
+    ...tags.length === 1 ? { key: tags[0] } : {},
+    "release-changed": "false",
+    "changelog-changed": String(changelog.changed),
+    "github-requests": String(deps.requests?.() ?? 0),
+    "llm-calls": "0",
+    "llm-cost-usd": "0.0000"
+  };
+  mode.summary = [
+    `# ReleaseRay sync-changelog: ${tags.length === 1 ? tags[0] : `${tags.length} tags`}`,
+    "",
+    `- \`${settings.path}\` (\`${settings.persona}\`): ${count2("created")} created, ${count2("updated")} updated, ${count2("unchanged")} unchanged${changelog.pushed ? "; pushed" : changelog.changed ? "; written to the workspace (push is off)" : ""}`,
+    "",
+    ...tagTable(rows, ["CHANGELOG"]),
+    ""
+  ].join("\n");
+  return mode;
+}
+
 // src/modes/validate-config.ts
 function validateConfig(request2) {
   const mode = result();
@@ -148253,7 +148617,9 @@ var MODES = [
   "preview",
   "doctor",
   "validate-config",
-  "migrate-personas"
+  "migrate-personas",
+  "adopt",
+  "sync-changelog"
 ];
 var INPUT_DEFAULTS = {
   mode: "generate",
@@ -148299,9 +148665,6 @@ function readInputs(io) {
   const bool = (name) => parseBoolean2(name, raw(name)) ?? false;
   const triState = (name) => parseBoolean2(name, io.getInput(name));
   const mode = raw("mode");
-  if (mode === "adopt" || mode === "sync-changelog") {
-    throw invalidInput("mode", `${mode} arrives in v1.1`);
-  }
   if (!MODES.includes(mode)) {
     throw invalidInput("mode", `expected one of ${MODES.join(", ")}, got "${mode}"`);
   }
@@ -148603,6 +148966,27 @@ async function runOnce(deps) {
             }
           );
         }
+        break;
+      }
+      case "adopt":
+      case "sync-changelog": {
+        const config2 = loadConfig({
+          workspace: ctx.workspace,
+          path: configPath,
+          overrides: configOverrides(inputs)
+        });
+        for (const w2 of config2.warnings) io.warning(w2);
+        const made = clients(github(inputs.githubToken, ctx, config2));
+        const request2 = { workspace: ctx.workspace, to: inputs.to, allTags: inputs.allTags };
+        const deps2 = {
+          git: createGit(ctx.workspace),
+          release: made.release,
+          persisted: persistedDeps(io, env2, ctx, inputs.githubToken, made.release),
+          now: () => now().getTime(),
+          sleep: sleep5,
+          requests: () => made.reader.usage().total
+        };
+        mode = event.mode === "adopt" ? await adopt(request2, config2, deps2) : await syncChangelog(request2, config2, deps2);
         break;
       }
       case "publish": {

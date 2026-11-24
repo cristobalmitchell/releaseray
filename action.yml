@@ -6,7 +6,7 @@ branding:
   color: orange
 inputs:
   mode:
-    description: "generate | publish | preview | doctor | validate-config | migrate-personas"
+    description: "generate | publish | preview | doctor | validate-config | migrate-personas | adopt | sync-changelog"
     default: generate
   github-token:
     description: GITHUB_TOKEN, a fine-grained PAT, or a token from a GitHub App you registered
@@ -60,7 +60,7 @@ inputs:
     description: "For mode: preview, also fetch PR and issue content and write each persona's exact prompts; never calls the LLM"
     default: "false"
   all-tags:
-    description: "For mode: adopt or sync-changelog (v1.1), act on every tag matching range.tagPattern"
+    description: "For mode: adopt or sync-changelog, act on every tag matching range.tagPattern instead of to"
     default: "false"
   personas-file:
     description: "For mode: migrate-personas, the hosted persona YAML to convert"

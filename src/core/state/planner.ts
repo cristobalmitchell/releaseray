@@ -5,7 +5,7 @@
  */
 import { shiftHeadings } from "../render/markdown";
 import { outputDigest } from "./digest";
-import { findMarkedBlocks, type MarkedBlock } from "./marker";
+import { ADOPTED_GEN, findMarkedBlocks, type MarkedBlock } from "./marker";
 
 /** What a sink will do for one persona. */
 export type SinkAction = "noop" | "create" | "update" | "skip" | "skip-human";
@@ -123,14 +123,14 @@ export function planSink(target: PlanTarget, request: PlanRequest): SinkPlan {
       "create",
       unmarked && target.sink === "github-release"
         ? {
-            warning: `The release body for ${request.key} has text without ReleaseRay markers; the notes are appended below it. Run mode: adopt (v1.1) to take it over`,
+            warning: `The release body for ${request.key} has text without ReleaseRay markers; the notes are appended below it. Run mode: adopt to take it over`,
           }
         : {}
     );
   }
 
   const edited = isHumanEdited(block);
-  const matches = block.fields.gen === request.gen || block.fields.gen === "adopted";
+  const matches = block.fields.gen === request.gen || block.fields.gen === ADOPTED_GEN;
 
   if (edited && target.onHumanEdit === "skip" && (request.force || !matches)) {
     return {
