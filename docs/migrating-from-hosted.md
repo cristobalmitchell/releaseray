@@ -1,6 +1,6 @@
 # Migrating from the hosted ReleaseRay App
 
-The hosted ReleaseRay GitHub App is being retired in favor of this Action. The Action does what the App's release-notes pipeline did, in your own workflow and with your own model key, and keeps nothing outside your repository.
+The hosted ReleaseRay GitHub App is closing in favor of this Action. It no longer generates or publishes notes; its dashboard stays read-only for exports until December 24, 2026, and hosted data is deleted on January 23, 2027. The Action does what the App's release-notes pipeline did, in your own workflow and with your own model key, and keeps nothing outside your repository.
 
 ## Steps
 

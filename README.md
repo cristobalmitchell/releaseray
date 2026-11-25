@@ -4,10 +4,11 @@
 
 [![CI](https://github.com/cristobalmitchell/releaseray/actions/workflows/ci.yml/badge.svg)](https://github.com/cristobalmitchell/releaseray/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Status: pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)](#project-status)
+[![Release](https://img.shields.io/github/v/release/cristobalmitchell/releaseray?sort=semver)](https://github.com/cristobalmitchell/releaseray/releases)
+[![GitHub Marketplace](https://img.shields.io/badge/marketplace-ReleaseRay-blue.svg?logo=github)](https://github.com/marketplace/actions/releaseray)
 [![Node 24](https://img.shields.io/badge/node-24-339933.svg)](package.json)
 
-[Website](https://www.releaseray.com) · [Configuration](docs/configuration.md) · [Security](docs/security.md) · [Contributing](CONTRIBUTING.md)
+[Website](https://www.releaseray.com) · [Marketplace](https://github.com/marketplace/actions/releaseray) · [Configuration](docs/configuration.md) · [Security](docs/security.md) · [Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -302,11 +303,11 @@ Branches are `{type}/{issue}-{description}`, commits follow [Conventional Commit
 | Slack, Teams and Intercom notifications                                             | ✅ Built and tested |
 | `adopt` and `sync-changelog`                                                        | ✅ Built and tested |
 | `v1.0.0` and `v1.1.0`                                                               | ✅ Released         |
-| Marketplace listing                                                                 | Optional, later     |
+| [Marketplace listing](https://github.com/marketplace/actions/releaseray)            | ✅ Listed           |
 
 ## Coming from the hosted ReleaseRay App
 
-The hosted App is being retired in favor of this Action. [docs/migrating-from-hosted.md](docs/migrating-from-hosted.md) maps every hosted setting to a config key. `mode: migrate-personas` converts the persona YAML downloaded from the hosted dashboard; `mode: adopt` takes over releases and CHANGELOG entries the App already published, so nothing is written twice, and `mode: sync-changelog` backfills `CHANGELOG.md` from the releases. The App's users will hear about the timeline directly before anything changes.
+The hosted App is closing in favor of this Action. It no longer generates or publishes notes; its dashboard stays read-only for exports until December 24, 2026, and hosted data is deleted on January 23, 2027. [docs/migrating-from-hosted.md](docs/migrating-from-hosted.md) maps every hosted setting to a config key. `mode: migrate-personas` converts the persona YAML downloaded from the hosted dashboard; `mode: adopt` takes over releases and CHANGELOG entries the App already published, so nothing is written twice, and `mode: sync-changelog` backfills `CHANGELOG.md` from the releases.
 
 ## License
 
